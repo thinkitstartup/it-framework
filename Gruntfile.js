@@ -7,8 +7,8 @@ module.exports = function(grunt) {
 				"separator": ";"
 			},
 			"dist": {
-				"src": ["src/namespace.js","src/lib/**/*.js"],
-				"dest": "src/it-framework-all.js"
+				"src": ["src/js/namespace.js","src/js/lib/**/*.js"],
+				"dest": "src/js/it-framework-all.js"
 			}
 		},
 		uglify: {
@@ -20,21 +20,35 @@ module.exports = function(grunt) {
 		},
 		jsdoc : {
 			dist : {
-				src: ['<%= watch.files %>'],
+				src: ['README.md','<%= concat.dist.src %>'],
 				options: {
 					destination: 'docs',
 					template : "node_modules/docdash" // sample -> http://clenemt.github.io/docdash/module-documents_probe.html
 				}
 			}
 		},
+		sass: {
+			options: {
+				sourcemap:"none",
+				style: 'nested', //[nested, compact, compressed, expanded]
+				quiet: true,
+				noCache:true,
+			},
+			dist: {
+				files: {
+					'dist/it-framework.css': 'src/sass/it-framework.scss'
+				}
+			}
+		},
 		watch: {
-			files: ['README.md','<%= concat.dist.src %>'],
-			tasks: ['concat','uglify','jsdoc']
+			files: ['README.md','<%= concat.dist.src %>','src/sass/it-framework.scss'],
+			tasks: ['sass', 'concat','uglify','jsdoc']
 		}
 	});
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.registerTask('default', ['concat', 'uglify','watch']);
+	grunt.loadNpmTasks('grunt-contrib-sass');
+	grunt.registerTask('default', ['sass', 'concat', 'uglify', 'jsdoc', 'watch']);
 };

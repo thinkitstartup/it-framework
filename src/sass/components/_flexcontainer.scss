@@ -1,0 +1,34 @@
+.it {
+	&-flex {
+		@include flexbox();
+		//height: 100%;
+
+		&#{&}-dir {
+			&.dir-column {
+				@include flex-direction(column);
+			}
+			
+			&.dir-column-reverse {
+				@include flex-direction(column-reverse);
+			}
+
+			&.dir-row-reverse {
+				@include flex-direction(row-reverse);
+			}
+		}
+
+		&#{&}-wrap {
+			&.wrap-wrap {
+				@include flex-wrap(wrap);
+			}
+
+			&.wrap-wrap-reverse {
+				@include flex-wrap(wrap-reverse);
+			}
+		}
+
+		&-item {
+			@include flex(1);
+		}
+	}
+}

@@ -1,0 +1,49 @@
+.it {
+	&-dialog {
+		@extend .it-overlay;
+		visibility: hidden;
+		opacity: 0;
+		@include flexbox();
+		@include justify-content(center);
+		@include align-items(center);
+		@include prefix(backface-visibility, hidden);
+		@include transition(all .3s);
+		
+		&.dialog-show {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		&-container {
+			z-index: $z-index-default + 1;
+			background: #FFF;
+			margin: 10px;
+			visibility: hidden;
+			@include size(100%, '');
+			@include prefix(backface-visibility, hidden);
+			@include prefix(border-radius, 3px);
+			@include prefix(box-shadow, 0 0 5px rgba(0, 0, 0, .3));
+			@include prefix(transform, scale(.7));
+			@include transition(all .3s);
+			
+			&.dialog-show {
+				visibility: visible;
+				@include prefix(transform, scale(1));
+			}
+
+			> .it-title {
+				background: #eee;
+				margin: 0 0 5px;
+				padding: 13px;
+				font-family: Aller-Bold;
+				@include prefix(border-radius, 0 0 0 0);
+				@include prefix(box-shadow, none);
+			}
+		}	
+
+		&-content {
+			//@include flexbox();
+			//@include flex-direction(column);
+		}
+	}
+}

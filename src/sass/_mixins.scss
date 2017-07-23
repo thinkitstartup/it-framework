@@ -1,0 +1,114 @@
+@mixin prePost($top: '', $right: '', $bottom: '', $left: '') {
+	@if $top != '' { top:$top; }
+	@if $right != '' { right:$right;}
+	@if $bottom != '' { bottom:$bottom; }
+	@if $left != '' { left:$left; }
+}
+
+@mixin size($width: '', $height: '') {
+	@if $width != '' { 
+        width: $width; 
+    }
+	
+    @if $height != '' { 
+        height: $height; 
+    }
+}
+
+@mixin resetMP() {
+	margin:0;
+	padding:0;
+}
+
+@mixin resetList() {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@mixin prefix($property, $value, $prefixes: (webkit moz o ms)) {
+    @each $prefix in $prefixes {
+        #{'-' + $prefix + '-' + $property}: $value;
+    }
+    #{$property}: $value;
+}
+ 
+@mixin transition($values...) { 
+    $transitions: ();
+    @each $declaration in $values {
+        $prop: nth($declaration, 1);
+        $prop-opts: ();
+        $length: length($declaration);
+        @for $i from 2 through $length {
+            $prop-opts: append($prop-opts, nth($declaration, $i));   
+        }
+        $trans: ($prop, $prop-opts);
+        $transitions: append($transitions, $trans, comma);
+    }
+      
+    -webkit-transition: trans-prefix($transitions, webkit);
+    -moz-transition: trans-prefix($transitions, moz);
+    -o-transition: trans-prefix($transitions, o);
+    transition: $values;
+}
+
+@mixin animation($animate...) {
+    $max: length($animate);
+    $animations: '';
+
+    @for $i from 1 through $max {
+        $animations: #{$animations + nth($animate, $i)};
+        @if $i < $max {
+            $animations: #{$animations + ", "};
+        }
+    }
+    @include prefix(animation, $animations);
+}
+
+@mixin keyframes($animationName) {
+    @-webkit-keyframes #{$animationName} {
+        @content;
+    }
+    @-moz-keyframes #{$animationName} {
+        @content;
+    }
+    @-o-keyframes #{$animationName} {
+        @content;
+    }
+    @keyframes #{$animationName} {
+        @content;
+    }
+}
+
+@mixin arrow($direction, $color: red, $stroke: 10px) {
+	$tmp:'';
+
+	@if $direction == 'top' {
+		$tmp: transparent transparent $color transparent;
+	} @else if $direction == 'bottom' {
+		$tmp: $color transparent transparent transparent;
+	} @else if $direction == 'left' {
+		$tmp: transparent transparent transparent $color;
+	} @else if $direction == 'right' {
+		$tmp: transparent $color transparent transparent ;
+	}
+	
+	border-color: $tmp;
+	border-width: $stroke;
+	border-style:solid;
+}
+
+@mixin gradient($from, $to) {
+    background-color: $from;
+    background-image: -moz-linear-gradient($from, $to);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from($from), to($to));
+    background-image: -webkit-linear-gradient($from, $to);
+    background-image: -o-linear-gradient($from, $to);
+}
+
+
+
+
+
+
+

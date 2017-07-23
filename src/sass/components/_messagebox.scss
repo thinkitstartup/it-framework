@@ -1,0 +1,97 @@
+.message-icon {
+	display: inline-block;
+	margin-right: 10px;
+	@include size(60px, 60px);
+
+	@each $ic in (critical info question waw success) {
+       &#{&}-#{$ic} {
+			background: url(images/i-#{$ic}.png) no-repeat center center;
+			background-size: 60px 60px;
+       }
+    }
+}
+
+.it {
+	&-messagebox {
+		@extend .it-overlay;
+		visibility: hidden;
+		opacity: 0;
+		overflow-x: hidden;
+		overflow-y: auto; 
+		@include flexbox();
+		@include prefix(backface-visibility, hidden);
+		@include justify-content(center);
+		@include align-items(center);
+		@include transition(all .3s);
+
+		&.message-show {
+			visibility: visible;
+			opacity: 1;
+		}
+
+		&-container {
+			z-index: $z-index-default + 1;
+			background: #fff;
+			margin: 0 10px;
+			visibility: hidden;
+			@include size(100%, '');
+			@include prefix(backface-visibility, hidden);
+			@include prefix(border-radius, 2px);
+			@include prefix(box-shadow, 0 2px 5px rgba(0, 0, 0, .3));
+			@include prefix(transform, scale(.7));
+			@include transition(all .3s);
+
+			&.message-show {
+				visibility: visible;
+				@include prefix(transform, scale(1));
+			}
+		}	
+
+		&-content {
+			line-height: 1.4em;
+			padding: 10px 15px;
+			@include flexbox();
+		}
+
+		&-text {
+			@include flex(1);
+			@include align-self(center);
+		}
+
+		&-title {
+			@extend .it-title;
+			background: #f4f4f4;
+			margin: 0 0 5px;
+			padding: 13px 0 ;
+			font-family: Aller-Bold;
+			text-align: center;
+			@include prefix(border-radius, 0 0 0 0);
+			@include prefix(box-shadow, none);
+
+			&.message-critical {
+				border-top: 5px solid $state_alert_dark_color;
+			}
+
+			&.message-success {
+				border-top: 5px solid $state_success_dark_color;
+			}
+
+			&.message-info, 
+			&.message-question {
+				border-top: 5px solid $state_primary_dark_color;
+			}
+
+			&.message-waw {
+				border-top: 5px solid $state_warning_dark_color;
+			}
+		}
+
+		&-btn {
+			padding: 0 10px 10px;
+
+			a {
+				margin-left: 8px;
+			}
+		}
+	}
+}
