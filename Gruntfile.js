@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		"concat": {
@@ -14,7 +13,7 @@ module.exports = function(grunt) {
 		uglify: {
 			dist: {
 				files: {
-					'dist/it-framework-min.js': ['<%= concat.dist.dest %>']
+					'dist/it-framework.min.js': ['<%= concat.dist.dest %>']
 				}
 			}
 		},
@@ -23,6 +22,8 @@ module.exports = function(grunt) {
 				src: ['README.md','<%= concat.dist.src %>'],
 				options: {
 					destination: 'docs',
+					recurse: true,
+					verbose: true,
 					template : "node_modules/docdash" // sample -> http://clenemt.github.io/docdash/module-documents_probe.html
 				}
 			}
@@ -36,12 +37,12 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				files: {
-					'dist/it-framework.css': 'src/sass/it-framework.scss'
+					'dist/it-framework.min.css': 'src/sass/it-framework.scss'
 				}
 			}
 		},
 		watch: {
-			files: ['README.md','<%= concat.dist.src %>','src/sass/it-framework.scss'],
+			files: ['Gruntfile.js','README.md','<%= concat.dist.src %>','src/sass/it-framework.scss'],
 			tasks: ['sass', 'concat','uglify','jsdoc']
 		}
 	});

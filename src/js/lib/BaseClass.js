@@ -3,8 +3,11 @@
  * @type {class}
  */
 IT.BaseClass = class {
-
-	/** just a constructor */
-	constructor(){
+	/**
+	 * used to check if this is a class
+	 * @type {boolean}
+	 */
+	isClass(){
+		return true;
 	}
 }
