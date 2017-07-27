@@ -1,5 +1,5 @@
 /**
- * Create window like dialog
+ * Create window like dialogsssss
  * @class IT.Dialog
  * @param {Object} opt setting for class
  * @see IT.Dialog#settings
@@ -21,15 +21,15 @@ IT.Dialog = class extends IT.Component {
 		 * @member {Object}
 		 * @name IT.Dialog#settings
 		 * @property {String} id ID of element
-		 * @property {String} title title
+		 * @property {String} title title of the window
 		 * @property {String} iconCls iconCls
-		 * @property {String} items items
-		 * @property {String} overlay overlay
-		 * @property {String} autoShow autoShow
-		 * @property {String} width width
-		 * @property {String} height height
-		 * @property {String} autoHeight autoHeight
-		 * @property {String} css css
+		 * @property {array} items items
+		 * @property {boolean} overlay overlay
+		 * @property {boolean} autoShow autoShow
+		 * @property {number} width width
+		 * @property {number} height height
+		 * @property {boolean} autoHeight autoHeight
+		 * @property {object} css css
 		 */
 		me.settings = $.extend(true, {
 			id: '',
@@ -49,7 +49,7 @@ IT.Dialog = class extends IT.Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.settings.id || IT.Utils.makeid();
+		me.id = me.settings.id || IT.Utils.id();
 
 		/** 
 		 * Listeners
@@ -95,8 +95,10 @@ IT.Dialog = class extends IT.Component {
 		
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass)el = createObject(el);
-				el.renderTo(me.content.find('.it-dialog-content'));
+				if(!el.isClass)el = IT.Utils.createObject(el);
+				//console.info(el.isClass);
+				if(el)el.renderTo(me.content.find('.it-dialog-content'));
+				else console.warn("Xtype: undefined",obj);
 			}
 		});
 

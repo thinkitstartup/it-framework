@@ -14,6 +14,7 @@
 	<!-- ThinkIT -->
 	<link rel="stylesheet" href="../dist/it-framework.min.css" />
 	<script type="text/javascript" src="../dist/it-framework.min.js?dc=<?php echo time();?>"></script>
+    <script type="text/javascript" src="http://localhost:8080/livereload.js"></script>
 </head>
 
 <body>
@@ -70,9 +71,6 @@
 				}]
 			}]	
 		});
-
-
-		console.info(dialog);
 	});
 </script>	
 </body>

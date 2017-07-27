@@ -7,7 +7,7 @@ IT.BaseClass = class {
 	 * used to check if this is a class
 	 * @type {boolean}
 	 */
-	isClass(){
+	get isClass(){
 		return true;
 	}
 }

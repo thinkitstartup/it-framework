@@ -17,25 +17,24 @@ IT.Utils = class extends IT.BaseClass{
 	 * @return {class} function class
 	 */
 	static createObject(opt) {
-		let xtype = opt[0].xtype||opt[0].x;
+		let xtype = opt.xtype||opt.x;
 		let map = {
 			button 	: "Button",
 			toolbar	: "Toolbar",
 			html	: "HTML",
 			flex	: "Flex",
 			panel	: "Panel",
-
 			
 			form	: "Form",
 			textbox	: "TextBox",
 			checkbox: "CheckBox",
 			select  : "Select",
 
-
 			grid	: "Grid",
 			tabs    : "Tabs"
 		}
-		return map[xtype] ? new IT[map[xtype]](...opt) : null;
+		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
+		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
 
 	/**

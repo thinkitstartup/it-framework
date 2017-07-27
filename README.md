@@ -3,6 +3,7 @@ ThinkIT Framework
 ThinkIT Framework is a Framework jQuery-based. ThinkIT made of JavaScript ECMA Script 6.
 
 
+
 ### Installation
 ##### Classic web with <script\> tag
 To install it as front-end framework, you need these package to be downloaded.

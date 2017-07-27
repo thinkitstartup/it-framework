@@ -142,7 +142,8 @@ function makeid() {
     for(var i=0; i<5; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return "it-component-"+text;
-};/**
+}
+;/**
  * BaseClass for every Class Instance
  * @type {class}
  */
@@ -151,17 +152,62 @@ IT.BaseClass = class {
 	 * used to check if this is a class
 	 * @type {boolean}
 	 */
-	isClass(){
+	get isClass(){
 		return true;
 	}
-};IT.Component = class extends IT.BaseClass{
-	constructor(opt){
-		super(opt);
-		let iniadalahvariableyangsangatpanjang = "How are you doing may mate !!!";
-		console.info(iniadalahvariableyangsangatpanjang);
-	}
 };/**
- * Create window like dialog
+ * Default Component CLass
+ * @type {object}
+ */
+IT.Component = class extends IT.BaseClass {
+	constructor(opt) {
+		super(opt);
+		let me = this;
+		me._id = "";
+		me.settings = {};
+		me.content = null;
+	}
+	/**
+	 * Render this Element to parentEl
+	 * @param  {selector} parentEl selector for parent
+	 */
+	renderTo(parentEl) {
+		if(this.content.appendTo)
+			this.content.appendTo(domEl);
+	}
+
+
+	/**
+	 * ID of component
+	 * @name IT.Component#id
+	 * @member {string}
+	 */
+	get id() {
+		return this._id;
+	}
+	set id(id) {
+		this._id = id;
+	}
+
+	/**
+	 * get ID
+	 * @return {string} Component ID
+	 */
+	getId() { return this.id; }
+
+	/**
+	 * get Content  selector 
+	 * @return {selector} content
+	 */
+	getContent() { return this.content; }
+
+	/**
+	 * get generated settings
+	 * @return {object}
+	 */
+	getSetting(){ return this.settings; }
+};/**
+ * Create window like dialogsssss
  * @class IT.Dialog
  * @param {Object} opt setting for class
  * @see IT.Dialog#settings
@@ -183,15 +229,15 @@ IT.Dialog = class extends IT.Component {
 		 * @member {Object}
 		 * @name IT.Dialog#settings
 		 * @property {String} id ID of element
-		 * @property {String} title title
+		 * @property {String} title title of the window
 		 * @property {String} iconCls iconCls
-		 * @property {String} items items
-		 * @property {String} overlay overlay
-		 * @property {String} autoShow autoShow
-		 * @property {String} width width
-		 * @property {String} height height
-		 * @property {String} autoHeight autoHeight
-		 * @property {String} css css
+		 * @property {array} items items
+		 * @property {boolean} overlay overlay
+		 * @property {boolean} autoShow autoShow
+		 * @property {number} width width
+		 * @property {number} height height
+		 * @property {boolean} autoHeight autoHeight
+		 * @property {object} css css
 		 */
 		me.settings = $.extend(true, {
 			id: '',
@@ -211,7 +257,7 @@ IT.Dialog = class extends IT.Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.settings.id || IT.Utils.makeid();
+		me.id = me.settings.id || IT.Utils.id();
 
 		/** 
 		 * Listeners
@@ -257,8 +303,10 @@ IT.Dialog = class extends IT.Component {
 		
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass)el = createObject(el);
-				el.renderTo(me.content.find('.it-dialog-content'));
+				if(!el.isClass)el = IT.Utils.createObject(el);
+				//console.info(el.isClass);
+				if(el)el.renderTo(me.content.find('.it-dialog-content'));
+				else console.warn("Xtype: undefined",obj);
 			}
 		});
 
@@ -353,6 +401,56 @@ IT.Dialog = class extends IT.Component {
 	}
 }
 ;/**
+ * Form Component
+ * @class IT.Form
+ * @param {Object} opt setting for class
+ * @see IT.Form#settings
+ */
+IT.Form = class extends IT.Component{
+	constructor(opt){
+		super(opt);
+		let me=this;
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Form#settings
+		 * @property {String} id ID of element
+		 * @property {array} items Items
+		 */
+		me.settings = $.extend(true,{ 
+			id: '',
+			items:[]
+		}, opt);
+
+		/** 
+		 * ID of class or element
+		 * @member {boolean}
+		 * @name IT.Form#id
+		 */
+		me.id = me.settings.id || makeid();
+		let wrapper = $('<div />', { 
+			id: me.id, 
+			class: 'container-fluid'
+		});
+
+		let count = 0,div;
+		$.each(me.settings.items, function(k, el) {
+			if(el){
+				div = $("<div>",{class:'row'});
+				if(!el.isClass)el = IT.Utils.createObject(el);
+				el.renderTo(div);
+				wrapper.append(div);
+				count++;
+			}
+		});
+		me.content= $("<form />",{
+			name:IT.Utils.id(),
+			class:"it-form"
+		});
+		me.content.append(wrapper);
+	}
+};/**
  * CLass listener to handdle event function 
  */
 class Listener {
@@ -422,25 +520,24 @@ IT.Utils = class extends IT.BaseClass{
 	 * @return {class} function class
 	 */
 	static createObject(opt) {
-		let xtype = opt[0].xtype||opt[0].x;
+		let xtype = opt.xtype||opt.x;
 		let map = {
 			button 	: "Button",
 			toolbar	: "Toolbar",
 			html	: "HTML",
 			flex	: "Flex",
 			panel	: "Panel",
-
 			
 			form	: "Form",
 			textbox	: "TextBox",
 			checkbox: "CheckBox",
 			select  : "Select",
 
-
 			grid	: "Grid",
 			tabs    : "Tabs"
 		}
-		return map[xtype] ? new IT[map[xtype]](...opt) : null;
+		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
+		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
 
 	/**
@@ -472,4 +569,5 @@ IT.Utils = class extends IT.BaseClass{
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	}
+
 }

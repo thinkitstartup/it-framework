@@ -1,16 +1,22 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		"concat": {
-			"options": {
-				"separator": ";"
+		concat: {
+			options: {
+				separator: ";"
 			},
-			"dist": {
-				"src": ["src/js/namespace.js","src/js/lib/**/*.js"],
-				"dest": "src/js/it-framework-all.js"
+			dist: {
+				src: ["src/js/namespace.js","src/js/lib/**/*.js"],
+				dest: "src/js/it-framework-all.js"
 			}
 		},
 		uglify: {
+			options: {
+				compress: {
+					drop_console: true
+				},
+				beautify: true
+			},
 			dist: {
 				files: {
 					'dist/it-framework.min.js': ['<%= concat.dist.dest %>']
@@ -42,8 +48,36 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			files: ['Gruntfile.js','README.md','<%= concat.dist.src %>','src/sass/it-framework.scss'],
-			tasks: ['sass', 'concat','uglify','jsdoc']
+			configFiles: {
+				files: ['Gruntfile.js'],
+				options: {
+					reload: true
+				}
+			},
+			sass:{
+				files:'src/sass/it-framework.scss',
+				tasks:['sass'],
+				options: {
+					spawn: false,
+				}
+			},
+			docs:{
+				files: ['README.md'],
+				tasks: ['jsdoc'],
+				options: {
+					spawn: false,
+				}
+			},
+			script:{
+				files: ['<%= concat.dist.src %>'],
+				tasks: ['concat', 'uglify', 'jsdoc'],
+				options: {
+					livereload: 8080,
+					spawn: false
+				}
+			},
+			files: ['<%= watch.configFiles.files %>'],
+			tasks: ['sass', 'concat', 'uglify', 'jsdoc']
 		}
 	});
 	grunt.loadNpmTasks('grunt-jsdoc');
