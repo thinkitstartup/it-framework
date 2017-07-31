@@ -26,7 +26,7 @@ IT.Form = class extends IT.Component{
 		 * @member {boolean}
 		 * @name IT.Form#id
 		 */
-		me.id = me.settings.id || makeid();
+		me.id = me.settings.id || IT.Utils.id();
 		let wrapper = $('<div />', { 
 			id: me.id, 
 			class: 'container-fluid'

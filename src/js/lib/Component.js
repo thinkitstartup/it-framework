@@ -6,8 +6,17 @@ IT.Component = class extends IT.BaseClass {
 	constructor(opt) {
 		super(opt);
 		let me = this;
+
 		me._id = "";
-		me.settings = {};
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Component#settings
+		 */
+		me.settings = opt||{};
+
+
 		me.content = null;
 	}
 	/**
@@ -16,7 +25,7 @@ IT.Component = class extends IT.BaseClass {
 	 */
 	renderTo(parentEl) {
 		if(this.content.appendTo)
-			this.content.appendTo(domEl);
+			this.content.appendTo(parentEl);
 	}
 
 

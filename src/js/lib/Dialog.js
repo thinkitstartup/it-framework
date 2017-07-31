@@ -1,5 +1,5 @@
 /**
- * Create window like dialogsssss
+ * Create window like dialog
  * @class IT.Dialog
  * @param {Object} opt setting for class
  * @see IT.Dialog#settings

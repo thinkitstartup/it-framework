@@ -29,12 +29,13 @@
 				xtype:"form",
 				items:[{
 					x:"textbox",
-					type:"text",
+					type:"mask",
 					label:"masukan nama",
 					placeholder:"masukan nama",
 					allowBlank:false,
 					info:{
-						prepend:"Rp. "
+						prepend:"Rp. ",
+						append:"-,."
 					},
 					maskSettings:{
 						groupSeparator: ".",
@@ -43,8 +44,11 @@
 						placeholder: "0",
 						autoGroup: !0,
 						digits: 2
-					}
-				},{
+					},
+
+				},
+					/*
+				{
 					x:"grid",
 					type:"row",
 					rowContainer:"fluid",
@@ -56,7 +60,9 @@
 							x:"html",
 							content:"Hobby",		
 						}]
-					},{
+					},
+					
+					 {
 						x:"grid",
 						type:"column",
 						columnRule:'col-sm-8',
@@ -66,9 +72,12 @@
 						},{
 							x:"checkbox",
 							label:"Lari",
-						},]
-					}]
-				}]
+						}]
+					}
+					]
+				}
+				*/
+				]
 			}]	
 		});
 	});

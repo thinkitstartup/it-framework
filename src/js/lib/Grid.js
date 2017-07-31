@@ -1,9 +1,24 @@
+/**
+ * Grid system layout
+ * @type {IT.Grid}
+ * @extends IT.Component
+ */
 IT.Grid = class extends IT.Component {
+	/** @param {object} opt */
 	constructor(params){
-		super();
+		super(params);
 		let me = this;
-		
-		me.settings = $.extend(true,{ // Object.assign in deep
+	
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Grid#settings
+		 * @property {String} id id the classs
+		 * @property {enum} type : [row, colomn]
+		 * @property {string} columnRule any 12 bootstrap grid system. ex : "col-sm-12", "col-md-8"
+		 * @property {object} css style for this item
+		 */
+		me.settings = $.extend(true,{ 
 			id: '',
 			type: 'row',
 			columnRule: '',
@@ -12,7 +27,8 @@ IT.Grid = class extends IT.Component {
 			items:[]
 		}, params);
 		
-		me.id = me.settings.id || makeid();
+		// set id
+		me.id = me.settings.id || IT.Utils.id();
 
 		if(me.settings.type == 'row') {
 			me.content = $('<div/>', { 
@@ -37,7 +53,7 @@ IT.Grid = class extends IT.Component {
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
-					el = createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
 			}
 		});

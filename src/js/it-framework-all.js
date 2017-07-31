@@ -163,8 +163,17 @@ IT.Component = class extends IT.BaseClass {
 	constructor(opt) {
 		super(opt);
 		let me = this;
+
 		me._id = "";
-		me.settings = {};
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Component#settings
+		 */
+		me.settings = opt||{};
+
+
 		me.content = null;
 	}
 	/**
@@ -173,7 +182,7 @@ IT.Component = class extends IT.BaseClass {
 	 */
 	renderTo(parentEl) {
 		if(this.content.appendTo)
-			this.content.appendTo(domEl);
+			this.content.appendTo(parentEl);
 	}
 
 
@@ -207,7 +216,7 @@ IT.Component = class extends IT.BaseClass {
 	 */
 	getSetting(){ return this.settings; }
 };/**
- * Create window like dialogsssss
+ * Create window like dialog
  * @class IT.Dialog
  * @param {Object} opt setting for class
  * @see IT.Dialog#settings
@@ -428,7 +437,7 @@ IT.Form = class extends IT.Component{
 		 * @member {boolean}
 		 * @name IT.Form#id
 		 */
-		me.id = me.settings.id || makeid();
+		me.id = me.settings.id || IT.Utils.id();
 		let wrapper = $('<div />', { 
 			id: me.id, 
 			class: 'container-fluid'
@@ -577,6 +586,182 @@ function Form(params){
 	return me;
 }
 */;/**
+ * base class for form item
+ * @extends IT.Component
+ * @type IT.FormItem
+ * @class IT.FormItem
+ * @param {Object} opt setting for class
+ * @see IT.Component#settings
+ */
+IT.FormItem = class extends IT.Component {
+	/** @param  {object} opt  */
+	constructor(opt){
+		super(opt);
+	}
+	/**
+	 * getter or setter for value
+	 * @param  {object} value if value is exist, then it's setter for value
+	 * @return {object}   value of this item, return true if setter success
+	 * @example
+	 * var a = new IT.TextBox();
+	 * a.renderTo($(body))
+	 * a.val("this is the val") // setter
+	 * console.info(a.val()); // getter
+	 */
+	val(value) {
+		if (typeof value === "undefined")
+			return this.input.val(); 
+		else return this.input.val(value);
+	}
+
+	/** 
+	 * if state is true, mark the input with border red
+	 * @param {Boolean} state pass true to make this item invalid
+	 */
+	setInvalid(state=true){
+		this.input[state?"addClass":"removeClass"]("invalid");
+	}
+
+	/** return true if valid */
+	validate(){
+		return !(!this.settings.allowBlank && this.val()==""); 
+	}
+
+	/** 
+	 * whether set this item readonly or not
+	 * @param {Boolean} state pass true to make this item readonly
+	 */
+	setReadonly(state=false){
+		this.input.attr('readonly', state)
+			[state?"addClass":"removeClass"]('input-readonly');
+	}
+	/** 
+	 * whether set this item enabled or not
+	 * @param {Boolean} state pass true to make this item invalid
+	 */
+	setEnabled(state=false){
+		this.input.attr('disabled', !state)
+			[!state?"addClass":"removeClass"]('input-disabled');
+	}
+};/**
+ * Grid system layout
+ * @type {IT.Grid}
+ * @extends IT.Component
+ */
+IT.Grid = class extends IT.Component {
+	/** @param {object} opt */
+	constructor(params){
+		super(params);
+		let me = this;
+	
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Grid#settings
+		 * @property {String} id id the classs
+		 * @property {enum} type : [row, colomn]
+		 * @property {string} columnRule any 12 bootstrap grid system. ex : "col-sm-12", "col-md-8"
+		 * @property {object} css style for this item
+		 */
+		me.settings = $.extend(true,{ 
+			id: '',
+			type: 'row',
+			columnRule: '',
+			rowContainer: '',
+			css: {},
+			items:[]
+		}, params);
+		
+		// set id
+		me.id = me.settings.id || IT.Utils.id();
+
+		if(me.settings.type == 'row') {
+			me.content = $('<div/>', { 
+				id: me.id, 
+				class: 'row' 
+			});
+		} else if(me.settings.type == 'column') {
+			me.content = $('<div />', { 
+				id: me.id, 
+				class: me.settings.columnRule 
+			});
+		} else {
+			console.info('Grid hanya mempunyai 2 type : row atau column');
+			me.content = '';
+			return;
+		}
+		
+		// Set CSS ke objek
+		me.content.css(me.settings.css); 
+
+		// Looping semua yang ada di items
+		$.each(me.settings.items, function(k, el) {
+			if(el) {
+				if(typeof el.renderTo !== 'function')
+					el = IT.Utils.createObject(el);
+				el.renderTo(me.content);
+			}
+		});
+
+		// Berikan Container
+		if(me.settings.type == 'row' && me.settings.rowContainer == 'fluid') {
+			me.content = $('<div/>', { class:'container-fluid' }).append(me.content);
+		} else if(me.settings.type == 'row' &&  me.settings.rowContainer == 'standar') {
+			me.content = $('<div/>', { class:'container' }).append(me.content);
+		}
+	}
+};/**
+ * HTML Class. Standar dom class.
+ * @type IT.HTML
+ * @extends IT.Component
+ */
+IT.HTML = class extends IT.Component{
+	/** @param {object} opt */
+	constructor(params){
+		super(params);
+		let me = this;
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.HTML#settings
+		 * @property {string} id id the classs
+		 * @property {string} url if url given, HTML will load data from url then append it content to this content
+		 * @property {string} content content to be shown
+		 * @property {object} css style for this item
+		 * @property {string} class append this string to attribute class
+		 */
+		me.settings = $.extend(true, { // Object.assign in deep
+			id: '',
+			url: '',
+			content: '', 
+			css: {},
+			class:""
+		},params);
+		
+		me.id = me.settings.id||IT.Utils.id();
+		me.content = $('<div/>', {id: me.id});
+		if(me.settings.class)
+			me.content.addClass(me.settings.class);
+		me.content.css(me.settings.css);
+		
+		if(me.settings.url)
+			me.content.load(me.settings.url);
+		else 
+			me.content.html(me.settings.content);
+	}
+
+	/**
+	 * set the desire content to HTML
+	 * @param {string|selector}  html    the content that'll be replaced to
+	 * @param {Boolean} replace replace mode, if set true, before appending, this content will be empty before
+	 */
+	setContent(html, replace = false){
+		if (replace) this.content.empty();
+		if (typeof html=="string") this.content.append(html);
+		else html.appendTo(this.content);
+	}
+};/**
  * CLass listener to handdle event function 
  */
 class Listener {
@@ -627,9 +812,171 @@ class Listener {
 		return ret;
 		 */
 	}
-};IT.TextBox = class extends IT.Component {
-	constructor(){
-		console.info("hallo");
+};/**
+ * TextBox Component
+ * @type {Class}
+ * @extends IT.FormItem
+ */
+IT.TextBox = class extends IT.FormItem {
+	/** @param {object} opt */
+	constructor(opt){
+		super(opt);
+		let me=this,s;
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.TextBox#settings
+		 * @see https://github.com/RobinHerbots/Inputmask/blob/4.x/dist/jquery.inputmask.bundle.js
+		 * 
+		 * @property {enum} available : [textarea, text, mask]
+		 * @property {int} cols how many coloms char, only used for type textarea
+		 * @property {int} rows how many rows char,only used for type textarea
+		 * @property {Object} maskSettings maskSettings:{}, // only used for type mask
+		 * @property {String} id id the classs
+		 * @property {String} label set label description
+		 * @property {String} name name for the input, < input type='type' > name="xxx">
+		 * @property {boolean} allowBlank set the input weather can be leave blank or not
+		 * @property {String} value value for input
+		 * @property {String} placeholder placeholder for input
+		 * @property {boolean} readonly set wather this comp readonly or not
+		 * @property {boolean} enabled set wather this comp enabled or not
+		 * @property {object} length how many char can be accepted
+		 * @property {int} length.min minimal char length 
+		 * @property {int} length.max maximal char length 		 
+		 * @property {object} size in column grid system by bootstrap
+		 * @property {string} size.field size for field input
+		 * @property {string} size.label size for label input		 
+		 * @property {object} info extra div for estra input
+		 * @property {string} info.prepend info before input
+		 * @property {string} info.append info after input
+		 * @example
+		 * var a = new IT.TextBox({
+		 *    info:{
+		 *        prepend:"Rp. ",
+		 *        append:"-,.",
+		 *    }
+		 * });
+		 * a.renderTo($(body));
+		 *
+		 * @example
+		 * 
+		 * //input type mask, numeric
+		 * {
+		 * x:"textbox",
+					type:"mask",
+					label:"masukan nama",
+					placeholder:"masukan nama",
+					allowBlank:false,
+					info:{
+						prepend:"Rp. ",
+						append:"-,."
+					},
+					maskSettings:{
+						groupSeparator: ".",
+						radixPoint: "",
+						alias: "numeric",
+						placeholder: "0",
+						autoGroup: !0,
+						digits: 2
+					},
+
+				}
+		 */
+		me.settings = $.extend(true, {
+			x:"textbox",
+			type:'text',
+			cols:19, 
+			rows:5, 
+			maskSettings:{}, 
+			id:"", 
+			label:"", 
+			name:"", 
+			allowBlank: true, 
+			value:"", 
+			placeholder: '', 
+			readonly:false, 
+			enabled:true, 
+			length:{
+				min:0, 
+				max:-1,
+			},
+			size:{
+				field:"col-sm-8",
+				label:"col-sm-4"
+			},
+			info: {
+				prepend: '',
+				append: ''
+			}
+		}, opt);
+		s= me.settings;
+
+		// set id
+		me.id = s.id||IT.Utils.id();
+
+		//if label empty, field size is 12
+		if(s.label=="")
+			s.size.field = "col-sm-12";
+
+		//create input
+		switch(s.type){
+			case 'textarea':
+				me.input = $(`<textarea style='resize: none;' id="${me.id}-item" `+
+					`class='it-edit-input' `+
+					`${s.allowBlank==false?`required`:""} `+
+					`cols='${s.cols}' `+
+					`rows='${s.rows}' `+
+					`${s.readonly?` readonly `:""} `+
+					`${s.enabled==false?` disabled `:""} `+
+					`name='${me.settings.name||IT.Utils.id()}' `+
+					`${s.length.min>0?`minlength='${s.length.min}'`:""} `+
+					`${s.length.max>0?`maxlength='${s.length.max}'`:""} `+
+				`>${s.value?`${s.value}`:""}</textarea>`);
+			break;
+			case 'text':
+			case 'mask':
+				me.input = $(`<input id="${me.id}-item" `+
+					`type='text' `+
+					`class='it-edit-input' `+
+					`name='${me.settings.name||IT.Utils.id()}' `+
+					`${s.length.min>0?`minlength='${s.length.min}'`:""} `+
+					`${s.length.max>0?`maxlength='${s.length.max}'`:""} `+
+					`${s.allowBlank==false?`required`:""} `+
+					`${s.readonly?` readonly `:""} `+
+					`${s.enabled==false?` disabled `:""} `+
+					`${s.placeholder?`placeholder='${s.placeholder}'`:""} `+
+					`${s.value?`value='${s.value}'`:""} `+
+				`>`);
+				if (s.type =="mask") //input type mask
+					me.input.inputmask(s.maskSettings||{});
+			break;
+			default:console.error("input type unknown : "+ s.type); break;
+		}
+
+		// event
+		me.input.on("focus change blur",function(e){
+			me.setInvalid(!me.validate());
+		});
+
+		//wrapper
+		let wraper = $("<div class='it-edit' />").append(me.input);
+
+		//info
+		s.info.prepend && wraper.prepend($('<div />', {
+			class: 'it-edit-item',
+			html: s.info.prepend
+		}));
+		s.info.append && wraper.append($('<div />', {
+			class: 'it-edit-item',
+			html: s.info.append
+		}));
+
+		//content
+		me.content=$(((s.label) ? `<div class="${s.size.label}">`+
+			`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`+
+		`</div>`:"") + `<div class="${s.size.field}"></div>`);
+		me.content.last().append(wraper);
 	}
 };/**
  * Class Utils, all the members should static
