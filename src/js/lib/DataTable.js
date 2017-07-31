@@ -40,7 +40,7 @@ IT.DataTable = class extends IT.Component {
 			columns: [{}]
 		}, opt);
 
-
+		var store = new IT.Store();
 		/** 
 		 * ID of class or element
 		 * @member {boolean}

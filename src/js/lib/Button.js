@@ -1,3 +1,9 @@
+/**
+ * [Button description]
+ * @type {class}
+ * @extends IT.Component
+ * @depend IT.Component
+ */
 IT.Button = class extends IT.Component {
 	constructor(params){
 		super(params);

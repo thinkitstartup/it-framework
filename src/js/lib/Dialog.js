@@ -3,11 +3,12 @@
  * @class IT.Dialog
  * @param {Object} opt setting for class
  * @see IT.Dialog#settings
+ * @extends {IT.Component}
  */
 IT.Dialog = class extends IT.Component {
 	/** @param  {object} opt  */
 	constructor(opt){
-		super();
+		super(opt);
 		let me = this;
 		/** 
 		 * Wether is element exists
