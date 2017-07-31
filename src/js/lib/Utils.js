@@ -19,19 +19,20 @@ IT.Utils = class extends IT.BaseClass{
 	static createObject(opt) {
 		let xtype = opt.xtype||opt.x;
 		let map = {
-			button 	: "Button",
-			toolbar	: "Toolbar",
-			html	: "HTML",
-			flex	: "Flex",
-			panel	: "Panel",
+			button 		: "Button",
+			toolbar		: "Toolbar",
+			html		: "HTML",
+			flex		: "Flex",
+			panel		: "Panel",
 			
-			form	: "Form",
-			textbox	: "TextBox",
-			checkbox: "CheckBox",
-			select  : "Select",
+			form		: "Form",
+			textbox		: "TextBox",
+			checkbox	: "CheckBox",
+			select  	: "Select",
 
-			grid	: "Grid",
-			tabs    : "Tabs"
+			grid		: "Grid",
+			datatable	: "DataTable",
+			tabs    	: "Tabs"
 		}
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;

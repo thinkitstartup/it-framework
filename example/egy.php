@@ -27,7 +27,28 @@
 			css: {padding: 10},
 			items:[{
 				xtype:"form",
-				items:[{
+				items:[
+					{
+						x:"datatable",
+						paging:true,
+						column:[{
+							header: "sss", 
+							dataIndex:"nama", 
+							width: 200
+						}],
+						store: {
+							type: 'json',
+							url: "testdata.json",
+							params:{
+								start:0,
+								limit:20
+							}
+						}
+					}
+
+
+					/*
+				{
 					x:"textbox",
 					type:"mask",
 					label:"masukan nama",
@@ -47,7 +68,6 @@
 					},
 
 				},
-					/*
 				{
 					x:"grid",
 					type:"row",
