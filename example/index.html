@@ -4,19 +4,17 @@
 	<title>IT Framework Play</title>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-
-	<!-- STYLE -->
+	
+	<!-- Dependecies -->
 	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="../dist/it-framework.min.css" />
-
-	<!-- SCRIPT -->
 	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-	<script type="text/javascript" src="bower_components/jquery-form/dist/jquery.form.min.js"></script>
-	<script type="text/javascript" src="bower_components/jquery.maskedinput/dist/jquery.maskedinput.min.js"></script>
-	<script type="text/javascript" src="bower_components/jquery-maskmoney/dist/jquery.maskMoney.min.js"></script>
+	<script type="text/javascript" src="bower_components/inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
 	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.min.js"></script>
-	<script type="text/javascript" src="bower_components/jquery-livequery/dist/jquery.livequery.min.js"></script>
+
+	<!-- ThinkIT -->
+	<link rel="stylesheet" href="../dist/it-framework.min.css" />
 	<script type="text/javascript" src="../dist/it-framework.min.js"></script>
+    <script type="text/javascript" src="http://localhost:8080/livereload.js"></script>
 </head>
 
 <body>
@@ -38,6 +36,9 @@
 				'line-height': '1.6em'
 			}
 		});
+
+		console.info(IT);
+		console.info(typeof IT.Dialog);
 
 		let tabs = new IT.Tabs({
 			height: 'auto',

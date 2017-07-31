@@ -155,6 +155,114 @@ IT.BaseClass = class {
 	get isClass(){
 		return true;
 	}
+};IT.Button = class extends IT.Component {
+	constructor(params){
+		super(params);
+
+		let me = this;
+		me.settings = $.extend(true, {
+			id: '',
+			buttonClass: '',
+			iconClass: '',
+			enable: true,
+			enableDropdown: true, 
+			text: 'Tombol',
+			items:[],
+			css: {}
+		}, params);
+		me.id = me.settings.id || IT.Utils.id();
+		me.enable = me.settings.enable;
+		me.listener = new Listener(me, me.settings, ["onClick"]);
+		
+		let btn = $('<a/>', {
+			id: me.id,
+			html: me.settings.text,
+			class: 'it-btn ' + me.settings.buttonClass,
+			css: me.settings.css	
+		});
+
+		btn.click(function(e){
+			if(me.enable){
+				if (typeof me.settings.handler === 'function')
+					me.settings.handler.call();
+				me.listener.fire("onClick",[me, me.id]);
+				e.stopPropagation();
+			}
+		});
+
+		if(me.settings.iconClass) {
+			let icon = $('<span/>', { 
+				class: 'fa fa-'+me.settings.iconClass, 
+				html: '&nbsp;'
+			});
+			btn.prepend(icon);
+		}
+
+		me.content = btn;
+
+		if(!me.settings.enable) {
+			me.setEnable(false);
+		}
+
+		if(me.settings.items.length) {
+			let btnGroup = $('<div/>', { class: 'it-btn-group'} );
+			btnGroup.append(me.content);
+			let btnDropdown = new IT.Button({
+				iconClass: 'angle-down',
+				buttonClass: me.settings.buttonClass + ' btn-dropdown ',
+				text: '',
+				handler: function(){
+					me.content.find('.menu-group').toggle();
+					menuDropdown.removeClass('menu-reverse');
+					if((menuDropdown.offset().top + menuDropdown.outerHeight()) > $(window).height()) {
+						menuDropdown.addClass('menu-reverse');
+					}
+				}
+			});
+			btnDropdown.setEnable(me.settings.enableDropdown);
+			btnDropdown.renderTo(btnGroup);
+
+			let menuDropdown = $('<ul/>', { class:'menu-group' });
+			$.each(me.settings.items, function(k, el) {
+				if(el) {
+					let li = $('<li/>', { class:'clearfix' });
+
+					if (typeof el === 'string' ) {
+						el = IT.Utils.createObject({
+							xtype:'html',
+							content: $('<div/>', { class: 'menu-group-separator' })
+						});
+					} else if(!el.isClass) { 
+						el = $.extend(true, { xtype: 'button' }, el);
+						el = IT.Utils.createObject(el);
+					}
+					
+					el.renderTo(li);
+					li.appendTo(menuDropdown);
+				}
+			});
+			btnGroup.append(menuDropdown);
+			me.content = btnGroup;
+		}
+	}
+
+	renderTo(obj) {
+		super.renderTo(obj);
+		
+		// hide dropdown menu if click outside the object
+		if(this.settings.items.length) {
+			$(document).click(function(e){
+				if (!$(e.target).closest('.menu-group').length) {
+					$('.menu-group').hide();
+				}
+			});
+		}
+	}
+
+	setEnable(set) {
+		this.enable = set;
+		this.content[this.enable ?'removeClass':'addClass']('btn-disabled');
+	}
 };/**
  * Default Component CLass
  * @type {object}
@@ -811,6 +919,250 @@ class Listener {
 		});
 		return ret;
 		 */
+	}
+};IT.Select = class extends IT.Component {
+	constructor(params){
+		super(params);
+		let me = this,cls;
+		
+		me.settings = $.extend(true,{ // Object.assign in deep
+			id: '',
+			value: 'Button',
+			emptyText: '',
+			format: null,
+			defaultValue: '',
+			autoLoad: true,
+			allowBlank: true,
+			disabled: false,
+			width: 200,
+			datasource: {
+				type: 'array',
+				url: '',
+				data: null,
+			},
+			selectize: {
+				allowEmptyOption: true
+			}
+		}, params);
+		
+		me.id = me.settings.id || makeid();
+
+		me.select = $('<select />', {
+			id: me.id,
+			name: me.id,
+			attr: {
+				disabled: me.settings.disabled,
+			},
+			val: me.settings.defaultValue,
+		});
+
+		me.content = $('<div />', { class: 'it-edit' });
+		me.content.append(me.select);
+		me.select.selectize($.extend( true, me.settings.selectize ));
+
+		if(me.settings.width) {
+			me.content.css({
+				'width': me.settings.width
+			})
+		}
+
+		// If has value of empty text
+		if(me.settings.emptyText) {
+			me.getSelect().addOption({
+				value: '',
+				text: me.settings.emptyText
+			});
+		}
+
+		// Jika Autuload OK 
+		if(me.settings.autoLoad) {
+			me.getDataSource();
+		}
+	}
+
+	val(v) {
+		if(typeof v === 'undefined') {
+			this.getSelect().setValue(v);
+		} else {
+			this.getSelect().getValue();
+		}
+	}
+	
+ 	setDataSouce(source) {
+		this.settings.datasource = source;
+		this.dataSource();
+	}
+
+	getDataSource() {
+		let me = this;
+		let ds = me.settings.datasource; 
+		let selectize = me.getSelect();
+
+		//Empty Option
+		selectize.clear();
+
+		// Type of Data Source array or ajax
+		switch(ds.type) {
+			case 'array' :
+				if(typeof ds.data !== 'undefined' && ds.data.length > 0 ) { 
+					$.each(ds.data, function(k, v){
+						selectize.addOption({ 
+							value: v.key, 
+							text: v.value, 
+							params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
+						}); 
+					});
+				}
+				selectize.setValue(me.settings.defaultValue);
+			break;
+			case 'ajax' :
+				$.ajax({
+					url: ds.url,
+					type: ds.method || "POST",
+					data: ds.params || {},
+					dataType: 'json',
+					success: function(data) {
+						var row = data.rows;
+						if(typeof row !== 'undefined' && row.length > 0){
+							$.each(row, function(k, v){
+								selectize.addOption({ 
+									value: v.key, 
+									text: v.value, 
+									params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
+								});
+							});
+						}
+						selectize.setValue(me.settings.defaultValue);
+					}
+				});
+			break;
+		}
+	}
+
+	getSelect() {
+		return this.select[0].selectize;
+	}
+}
+;IT.Tabs = class extends IT.Component {
+	constructor(params){
+		super(params);
+
+		let me = this;
+		me.settings = $.extend(true, {
+			id: '',
+			titles: {
+				align: 'left',
+				items:[]
+			},
+			items:[],
+			defaultIndexActive: 0,
+			height: 100,
+			autoHeight: false
+		}, params);
+
+		me.id = me.settings.id || IT.Utils.id();
+		me.ids = [];	
+		me.content = $(`
+			<div id="${me.id}" class="it-tabs">
+				<ul class="it-tabs-menu ${me.settings.titles.align}"></ul>
+				<div class="it-tabs-overflow">
+					<span class="btn-overflow"><i class="fa fa-angle-down"></i></span>
+					<ul class="menu-overflow"></ul>
+				</div>
+				<div class="it-tabs-container"></div>
+			</div>`
+		);
+		me.content.css(me.settings.autoHeight ? 'min-height' : 'height', me.settings.height);
+
+		// Loop judul tab
+		$.each(me.settings.titles.items, function(k, v){
+			let id = IT.Utils.id();
+			let titleTab = $('<li/>', {
+				class: 'it-tabs-link',
+				html: v,
+				attr: {
+					'data-tab' : id,	
+					'data-index' : k
+				} 	
+			});
+			titleTab.appendTo(me.content.find('.it-tabs-menu'));
+			titleTab.click(function(){
+				me.setActive($(this).data('index'));
+			});
+			me.ids.push(id);
+		});
+
+		// Loop berdasarkan ids untuk membuat konten
+		$.each(me.settings.items, function(k, el){
+			if(el) {
+				// Buat Div Tab konten
+				let itemTab = $('<div/>', {
+					class: 'it-tabs-content',
+					id: me.ids[k]
+				});
+
+				if(!el.isClass)
+						el = IT.Utils.createObject(el);
+					el.renderTo(itemTab);
+
+				itemTab.appendTo(me.content.find('.it-tabs-container'));
+			}	
+		});
+
+		// Event dan Trigger untuk tombol overflow
+		me.content.find('.btn-overflow').click(function(){
+			$(this).next().toggle();
+		});
+	}
+	renderTo(obj) {
+		super.renderTo(obj);
+		let me = this;
+		$(window).resize(function() {
+		   me._autoShowMore();
+		});
+
+		me._autoShowMore();
+		me.setActive(me.settings.defaultIndexActive);
+		
+		// Still Bugs 
+		setTimeout(() => {
+			me._autoShowMore();
+		}, 10);
+	}
+
+	setActive(index) {
+		let cur, 
+			me = this,
+			el = me.content.find('.it-tabs-menu li').eq(index);
+		if(el.length < 1) throw 'offset index';
+		me.content.find(".tab-active").removeClass("tab-active");
+		cur = el.addClass("tab-active");
+		me.content.find('#'+cur.data('tab')).addClass('tab-active');
+	}
+
+	getActive() {
+		let el = this.getContent().find('.it-tabs-menu li.tab-active');
+		return {
+			index: el.index(),
+			content: el,
+		}
+	}
+
+	_autoShowMore() {
+		let me = this;
+		let menuOverflow = me.content.find('.menu-overflow');
+		menuOverflow.empty();	
+
+		let menu = me.content.find('.it-tabs-menu li');
+		menu.show();
+		menu.each(function(){
+			if(($(this).position().left + $(this).outerWidth()) > me.content.width()) {
+				$(this).clone(true).appendTo(menuOverflow);
+				$(this).hide();
+			}
+		});
+
+		me.content.find('.it-tabs-overflow').toggle(menuOverflow.children('li').length > 0);
 	}
 };/**
  * TextBox Component
