@@ -21,6 +21,7 @@
 
 <script type="text/javascript">
 	$(function(){
+		/*
 		var dialog = new IT.Dialog({
 			title: 'Ini Dialog Box',
 			width: 500,
@@ -47,7 +48,7 @@
 					}
 
 
-					/*
+					
 				{
 					x:"textbox",
 					type:"mask",
@@ -96,9 +97,36 @@
 					}
 					]
 				}
-				*/
+				
 				]
 			}]	
+		});
+		*/
+		
+
+		var dialog = new IT.Dialog({
+			title: 'Ini Dialog Box',
+			width: 500,
+			height:500,
+			css: {padding: 10},
+			items:[{
+				x:"datatable",
+				paging:true,
+				column:[{
+					header: "sss", 
+					dataIndex:"nama", 
+					width: 200
+				}],
+				store: {
+					type: 'json',
+					url: "data.json",
+					autoLoad:true,
+					params:{
+						start:0,
+						limit:20
+					}
+				}
+			}]
 		});
 	});
 </script>	

@@ -2,9 +2,7 @@
  * base class for form item
  * @extends IT.Component
  * @type IT.FormItem
- * @class IT.FormItem
  * @param {Object} opt setting for class
- * @see IT.Component#settings
  */
 IT.FormItem = class extends IT.Component {
 	/** @param  {object} opt  */

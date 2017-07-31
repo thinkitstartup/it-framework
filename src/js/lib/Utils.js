@@ -68,4 +68,23 @@ IT.Utils = class extends IT.BaseClass{
 		return text;
 	}
 
+
+	/**
+	 * check if value's in money format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is money
+	 */
+	static isMoney(value){
+		var m = value.replace( /[$,]/g, "" ).replace(/\./g, "").replace(/,/g, ".").replace(/\%/g, "");
+		return ! isNaN(m);
+	}
+	/**
+	 * check if value's in date format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is date
+	 */	
+	static isDate(value){
+		var d = new Date(value);
+		return ! isNaN(d);
+	}
 }

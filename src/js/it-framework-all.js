@@ -198,7 +198,6 @@ IT.Button = class extends IT.Component {
  * DataTable element
  * @extends IT.DataTable
  * @type IT.DataTable
- * @class IT.DataTable
  * @param {Object} opt setting for class
  * @see IT.Component#settings
  */
@@ -208,14 +207,16 @@ IT.DataTable = class extends IT.Component {
 		super(opt);
 		let me = this;	
 		
+
+
 		/** 
 		 * Setting for class
 		 * @member {Object}
 		 * @name IT.DataTable#settings
 		 * @property {string} id ID of element
 		 */
-		me.settings = $.extend({
-			id: '',
+		me.settings = $.extend(true,{
+			id:"",
 			cls: 'it-grid',
 			width: '100%',
 			height: 'auto',
@@ -224,6 +225,7 @@ IT.DataTable = class extends IT.Component {
 			cellEditing: true,
 			sort: "local",
 			wrap: false,
+			paging:true,
 			store: {
 				type: 'json',
 				params:{
@@ -236,23 +238,108 @@ IT.DataTable = class extends IT.Component {
 			columns: [{}]
 		}, opt);
 
-		var store = new IT.Store();
 		/** 
 		 * ID of class or element
 		 * @member {boolean}
-		 * @name IT.Dialog#id
+		 * @name IT.DataTable#id
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		var lastRow = null;
+
+		/**
+		 * listeners
+		 * @type {object}
+		 */
+		me.listener = new IT.Listener(me, me.settings, [
+			"onItemClick",
+			"onItemDblClick",
+			"onLoad",
+			"onChangePage"
+		]);
+
+		/**
+		 * store data
+		 * @member {boolean}
+		 * @name IT.DataTable#store
+		 * @see IT.Store
+		 */
+		if(!me.settings.store.isClass){
+			me.store = new IT.Store($.extend(true, {
+				onLoad:function(store,storeData,params){
+					me.assignData(storeData);
+					me.listener.fire("onLoad",[me,store]);
+				}
+			}, me.settings.store));
+		}
+
+
+		me.page = 1;
+		me.pageCount = 1;
+		me.params = me.store.params;
+		me.selectedRecord = null;
+		me.selectedColumn = null;
+
+		me.createComponent();
+		me.store.getData();
+
+
+
+	}
+
+	createComponent(){
+		let me =this;
+		let spaceimg='data:image/gif;base64,R0lGODlhAQABAJEAAAAAAP///////wAAACH5BAEHAAIALAAAAAABAAEAAAICVAEAOw==';
+		me.content = $('<div />', {
+			id: me.id,
+			class: me.settings.cls
+		})
+		.width(me.settings.width)
+		.height(me.settings.height);
+
+		let col,headers = $("<thead>");
+		for (let i = 0; i < me.settings.columns.length; i++){
+			col =me.settings.columns[i];
+			// var col_width = "";
+			// var width = "";
+			// var current_col = settings.columns[i];
+			// var sort = typeof current_col.sort != 'undefined' ? current_col.sort : true;
+			// if (typeof current_col.width != 'undefined'){
+			// 	col_width = "<img src='spaceimg' width='" + (current_col.width-24) + "' height='1'>";
+			// 	width = "width='" + current_col.width + "'";
+			// }
+			
+			//text_header = col.header;
+			//headers+=`<th ></th>`;
+			headers.append(`<th></th>`);
+			//$header += "<th " + width + ">" + col_width + col.header + "</th>";
+		}
+		me.content.append(headers);
+		//grid.height(settings.height);
+
+		//if (typeof me.settings.customHeader !== 'undefined'){
+		//	$header = me.settings.customHeader;
+		//}
+
+		//grid.append("<div class='it-grid-wrapper'><table border='1' width='"+me.settings.width+"'><thead>" + $header + $tr + "</thead><tbody></tbody></table></div>");
+		//grid.append("<div class='it-grid-fixed-header'><table border='1' width='"+me.settings.width+"'><thead>" + $header + $tr + "</thead></table></div>");
+		
+	}
+	assignData(storeData){
+		let me =this;
+		if (storeData && storeData.rows) {
+			me.content.find("tbody").empty();
+
+		}
 	}
 }
 /**
  * Create window like dialog
- * @class IT.Dialog
+ * @extends IT.Component
+ * @depend IT.Component
+ * 
  * @param {Object} opt setting for class
+ * 
  * @see IT.Dialog#settings
- * @extends {IT.Component}
  */
 IT.Dialog = class extends IT.Component {
 	/** @param  {object} opt  */
@@ -306,7 +393,7 @@ IT.Dialog = class extends IT.Component {
 		 * @member {IT.Listener}
 		 * @name IT.Dialog#listener
 		 */
-		me.listener = new Listener(me, me.settings,["onShow", "onHide", "onClose"]);
+		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
 		me.createElement();
 		if(me.settings.autoShow) me.show();
 	}
@@ -445,7 +532,6 @@ IT.Dialog = class extends IT.Component {
 
 /**
  * Form Component
- * @class IT.Form
  * @param {Object} opt setting for class
  * @see IT.Form#settings
  */
@@ -624,9 +710,7 @@ function Form(params){
  * base class for form item
  * @extends IT.Component
  * @type IT.FormItem
- * @class IT.FormItem
  * @param {Object} opt setting for class
- * @see IT.Component#settings
  */
 IT.FormItem = class extends IT.Component {
 	/** @param  {object} opt  */
@@ -801,8 +885,10 @@ IT.HTML = class extends IT.Component{
 }
 /**
  * CLass listener to handdle event function 
+ * @extends IT.BaseClass
+ * @depend IT.BaseClass
  */
-class Listener {
+IT.Listener = class extends IT.BaseClass {
 	/**
 	 * set the listeners
 	 * @param  {function} scope scope where listeners lies
@@ -810,6 +896,7 @@ class Listener {
 	 * @param  {sting[]}  listen_enable	array of string to register
 	 */
 	constructor(scope,option,listen_enable=[]){
+		super();
 		let me =this;
 		me.events={};
 		me.scope=scope;
@@ -824,31 +911,8 @@ class Listener {
 	fire(listener,params){
 		var me=this;
 		if(typeof me.events[listener]=="function"){
-			me.events[listener].apply(me.scope,params);
+			return me.events[listener].apply(me.scope,params);
 		}
-	}
-
-	/**
-	 * [set description]
-	 * @param {scope} cls class scope
-	 * @deprecated not used anymore
-	 */
-	set(cls){
-		/*
-		var ret = {};
-		$.each( base_events, function( index, value ) {
-			var value = value;
-			var on = "on" + value.substring(0,1).toUpperCase() + value.substring(1,value.length).toLowerCase();
-
-			ret[value]=function(){ b.trigger(value); }
-			ret[on]=function(act){ me.add(on,act); }
-			b.on(value, function(){
-				me.fire(value,[],this);
-				me.fire(on,[]);
-			});
-		});
-		return ret;
-		 */
 	}
 }
 IT.Select = class extends IT.Component {
@@ -975,6 +1039,180 @@ IT.Select = class extends IT.Component {
 	}
 }
 
+/**
+ * Data Store
+ * @extends IT.BaseClass
+ * @type IT.Store
+ * @param {Object} opt setting for class
+ * @depend IT.BaseClass
+ */
+IT.Store = class extends IT.BaseClass {
+	/** conctructor */
+	constructor(opt){
+		super(opt);
+
+		let me =this;
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Store#settings
+		 * @property {string} id ID of element
+		 */
+		me.settings = $.extend({
+			type: 'json',
+			url: '',
+			//data: {},
+			autoLoad:false,
+			params:{
+				start: 0,
+				limit: 20
+			}
+		}, opt);
+		me.params = me.settings.params;
+		me.dataChanged = [];
+		me.storeData = {rows:[],total_rows:0};
+		me.listener = new IT.Listener(me, me.settings, [
+			"beforeLoad",
+			"onLoad",
+			"onError",
+		]);
+
+		if (me.settings.autoLoad) me.load();
+	}
+
+	/**
+	 * empty store data
+	 */
+	empty(){
+		me.dataChanged=[];
+		me.storeData={rows:[],total_rows:0};
+		//me.events.fire("onLoad", [me.storeData, me.params]);
+	}
+	/**
+	 * Load Data
+	 * @param  {object} opt optional params
+	 */
+	load(opt){
+		let me = this;
+		var opt = opt || {};
+		switch(me.settings.type){
+			case "json":
+				var params = $.extend(me.settings.params, opt.params);
+				me.params = params;
+				me.dataChanged=[];
+				$.ajax({
+					dataType: me.settings.type,
+					type	: 'POST',
+					url		: me.settings.url,
+					data	: params,
+					beforeSend: function(a,b){
+						return me.listener.fire("beforeLoad",[me, a, b]);
+					},
+					success : function(data){
+						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
+							me.storeData=data;
+							me.listener.fire("onLoad",[me, me.storeData, me.params]);
+						}
+						else{
+							me.storeData = {};
+							me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+						}
+					},
+					error: function(){
+						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					},
+					complete:function(){
+						me.listener.fire("afterLoad",[me,me.storeData]);
+					},
+				});
+			break;
+			case "array":
+				me.listener.fire("beforeLoad",[me, a, b]);
+				if (typeof me.settings.data.rows != 'undefined' && typeof me.settings.data.total_rows != 'undefined'){
+					me.storeData = me.settings.data;
+					me.listener.fire("onLoad",[me, me.storeData, me.params]);
+				}else{
+					me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+				}
+				me.listener.fire("afterLoad",[me,me.storeData]);
+			break;
+		}
+	}
+
+	/**
+	 * FuncsearchData 
+	 * @param  {string} key   field to search
+	 * @param  {object} value value to be search
+	 * @return {integer}       ifdex of storeData
+	 */
+	searchData(key, value){
+		index = null;
+		if(me.storeData.rows && me.storeData.rows.length>0){
+			for (i = 0; i < me.storeData.rows.length; i++){
+				if (me.storeData.rows[i][key] == value){
+					index = i;
+					break;
+				}
+			}
+		}
+		return index;
+	}
+
+	/**
+	 * sort data
+	 * @param  {string} field Sort by this field
+	 * @param  {boolean} asc  Determine if order is ascending. true=Ascending, false=Descending
+	 */
+	sort(field,asc=true){
+		throw "Deprecated, doesn't support ordering in front side"
+	}
+	/**
+	 * Get parameter(s)
+	 * @return {object} paramters
+	 */
+	getParams(){ return this.params; }
+
+	/**
+	 * Get Stored Data
+	 * @return {object} current data
+	 */
+	getData(){ return this.storeData; }
+
+	/**
+	 * Set stored Data
+	 * @param {object} data replacement for storeData
+	 */
+	setData(data){ this.storeData = data; } 
+
+	/**
+	 * get generated settings
+	 * @return {object}
+	 */
+	getSetting(){ return this.settings; }
+
+	/*
+	cekData(index, column, data){
+		let me = this;
+		if ($.trim(me.storeData.rows[index][column]) != $.trim(data))
+		{
+			rows = $.extend({indexRow: index}, me.storeData.rows[index]);
+			if (me.searchData(me.dataChanged, 'indexRow', index) == null)
+			{
+				me.dataChanged.push(rows);
+			}
+			me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)][column] = data;
+			me.events.fire("onChange", [{index: index, data: [me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)]]}]);
+			return true;
+		}else{
+			if (me.searchData(me.dataChanged, 'indexRow', index) != null)
+			{
+				me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)][column] = data;
+			}
+			return false;
+		}
+	}
+	*/
+}
 IT.Tabs = class extends IT.Component {
 	constructor(params){
 		super(params);
@@ -1334,4 +1572,23 @@ IT.Utils = class extends IT.BaseClass{
 		return text;
 	}
 
+
+	/**
+	 * check if value's in money format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is money
+	 */
+	static isMoney(value){
+		var m = value.replace( /[$,]/g, "" ).replace(/\./g, "").replace(/,/g, ".").replace(/\%/g, "");
+		return ! isNaN(m);
+	}
+	/**
+	 * check if value's in date format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is date
+	 */	
+	static isDate(value){
+		var d = new Date(value);
+		return ! isNaN(d);
+	}
 }

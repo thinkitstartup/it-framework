@@ -1,6 +1,5 @@
 /**
  * Form Component
- * @class IT.Form
  * @param {Object} opt setting for class
  * @see IT.Form#settings
  */

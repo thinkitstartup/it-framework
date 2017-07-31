@@ -1,9 +1,11 @@
 /**
  * Create window like dialog
- * @class IT.Dialog
+ * @extends IT.Component
+ * @depend IT.Component
+ * 
  * @param {Object} opt setting for class
+ * 
  * @see IT.Dialog#settings
- * @extends {IT.Component}
  */
 IT.Dialog = class extends IT.Component {
 	/** @param  {object} opt  */
@@ -57,7 +59,7 @@ IT.Dialog = class extends IT.Component {
 		 * @member {IT.Listener}
 		 * @name IT.Dialog#listener
 		 */
-		me.listener = new Listener(me, me.settings,["onShow", "onHide", "onClose"]);
+		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
 		me.createElement();
 		if(me.settings.autoShow) me.show();
 	}
