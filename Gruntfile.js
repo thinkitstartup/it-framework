@@ -71,9 +71,10 @@ module.exports = function(grunt) {
 				}
 			},
 			sass:{
-				files:'src/sass/it-framework.scss',
+				files:['src/sass/it-framework.scss','src/sass/components/**/*.scss'],
 				tasks:['sass'],
 				options: {
+					livereload: 8080,
 					spawn: false,
 				}
 			},
@@ -95,6 +96,13 @@ module.exports = function(grunt) {
 			all:{
 				files: ['<%= watch.configFiles.files %>'],
 				tasks: ['sass','concat_in_order','uglify','jsdoc']
+			},
+			example:{
+				files: ["example/**/*"],
+				options: {
+					livereload: 8080,
+					reload: true
+				}	
 			}
 		}
 	});
@@ -104,4 +112,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.registerTask('default', ['sass','concat_in_order','uglify','jsdoc','watch']);
+	grunt.registerTask('simple', ['concat_in_order','uglify','watch']);
 };

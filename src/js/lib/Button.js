@@ -21,7 +21,7 @@ IT.Button = class extends IT.Component {
 		}, params);
 		me.id = me.settings.id || IT.Utils.id();
 		me.enable = me.settings.enable;
-		me.listener = new Listener(me, me.settings, ["onClick"]);
+		me.listener = new IT.Listener(me, me.settings, ["onClick"]);
 		
 		let btn = $('<a/>', {
 			id: me.id,

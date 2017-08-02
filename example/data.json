@@ -3,7 +3,82 @@
 		{
 			"nama"	: "Egy Mohammad Erdin",
 			"sex"	: "L"
+		},
+		{
+			"nama"	:"",
+			"sex"	:"L"
+		},
+		{
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"ANNISA VANIA ARDHININGRUM",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"ARIQ ATTHALLAH GADAFI",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"BENJAMIN REYNARD LIMBONG",
+			"sex"	:"P"
+		},
+		{
+			"nama"	:"BURHANUDIN RIFA PRADANA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"CLARYSCHA JULIADIANTY TRIWAHYUNI",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"CYNDI NATASYA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"DHEA KAMILLA",
+			"sex"	:"P"
+		},
+		{
+			"nama"	:"DHIYA ULAYYA TSABITAH",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"GALUH LINTANG KENCANA",
+			"sex"	:"P"
+		},
+		{
+			"nama"	:"GHEANDRA EL HILMIZA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"KANAYA LINTANG SALSABILA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"MUAMMAR TSANI",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"MUHAMMAD ELDICO RIZKYTA AIRA",
+			"sex"	:"P"
+		},
+		{
+			"nama"	:"MUHAMMAD IQBAL HADI RINALDO",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"MUHAMMAD RIZKY ANANDA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"NABILLAH NURHALIZA",
+			"sex"	:"L"
+		},
+		{
+			"nama"	:"OLIVIA PRASETYO PUTRI",
+			"sex"	:"P"
 		}
 	], 
-	"total_rows": 0
+	"total_rows": 40
 }

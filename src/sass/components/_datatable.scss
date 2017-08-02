@@ -1,6 +1,6 @@
 .it {
 	&-grid {	
-		position: absolute;
+		position: relative;
 		@include prePost('', 0, '', 0);
 		@include flexbox();
 		@include flex-direction(column);
@@ -20,8 +20,8 @@
 		}
 		
 		table { 
+			table-layout: fixed;
 			border-collapse: collapse; 
-
 			thead {
 				tr {
 					th {
@@ -48,7 +48,7 @@
 
 			tbody {
 				tr {
-
+					height: 25px;
 					&:nth-child(even) { 
 						background: $grid_row_strip_color; 
 					}
@@ -66,6 +66,9 @@
 						border-right: 1px solid transparent;
 						border-left: 1px solid transparent;
 						color: $grid_row_text_color;
+						text-overflow:ellipsis;
+						overflow:hidden;
+						white-space:nowrap;
 
 						div {
 							position: relative;
@@ -85,6 +88,10 @@
 							}
 						}
 						
+						&.wrap{
+							white-space: normal !important;
+						}
+
 						// Mode Row Editing
 						&.it-grid-editing {
 							div {
@@ -160,6 +167,7 @@
 				li {
 					float: left;
 					margin-right: 5px;
+					display: inline-table;
 				}
 			}
 

@@ -1211,7 +1211,7 @@ html, body {
       display: block; }
 
 .it-grid {
-  position: absolute;
+  position: relative;
   right: 0;
   left: 0;
   display: -webkit-box;
@@ -1244,6 +1244,7 @@ html, body {
     background: #e3e4e6;
     overflow: hidden; }
   .it-grid table {
+    table-layout: fixed;
     border-collapse: collapse; }
     .it-grid table thead tr th {
       background: #eee;
@@ -1259,58 +1260,65 @@ html, body {
       .it-grid table thead tr th img {
         display: auto;
         float: right; }
-    .it-grid table tbody tr:nth-child(even) {
-      background: #f9f9f9; }
-    .it-grid table tbody tr:hover {
-      background: #ccc; }
-    .it-grid table tbody tr.it-grid-selected {
-      background: #a1c4fd; }
-    .it-grid table tbody tr td {
-      border-bottom: 1px solid #ededed;
-      border-right: 1px solid transparent;
-      border-left: 1px solid transparent;
-      color: #333; }
-      .it-grid table tbody tr td div {
-        position: relative;
-        padding: 0 6px;
-        height: 35px;
-        line-height: 35px;
-        font-weight: normal;
+    .it-grid table tbody tr {
+      height: 25px; }
+      .it-grid table tbody tr:nth-child(even) {
+        background: #f9f9f9; }
+      .it-grid table tbody tr:hover {
+        background: #ccc; }
+      .it-grid table tbody tr.it-grid-selected {
+        background: #a1c4fd; }
+      .it-grid table tbody tr td {
+        border-bottom: 1px solid #ededed;
+        border-right: 1px solid transparent;
+        border-left: 1px solid transparent;
+        color: #333;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap; }
-        .it-grid table tbody tr td div.wrap {
-          white-space: normal;
-          text-overflow: clip;
-          line-height: 1.4em;
-          height: auto; }
-      .it-grid table tbody tr td.it-grid-editing div {
-        padding: 0;
-        text-overflow: none;
-        overflow: visible; }
-        .it-grid table tbody tr td.it-grid-editing div .it-grid-form {
-          background: #fff;
-          border: 1px solid #66AFE9;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset;
-          font-family: Aller;
-          padding: 0 5px;
+        .it-grid table tbody tr td div {
+          position: relative;
+          padding: 0 6px;
           height: 35px;
-          line-height: 35px; }
-        .it-grid table tbody tr td.it-grid-editing div select.it-grid-form {
-          padding: 0 1px; }
-      .it-grid table tbody tr td.it-grid-changed div:before {
-        content: "";
-        border-width: 5px;
-        border-style: solid;
-        border-color: red transparent transparent transparent;
-        position: absolute;
-        top: -6px;
-        left: -4px;
-        -webkit-transform: rotate(135deg);
-        -moz-transform: rotate(135deg);
-        -o-transform: rotate(135deg);
-        -ms-transform: rotate(135deg);
-        transform: rotate(135deg); }
+          line-height: 35px;
+          font-weight: normal;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap; }
+          .it-grid table tbody tr td div.wrap {
+            white-space: normal;
+            text-overflow: clip;
+            line-height: 1.4em;
+            height: auto; }
+        .it-grid table tbody tr td.wrap {
+          white-space: normal !important; }
+        .it-grid table tbody tr td.it-grid-editing div {
+          padding: 0;
+          text-overflow: none;
+          overflow: visible; }
+          .it-grid table tbody tr td.it-grid-editing div .it-grid-form {
+            background: #fff;
+            border: 1px solid #66AFE9;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset;
+            font-family: Aller;
+            padding: 0 5px;
+            height: 35px;
+            line-height: 35px; }
+          .it-grid table tbody tr td.it-grid-editing div select.it-grid-form {
+            padding: 0 1px; }
+        .it-grid table tbody tr td.it-grid-changed div:before {
+          content: "";
+          border-width: 5px;
+          border-style: solid;
+          border-color: red transparent transparent transparent;
+          position: absolute;
+          top: -6px;
+          left: -4px;
+          -webkit-transform: rotate(135deg);
+          -moz-transform: rotate(135deg);
+          -o-transform: rotate(135deg);
+          -ms-transform: rotate(135deg);
+          transform: rotate(135deg); }
   .it-grid-icon {
     background: transparent;
     border: 1px solid transparent;
@@ -1365,7 +1373,8 @@ html, body {
       align-items: center; }
       .it-grid-pagination ul li {
         float: left;
-        margin-right: 5px; }
+        margin-right: 5px;
+        display: inline-table; }
     .it-grid-pagination-current {
       line-height: 30px;
       border: 1px solid #c2e9fb;
@@ -2775,7 +2784,6 @@ html, body {
       transform: scale(1); }
     .it-dialog-container > .it-title, .it-dialog-container > .it-messagebox-title {
       background: #eee;
-      margin: 0 0 5px;
       padding: 13px;
       font-family: Aller-Bold;
       -webkit-border-radius: 0 0 0 0;
@@ -2788,6 +2796,8 @@ html, body {
       -o-box-shadow: none;
       -ms-box-shadow: none;
       box-shadow: none; }
+  .it-dialog-content {
+    position: relative; }
 
 /**
 **************************************************************** IMAGEBOX

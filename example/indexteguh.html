@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>IT Framework Play</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	
+	<!-- Dependecies -->
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="bower_components/inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
+	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.min.js"></script>
+
+	<!-- ThinkIT -->
+	<link rel="stylesheet" href="../dist/it-framework.min.css" />
+	<script type="text/javascript" src="../dist/it-framework.min.js"></script>
+    <script type="text/javascript" src="http://localhost:8080/livereload.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+	$(function(){
+		let lorem1 = $('<div/>', {
+			text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+			css: {
+				padding: 10,
+				'line-height': '1.6em'
+			}
+		});
+
+		let lorem2 = $('<div/>', {
+			text: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
+			css: {
+				padding: 10,
+				'line-height': '1.6em'
+			}
+		});
+
+		console.info(IT);
+		console.info(typeof IT.Dialog);
+
+		let tabs = new IT.Tabs({
+			height: 'auto',
+			titles: {
+				items:[
+					'Cinta',
+					'Murni Kasih Sayang',
+					'Menu 1',
+					'Menu 2',
+					'Menu 3',
+					'Menu 4',
+					'Menu 5',
+					'Menu 6',
+					'Menu 7',
+					'Menu 8',
+					'Menu 9',
+					'Menu 10'
+				]
+			},
+			items:[
+				{
+					xtype: 'html',
+					content: lorem1,
+				}, {
+					xtype: 'html',
+					content: lorem2,
+				}, {
+					xtype: 'html',
+					content: 'C',
+				}
+			],
+		});
+
+		tabs.renderTo('body');
+		tabs.setActive(2);
+
+		let states = ['normal','primary', 'success', 'alert', 'warning'];
+
+		for(let c of states) {
+			let name = 'btn-' + c;
+			let button = new IT.Button({
+				text: name,
+				buttonClass: name,
+				css: {
+					'margin-left' : 10
+				},
+				handler: function(){
+					new IT.MessageBox({ 
+						title: 'Pesan untuk anda',
+						type: 'info',
+						message: 'Lorem Ipsum is  Lorem Ipsum.' 
+					});
+
+					console.info(tabs.getActive().content.text());
+				}
+			});
+			button.renderTo('body');
+		}
+
+		$('body').css({
+			padding: 30,
+			background: '#fff'
+		})
+
+	});
+</script>	
+</body>
+</html>
