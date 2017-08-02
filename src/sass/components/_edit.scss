@@ -4,7 +4,6 @@
 		@include flexbox();
 		
 		&.for-option {
-
 			.it-input-label {
 				position: relative;
 				height: $checkbox_height_default;

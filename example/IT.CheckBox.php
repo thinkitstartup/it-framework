@@ -20,7 +20,7 @@
 
 	<div 
 		id="mainRender"
-		style="border: solid 1px black; width:100&; max-width: 500px; height: 200px; margin: 20px auto auto; padding: 20px"
+		style="border: solid 1px black; width:100%; max-width: 800px; min-height: 200px; margin: 20px auto auto; padding: 20px"
 	></div>
 	<div>
 		<center>
@@ -38,6 +38,25 @@
 				},{
 					x: "checkbox",
 					label: "This is checkbox 2"
+				},{
+					x:"grid",
+					items:[{
+						x:"grid",
+						type:"column",
+						columnRule: "col-sm-6",
+						items:[{
+							x: "checkbox",
+							label: "This is checkbox"
+						}]
+					},{
+						x:"grid",
+						type:"column",
+						columnRule: "col-sm-6",
+						items:[{
+							x: "checkbox",
+							label: "This is checkbox"
+						}]
+					}]
 				}]
 			};
 
