@@ -24,12 +24,10 @@ IT.DataTable = class extends IT.Component {
 			cls: 'it-grid',
 			width: '100%',
 			height: '',
-			top: 0,
-			bottom: 0,
 			cellEditing: true,
-			sort: "local",
 			wrap: false,
 			paging:true,
+
 			store: {
 				type: 'json',
 				params:{
@@ -81,13 +79,9 @@ IT.DataTable = class extends IT.Component {
 		me.params = me.store.params;
 		me.selectedRecord = null;
 		me.selectedColumn = null;
-
-
 		me.paging = {
 			total_rows:0
 		}
-
-
 		me.createComponent();
 	}
 
@@ -233,5 +227,14 @@ IT.DataTable = class extends IT.Component {
 				me.content.find("tbody").append(row_element);
 			}
 		}
+	}
+
+	renderTo(parent){
+		super.renderTo(parent);
+		let me = this;
+		me.content.find('.it-grid-wrapper').scroll(function(){
+			me.content.find('.it-grid-fixed-header').scrollLeft($(this).scrollLeft());
+		});
+
 	}
 }

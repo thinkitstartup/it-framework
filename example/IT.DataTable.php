@@ -43,11 +43,11 @@
 				columns:[{
 					header: "Nama Lengkap", 
 					dataIndex:"nama", 
-					width: "200px"
+					width: 399
 				},{
 					header: "b", 
 					dataIndex:"sex", 
-					width: "200px",
+					width: 40,
 					align:"center"
 				},{	
 					header: "", 
@@ -61,7 +61,10 @@
 						start:0,
 						limit:20
 					}
-				}
+				},
+				// onItemDblClick:function(){
+				// 	onedit()
+				// }
 			};
 
 
