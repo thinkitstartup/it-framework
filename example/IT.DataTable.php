@@ -43,7 +43,12 @@
 				columns:[{
 					header: "Nama Lengkap", 
 					dataIndex:"nama", 
-					width: 399
+					width: 399,
+					editor:{
+						x:'text',
+						editable:true,
+						allowBlank:false
+					}
 				},{
 					header: "b", 
 					dataIndex:"sex", 

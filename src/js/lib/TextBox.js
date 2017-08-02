@@ -137,12 +137,17 @@ IT.TextBox = class extends IT.FormItem {
 				if (s.type =="mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
 			break;
-			default:console.error("input type unknown : "+ s.type); break;
+			default:
+				throw "input type unknown";
+			break;
 		}
 
 		// event
 		me.input.on("focus change blur",function(e){
 			me.setInvalid(!me.validate());
+		});
+		me.input.on("keypress",function(e){
+			if(e.which==13)$(this).blur();
 		});
 
 		//wrapper

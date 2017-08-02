@@ -217,7 +217,7 @@ IT.DataTable = class extends IT.Component {
 		 */
 		me.settings = $.extend(true,{
 			id:"",
-			cls: 'it-grid',
+			cls: 'it-datatable',
 			width: '100%',
 			height: '',
 			cellEditing: true,
@@ -285,15 +285,15 @@ IT.DataTable = class extends IT.Component {
 		let me =this,s = me.settings;
 		//spaceimg='data:image/gif;base64,R0lGODlhAQABAJEAAAAAAP///////wAAACH5BAEHAAIALAAAAAABAAEAAAICVAEAOw==';
 		
-		//content .it-grid
+		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
 			class: s.cls 
 		}).width(s.width).height(s.height);
 
 		//wrapper
-		let wrapper 	= $(`<div class="it-grid-wrapper"/>`);
-		let fixHeader 	= $(`<div class="it-grid-fixed-header"/>`);
+		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
+		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
 		let table 		= $(`<table width='${s.width}' height='${s.height}'/>`);
 		let thead 		= $(`<thead/>`);
 		let tbody 		= $(`<tbody/>`);
@@ -319,25 +319,25 @@ IT.DataTable = class extends IT.Component {
 
 		if(s.paging)
 			me.content.append(`
-				<div class="it-grid-pagination" >
+				<div class="it-datatable-pagination" >
 					<ul>
-						<li><button class="it-grid-icon" rel="first"><span class="fa fa-step-backward"></span></button></li>
-						<li><button class="it-grid-icon" rel="back"><span class="fa fa-chevron-left"></span></button></li>
+						<li><button class="it-datatable-icon" rel="first"><span class="fa fa-step-backward"></span></button></li>
+						<li><button class="it-datatable-icon" rel="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
-							<input type="text" class="it-grid-pagination-current" value="1"> /
-						 	<span class="it-grid-pagination-page"></span>
+							<input type="text" class="it-datatable-pagination-current" value="1"> /
+						 	<span class="it-datatable-pagination-page"></span>
 						</li>
-						<li><button class="it-grid-icon" rel="next"><span class="fa fa-chevron-right"></span></button></li>
-						<li><button class="it-grid-icon" rel="last"><span class="fa fa-step-forward"></span></button></li>
+						<li><button class="it-datatable-icon" rel="next"><span class="fa fa-chevron-right"></span></button></li>
+						<li><button class="it-datatable-icon" rel="last"><span class="fa fa-step-forward"></span></button></li>
 						<li >
 							Menampilkan
-							<span class='it-grid-pagination-show'></span> 
+							<span class='it-datatable-pagination-show'></span> 
 							dari
-							<span class='it-grid-pagination-count'></span> 
+							<span class='it-datatable-pagination-count'></span> 
 							Data
 						</li>
 					</ul>
-					<div class='it-grid-pagination-info'></div>
+					<div class='it-datatable-pagination-info'></div>
 				</div>
 			`);
 	}
@@ -358,12 +358,12 @@ IT.DataTable = class extends IT.Component {
 				pageCount:page_count
 			}
 
-			me.content.find('.it-grid-pagination-show').html(data_show);
-			me.content.find('.it-grid-pagination-count').html(total_rows);
-			me.content.find('.it-grid-pagination-page').html(page_count);
+			me.content.find('.it-datatable-pagination-show').html(data_show);
+			me.content.find('.it-datatable-pagination-count').html(total_rows);
+			me.content.find('.it-datatable-pagination-page').html(page_count);
 
 			if (start == 0) 
-				me.content.find('.it-grid-pagination-current').val(1);
+				me.content.find('.it-datatable-pagination-current').val(1);
 
 			for (let k=0;k<storeData.rows.length;k++){	
 				let current_row = storeData.rows[k];
@@ -378,12 +378,38 @@ IT.DataTable = class extends IT.Component {
 					let current_col = me.settings.columns[i];
 					let data = current_row[me.settings.columns[i].dataIndex];
 					data = !data ? "" : data;
-					row_element.append($("<td />",{
-						html:data,
+					let editor;
+					let td = $("<td />",{
+						html:$("<div />",{html:data}),
 						valign:current_col.valign ||"top",
 						align:current_col.align ||"left",
 						class:"" + (me.settings.wrap?"wrap":""),
-					}));
+					});
+
+					td.on('click',function(){
+					 	if(current_col.editor 
+					 		&& current_col.editor.editable
+					 		&& !!!$(this).find(".it-selected-edit").length
+					 	){
+							td.attr("data-oldval",data);
+							td.find("div").addClass("it-selected-edit").empty();
+							editor = IT.Utils.createObject(current_col.editor);
+							editor.input.on("blur",function(){
+								if(editor.validate()){
+									td.find("div.it-selected-edit")
+									  .removeClass("it-selected-edit");
+									data=editor.val();
+									td.find("div").html(data);
+									editor.content.remove();
+								}
+							});
+							editor.renderTo(td.find("div"));
+							editor.val(data);
+							editor.input.focus();
+					 	}
+					});
+
+					row_element.append(td);
 					// var comboData = null;
 					// var $value = "";
 					// var editor = typeof current_col.editor != 'undefined' ? current_col.editor : null;
@@ -412,7 +438,7 @@ IT.DataTable = class extends IT.Component {
 
 					/*
 
-					$cssTD += current_row.errorRow == 'object' && current_row.errorRow.length > 0 && jQuery.inArray(dataIndex, current_row.errorRow) >= 0 ? "class='it-grid-error'" : "";
+					$cssTD += current_row.errorRow == 'object' && current_row.errorRow.length > 0 && jQuery.inArray(dataIndex, current_row.errorRow) >= 0 ? "class='it-datatable-error'" : "";
 					
 					
 					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
@@ -428,8 +454,8 @@ IT.DataTable = class extends IT.Component {
 	renderTo(parent){
 		super.renderTo(parent);
 		let me = this;
-		me.content.find('.it-grid-wrapper').scroll(function(){
-			me.content.find('.it-grid-fixed-header').scrollLeft($(this).scrollLeft());
+		me.content.find('.it-datatable-wrapper').scroll(function(){
+			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
 
 	}
@@ -1017,6 +1043,96 @@ IT.Listener = class extends IT.BaseClass {
 		}
 	}
 }
+IT.MessageBox = class extends IT.Component {
+	constructor(params){
+		super();
+		let me = this;
+		me.settings = $.extend(true, {
+			id: '',
+			type: 'info',
+			title: 'Title Here !',
+			message: 'Message Here !',
+			width: 450,
+			css: {},
+			buttons: [],
+			btnAlign: 'right',
+			autoShow: true,
+		}, params);
+		me.id = me.settings.id || IT.Utils.id();
+
+		var html = `
+			<div id="${me.id}" class="it-messagebox">
+				<div class="it-messagebox-container">
+					<div class="it-messagebox-title message-${me.settings.type}">${me.settings.title}</div>
+					<div class="it-messagebox-content">
+						<div class="it-messagebox-icon">
+							<div class="message-icon message-icon-${me.settings.type}"></div>
+						</div>
+						<div class="it-messagebox-text">
+							${me.settings.message}
+						</div>
+					</div>
+					<div class="it-messagebox-btn ${me.settings.btnAlign}"></div>
+				</div>
+			</div>`;
+
+		me.content = $(html);
+		me.content
+			.find('.it-messagebox-container')
+			.css($.extend(me.settings.css, {
+				'max-width': me.settings.width
+			}));
+
+		if (me.settings.buttons.length == 0) {
+			let btn = new IT.Button({
+				text: 'OK',
+				handler: function() {
+					me.hide();
+				}
+			});
+			btn.renderTo(me.content.find('.it-messagebox-btn'));
+		} else {
+			$.each(me.settings.buttons, function(k, el) {
+				el = $.extend({ xtype: 'button' }, el);
+				if(typeof el.renderTo !== 'function')
+					el = createObject(el);
+				el.renderTo(me.content.find('.it-messagebox-btn'));
+			});
+		}
+
+		me.content.appendTo('body').hide();
+
+		if(me.settings.autoShow) 
+			me.show(); 
+	}
+
+	show() {
+		let me = this;
+		$('input, select, textarea').blur();
+		
+		me.content.show(0, function(){
+			$(this).addClass('message-show');
+			$(this).find('.it-messagebox-container')
+				.addClass('message-show');
+		});
+	}
+
+	hide() {
+		let me = this;
+		me.content
+			.find('.it-messagebox-container')
+			.removeClass('message-show')
+			.one(transitionEnd, function(){
+				me.content
+					.removeClass('message-show')
+					.one(transitionEnd, function(){
+						setTimeout(() => {
+							me.content.remove();	
+						}, 300);
+					})
+			});
+	}
+}
 IT.Select = class extends IT.Component {
 	constructor(params){
 		super(params);
@@ -1576,12 +1692,17 @@ IT.TextBox = class extends IT.FormItem {
 				if (s.type =="mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
 			break;
-			default:console.error("input type unknown : "+ s.type); break;
+			default:
+				throw "input type unknown";
+			break;
 		}
 
 		// event
 		me.input.on("focus change blur",function(e){
 			me.setInvalid(!me.validate());
+		});
+		me.input.on("keypress",function(e){
+			if(e.which==13)$(this).blur();
 		});
 
 		//wrapper
@@ -1676,6 +1797,7 @@ IT.Utils = class extends IT.BaseClass{
 			
 			form		: "Form",
 			textbox		: "TextBox",
+			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
 

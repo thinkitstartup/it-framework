@@ -569,8 +569,8 @@ html, body {
   .it-edit-input {
     box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.1);
     font-family: Aller;
-    line-height: 33px;
-    height: 33px;
+    line-height: 25px;
+    height: 25px;
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     -moz-box-flex: 1;
@@ -600,13 +600,13 @@ html, body {
     background: #eee;
     color: #666666;
     font-weight: normal;
-    line-height: 33px;
-    height: 33px; }
+    line-height: 25px;
+    height: 25px; }
   .it-edit-input, .it-edit-item {
     border: 1px solid #ccc;
     padding: 0 5px;
-    height: 33px;
-    line-height: 33px; }
+    height: 25px;
+    line-height: 25px; }
   .it-edit-item:first-child {
     border-right: none; }
   .it-edit-item:last-child {
@@ -1210,7 +1210,7 @@ html, body {
     .it-tabs-content.tab-active {
       display: block; }
 
-.it-grid {
+.it-datatable {
   position: relative;
   right: 0;
   left: 0;
@@ -1225,7 +1225,7 @@ html, body {
   -moz-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column; }
-  .it-grid-wrapper {
+  .it-datatable-wrapper {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     -moz-box-flex: 1;
@@ -1233,7 +1233,7 @@ html, body {
     -ms-flex: 1;
     flex: 1;
     overflow: auto; }
-  .it-grid-fixed-header {
+  .it-datatable-fixed-header {
     position: absolute;
     display: block;
     top: 0;
@@ -1243,10 +1243,10 @@ html, body {
     height: auto;
     background: #e3e4e6;
     overflow: hidden; }
-  .it-grid table {
+  .it-datatable table {
     table-layout: fixed;
     border-collapse: collapse; }
-    .it-grid table thead tr th {
+    .it-datatable table thead tr th {
       background: #eee;
       border: 1px solid #ddd;
       color: #333;
@@ -1254,21 +1254,21 @@ html, body {
       font-weight: normal;
       text-align: left;
       white-space: nowrap; }
-      .it-grid table thead tr th a {
+      .it-datatable table thead tr th a {
         text-decoration: none;
         color: #333; }
-      .it-grid table thead tr th img {
+      .it-datatable table thead tr th img {
         display: auto;
         float: right; }
-    .it-grid table tbody tr {
+    .it-datatable table tbody tr {
       height: 25px; }
-      .it-grid table tbody tr:nth-child(even) {
+      .it-datatable table tbody tr:nth-child(even) {
         background: #f9f9f9; }
-      .it-grid table tbody tr:hover {
+      .it-datatable table tbody tr:hover {
         background: #ccc; }
-      .it-grid table tbody tr.it-grid-selected {
+      .it-datatable table tbody tr.it-datatable-selected {
         background: #a1c4fd; }
-      .it-grid table tbody tr td {
+      .it-datatable table tbody tr td {
         border-bottom: 1px solid #ededed;
         border-right: 1px solid transparent;
         border-left: 1px solid transparent;
@@ -1276,37 +1276,37 @@ html, body {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap; }
-        .it-grid table tbody tr td div {
+        .it-datatable table tbody tr td div {
           position: relative;
           padding: 0 6px;
-          height: 35px;
-          line-height: 35px;
+          height: 25px;
+          line-height: 25px;
           font-weight: normal;
           text-overflow: ellipsis;
           overflow: hidden;
           white-space: nowrap; }
-          .it-grid table tbody tr td div.wrap {
+          .it-datatable table tbody tr td div.wrap {
             white-space: normal;
             text-overflow: clip;
             line-height: 1.4em;
             height: auto; }
-        .it-grid table tbody tr td.wrap {
+        .it-datatable table tbody tr td.wrap {
           white-space: normal !important; }
-        .it-grid table tbody tr td.it-grid-editing div {
+        .it-datatable table tbody tr td.it-datatable-editing div {
           padding: 0;
           text-overflow: none;
           overflow: visible; }
-          .it-grid table tbody tr td.it-grid-editing div .it-grid-form {
+          .it-datatable table tbody tr td.it-datatable-editing div .it-datatable-form {
             background: #fff;
             border: 1px solid #66AFE9;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset, 0 -1px 0 rgba(0, 0, 0, 0.05) inset;
             font-family: Aller;
             padding: 0 5px;
-            height: 35px;
-            line-height: 35px; }
-          .it-grid table tbody tr td.it-grid-editing div select.it-grid-form {
+            height: 25px;
+            line-height: 25px; }
+          .it-datatable table tbody tr td.it-datatable-editing div select.it-datatable-form {
             padding: 0 1px; }
-        .it-grid table tbody tr td.it-grid-changed div:before {
+        .it-datatable table tbody tr td.it-datatable-changed div:before {
           content: "";
           border-width: 5px;
           border-style: solid;
@@ -1319,7 +1319,7 @@ html, body {
           -o-transform: rotate(135deg);
           -ms-transform: rotate(135deg);
           transform: rotate(135deg); }
-  .it-grid-icon {
+  .it-datatable-icon {
     background: transparent;
     border: 1px solid transparent;
     cursor: pointer;
@@ -1334,10 +1334,10 @@ html, body {
     -moz-transition: trans-prefix(background, 0.2s, moz);
     -o-transition: trans-prefix(background, 0.2s, o);
     transition: background 0.2s; }
-    .it-grid-icon:hover {
+    .it-datatable-icon:hover {
       background: #a1c4fd;
       border: 1px solid #a1c4fd; }
-  .it-grid-pagination {
+  .it-datatable-pagination {
     background: #c2e9fb;
     padding: 0 5px;
     height: 35px;
@@ -1351,7 +1351,7 @@ html, body {
     -webkit-align-items: center;
     -moz-align-items: center;
     align-items: center; }
-    .it-grid-pagination ul {
+    .it-datatable-pagination ul {
       list-style: none;
       margin: 0;
       padding: 0;
@@ -1371,11 +1371,11 @@ html, body {
       -webkit-align-items: center;
       -moz-align-items: center;
       align-items: center; }
-      .it-grid-pagination ul li {
+      .it-datatable-pagination ul li {
         float: left;
         margin-right: 5px;
         display: inline-table; }
-    .it-grid-pagination-current {
+    .it-datatable-pagination-current {
       line-height: 30px;
       border: 1px solid #c2e9fb;
       text-align: center;
@@ -1387,7 +1387,7 @@ html, body {
       -o-border-radius: 5px;
       -ms-border-radius: 5px;
       border-radius: 5px; }
-    .it-grid-pagination-info {
+    .it-datatable-pagination-info {
       text-align: right;
       -webkit-box-flex: 1;
       -webkit-flex: 1;
@@ -1397,7 +1397,7 @@ html, body {
       flex: 1; }
 
 /*
-.it-grid {
+.it-datatable {
 	position:relative;
 	margin:0px; padding:0px;
 }

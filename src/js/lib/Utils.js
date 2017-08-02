@@ -27,6 +27,7 @@ IT.Utils = class extends IT.BaseClass{
 			
 			form		: "Form",
 			textbox		: "TextBox",
+			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
 

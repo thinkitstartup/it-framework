@@ -71,7 +71,7 @@ module.exports = function(grunt) {
 				}
 			},
 			sass:{
-				files:['src/sass/it-framework.scss','src/sass/components/**/*.scss'],
+				files:['src/sass/it-framework.scss','src/sass/**/*.scss'],
 				tasks:['sass'],
 				options: {
 					livereload: 8080,
