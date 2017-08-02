@@ -636,7 +636,7 @@ html, body {
     textarea.it-edit-input {
       line-height: auto;
       height: auto; }
-    .it-edit-input[type="checkbox"] {
+    .it-edit-input[type="checkbox"], .it-edit-input[type="radio"] {
       margin: 0;
       position: relative;
       visibility: hidden;
@@ -648,14 +648,14 @@ html, body {
       flex: none;
       width: 24px;
       height: 24px; }
-      .it-edit-input[type="checkbox"]:after {
+      .it-edit-input[type="checkbox"]:after, .it-edit-input[type="radio"]:after {
         content: "";
         background: red;
         position: absolute;
         z-index: -1;
         width: 28px;
         height: 28px; }
-      .it-edit-input[type="checkbox"]:checked + label:after {
+      .it-edit-input[type="checkbox"]:checked + label:after, .it-edit-input[type="radio"]:checked + label:after {
         visibility: visible;
         opacity: 1; }
     .it-edit-input[readonly] {

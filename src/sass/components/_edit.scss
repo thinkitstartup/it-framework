@@ -70,7 +70,8 @@
 			}
 
 			// For Radio, Checkbox 
-			&[type="checkbox"] {
+			&[type="checkbox"], 
+			&[type="radio"] {
 				margin: 0;
 				position: relative;
 			 	visibility: hidden;
@@ -87,8 +88,8 @@
 				
 			
 				&:checked + label:after {
-			      visibility: visible;
-			      opacity: 1;
+					visibility: visible;
+					opacity: 1;
 			    }  
 			}
 

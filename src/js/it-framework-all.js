@@ -572,6 +572,7 @@ IT.Dialog = class extends IT.Component {
 		 * @property {number} width width
 		 * @property {number} height height
 		 * @property {boolean} autoHeight autoHeight
+		 * @property {boolean} cancelable cancelable
 		 * @property {object} css css
 		 */
 		me.settings = $.extend(true, {
@@ -584,6 +585,7 @@ IT.Dialog = class extends IT.Component {
 			width: 300,
 			height: 100,
             autoHeight: true,
+            cancelable: false,
 			css:{}
 		}, opt);
 
@@ -661,6 +663,16 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
+		}
+
+		if(me.settings.cancelable) {
+			me.content.find('.it-dialog-container').click(function(e){
+				e.stopPropagation();
+			})
+
+			me.content.click(function(){
+				me.close();
+			});
 		}
 	}
 	

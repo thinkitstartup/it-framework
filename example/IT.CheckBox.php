@@ -72,6 +72,7 @@
 				var dialog = new IT.Dialog({
 					title: 'TEST',
 					width: 500,
+					cancelable: true,
 					css: {padding: 10},
 					items:[config]
 				});
