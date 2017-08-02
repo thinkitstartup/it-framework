@@ -195,6 +195,110 @@ IT.Button = class extends IT.Component {
 	}
 }
 /**
+ * base class for form item
+ * @extends IT.Component
+ * @type IT.FormItem
+ * @param {Object} opt setting for class
+ */
+IT.FormItem = class extends IT.Component {
+	/** @param  {object} opt  */
+	constructor(opt){
+		super(opt);
+	}
+	/**
+	 * getter or setter for value
+	 * @param  {object} value if value is exist, then it's setter for value
+	 * @return {object}   value of this item, return true if setter success
+	 * @example
+	 * var a = new IT.TextBox();
+	 * a.renderTo($(body))
+	 * a.val("this is the val") // setter
+	 * console.info(a.val()); // getter
+	 */
+	val(value) {
+		if (typeof value === "undefined")
+			return this.input.val(); 
+		else return this.input.val(value);
+	}
+
+	/** 
+	 * if state is true, mark the input with border red
+	 * @param {Boolean} state pass true to make this item invalid
+	 */
+	setInvalid(state=true){
+		this.input[state?"addClass":"removeClass"]("invalid");
+	}
+
+	/** return true if valid */
+	validate(){
+		return !(!this.settings.allowBlank && this.val()==""); 
+	}
+
+	/** 
+	 * whether set this item readonly or not
+	 * @param {Boolean} state pass true to make this item readonly
+	 */
+	setReadonly(state=false){
+		this.input.attr('readonly', state)
+			[state?"addClass":"removeClass"]('input-readonly');
+	}
+	/** 
+	 * whether set this item enabled or not
+	 * @param {Boolean} state pass true to make this item invalid
+	 */
+	setEnabled(state=false){
+		this.input.attr('disabled', !state)
+			[!state?"addClass":"removeClass"]('input-disabled');
+	}
+}
+/**
+ * [CheckBox description]
+ * @type {class}
+ * @extends IT.FormItem
+ * @depend IT.FormItem
+ */
+
+IT.CheckBox = class extends IT.FormItem {
+	constructor(opt){
+		super(opt);
+		let me=this,s;
+		me.opt = $.extend(true, {
+			x:"optionbox",
+			type: "checkbox",
+			id:"", // id the classs
+			label:"", // set label description
+			name:"", // name for the input
+			allowBlank: true, // set the input can be leave blank or not
+			value:0, // value for input
+			readonly:false, // set readonly of the input 
+			enabled:true, // set enabled of the input 
+		}, opt);
+		s = me.opt;
+
+		// set id
+		me.id = s.id||IT.Utils.id();
+
+		//if label empty, field size is 12
+		if(s.label=="")
+			s.size.field = "col-sm-12";
+
+		me.input = $(`<input id="${me.id}-item" `+
+			`type='${s.type}' `+
+			`class='it-edit-input' `+
+			`name='${s.name || IT.Utils.id()}' `+
+			`${s.allowBlank==false?`required`:""} `+
+			`${s.readonly?` readonly `:""} `+
+			`${s.enabled==false?` disabled `:""} `+
+			`${s.value?`value='${s.value}'`:""} `+
+		`>`);
+
+		//wrapper
+		me.content= $("<div class='it-edit for-option' />")
+			.append(me.input)
+			.append(`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`);
+	}
+}
+/**
  * DataTable element
  * @extends IT.DataTable
  * @type IT.DataTable
@@ -494,6 +598,7 @@ IT.Dialog = class extends IT.Component {
 		 * @property {number} width width
 		 * @property {number} height height
 		 * @property {boolean} autoHeight autoHeight
+		 * @property {boolean} cancelable cancelable
 		 * @property {object} css css
 		 */
 		me.settings = $.extend(true, {
@@ -506,6 +611,7 @@ IT.Dialog = class extends IT.Component {
 			width: 300,
 			height: 100,
             autoHeight: true,
+            cancelable: false,
 			css:{}
 		}, opt);
 
@@ -583,6 +689,16 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
+		}
+
+		if(me.settings.cancelable) {
+			me.content.find('.it-dialog-container').click(function(e){
+				e.stopPropagation();
+			})
+
+			me.content.click(function(){
+				me.close();
+			});
 		}
 	}
 	
@@ -834,63 +950,6 @@ function Form(params){
 	return me;
 }
 */
-/**
- * base class for form item
- * @extends IT.Component
- * @type IT.FormItem
- * @param {Object} opt setting for class
- */
-IT.FormItem = class extends IT.Component {
-	/** @param  {object} opt  */
-	constructor(opt){
-		super(opt);
-	}
-	/**
-	 * getter or setter for value
-	 * @param  {object} value if value is exist, then it's setter for value
-	 * @return {object}   value of this item, return true if setter success
-	 * @example
-	 * var a = new IT.TextBox();
-	 * a.renderTo($(body))
-	 * a.val("this is the val") // setter
-	 * console.info(a.val()); // getter
-	 */
-	val(value) {
-		if (typeof value === "undefined")
-			return this.input.val(); 
-		else return this.input.val(value);
-	}
-
-	/** 
-	 * if state is true, mark the input with border red
-	 * @param {Boolean} state pass true to make this item invalid
-	 */
-	setInvalid(state=true){
-		this.input[state?"addClass":"removeClass"]("invalid");
-	}
-
-	/** return true if valid */
-	validate(){
-		return !(!this.settings.allowBlank && this.val()==""); 
-	}
-
-	/** 
-	 * whether set this item readonly or not
-	 * @param {Boolean} state pass true to make this item readonly
-	 */
-	setReadonly(state=false){
-		this.input.attr('readonly', state)
-			[state?"addClass":"removeClass"]('input-readonly');
-	}
-	/** 
-	 * whether set this item enabled or not
-	 * @param {Boolean} state pass true to make this item invalid
-	 */
-	setEnabled(state=false){
-		this.input.attr('disabled', !state)
-			[!state?"addClass":"removeClass"]('input-disabled');
-	}
-}
 /**
  * Grid system layout
  * @type {IT.Grid}
