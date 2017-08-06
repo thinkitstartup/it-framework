@@ -4,9 +4,9 @@
  * @extends IT.Component
  */
 IT.HTML = class extends IT.Component{
-	/** @param {object} opt */
-	constructor(params){
-		super(params);
+	/** @param {object} settings */
+	constructor(settings){
+		super(settings);
 		let me = this;
 
 		/** 
@@ -19,13 +19,13 @@ IT.HTML = class extends IT.Component{
 		 * @property {object} css style for this item
 		 * @property {string} class append this string to attribute class
 		 */
-		me.settings = $.extend(true, { // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			url: '',
 			content: '', 
 			css: {},
 			class:""
-		},params);
+		},settings);
 		
 		me.id = me.settings.id||IT.Utils.id();
 		me.content = $('<div/>', {id: me.id});

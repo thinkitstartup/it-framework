@@ -2,12 +2,12 @@
  * base class for form item
  * @extends IT.Component
  * @type IT.FormItem
- * @param {Object} opt setting for class
+ * @param {Object} settings setting for class
  */
 IT.FormItem = class extends IT.Component {
-	/** @param  {object} opt  */
-	constructor(opt){
-		super(opt);
+	/** @param  {object} settings  */
+	constructor(settings){
+		super(settings);
 	}
 	/**
 	 * getter or setter for value

@@ -69,7 +69,7 @@ IT.TextBox = class extends IT.FormItem {
 
 				}
 		 */
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			x:"textbox",
 			type:'text',
 			cols:19, 

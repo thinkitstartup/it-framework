@@ -1,9 +1,9 @@
 IT.Select = class extends IT.Component {
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 		let me = this,cls;
 		
-		me.settings = $.extend(true,{ // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			value: 'Button',
 			emptyText: '',
@@ -21,7 +21,7 @@ IT.Select = class extends IT.Component {
 			selectize: {
 				allowEmptyOption: true
 			}
-		}, params);
+		}, settings);
 		
 		me.id = me.settings.id || makeid();
 

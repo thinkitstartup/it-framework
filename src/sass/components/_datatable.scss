@@ -100,19 +100,19 @@
 								text-overflow: none;
 								overflow: visible;
 
-								.it-datatable-form {
-									background: #fff;
-									border: 1px solid $grid_column_editing_border_color;
-								  	box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
-									font-family: Aller;
-									padding: 0 5px;
-									height: $grid_column_height;
-									line-height: $grid_column_height;
-								}
+								// .it-datatable-form {
+								// 	background: #fff;
+								// 	border: 1px solid $grid_column_editing_border_color;
+								//   	box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
+								// 	font-family: Aller;
+								// 	padding: 0 5px;
+								// 	height: $grid_column_height;
+								// 	line-height: $grid_column_height;
+								// }
 
-								select.it-datatable-form {
-									padding: 0 1px;
-								}
+								// select.it-datatable-form {
+								// 	padding: 0 1px;
+								// }
 							}
 						}
 

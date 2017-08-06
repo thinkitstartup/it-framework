@@ -4,14 +4,14 @@
  * @depend IT.Component
  */
 IT.Toolbar = class extends IT.Component {
-	constructor(params){
+	constructor(settings){
 		super();
 		let me =this,cls;
-		me.settings = $.extend(true,{ // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			position: 'top',
 			items:[]
-		},params);
+		},settings);
 		me.id = me.settings.id||IT.Utils.id();
 		me.content = $(`
 			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position} clearfix">

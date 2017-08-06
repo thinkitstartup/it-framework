@@ -15,7 +15,7 @@ IT.Form = class extends IT.Component{
 		 * @property {String} id ID of element
 		 * @property {array} items Items
 		 */
-		me.settings = $.extend(true,{ 
+		me.settings = $.extend(true,{
 			id: '',
 			items:[]
 		}, opt);

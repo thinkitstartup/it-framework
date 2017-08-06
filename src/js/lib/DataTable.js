@@ -7,11 +7,9 @@
  */
 IT.DataTable = class extends IT.Component {
 	/** @param  {object} opt  */
-	constructor(opt){
-		super(opt);
-		let me = this;	
-		
-
+	constructor(settings){
+		super(settings);
+		let me = this;
 
 		/** 
 		 * Setting for class
@@ -39,7 +37,7 @@ IT.DataTable = class extends IT.Component {
 			},
 			columns: [{}],
 			customHeader:""
-		}, opt);
+		}, settings);
 
 		/** 
 		 * ID of class or element
@@ -48,17 +46,25 @@ IT.DataTable = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-
 		/**
 		 * listeners
 		 * @type {object}
 		 */
-		me.listener = new IT.Listener(me, me.settings, [
+		me.listener 		= new IT.Listener(me, me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
 			"onChangePage"
 		]);
+		me.params 			= {}
+		me.selectedRecord 	= null;
+		me.selectedColumn 	= null;
+		me.paging 			= { 
+			page_count	: 0,
+			total_rows 	: 0
+		}
+		me.createComponent();
+
 
 		/**
 		 * store data
@@ -68,26 +74,17 @@ IT.DataTable = class extends IT.Component {
 		 */
 		if(!me.settings.store.isClass){
 			me.store = new IT.Store($.extend(true, {
-				onLoad:function(store,storeData,params){
-					me.assignData(storeData);
+				afterLoad:function(store,storeData,params){
+					me.assignData(store);
 					me.listener.fire("onLoad",[me,store]);
 				}
 			}, me.settings.store));
+			me.params = me.store.params;
 		}
-
-
-		me.params = me.store.params;
-		me.selectedRecord = null;
-		me.selectedColumn = null;
-		me.paging = {
-			total_rows:0
-		}
-		me.createComponent();
 	}
 
 	createComponent(){
 		let me =this,s = me.settings;
-		//spaceimg='data:image/gif;base64,R0lGODlhAQABAJEAAAAAAP///////wAAACH5BAEHAAIALAAAAAABAAEAAAICVAEAOw==';
 		
 		//content .it-datatable
 		me.content = $('<div />', {
@@ -99,8 +96,8 @@ IT.DataTable = class extends IT.Component {
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
 		let table 		= $(`<table width='${s.width}' height='${s.height}'/>`);
-		let thead 		= $(`<thead/>`);
-		let tbody 		= $(`<tbody/>`);
+		let thead 		= $(`<thead />`);
+		let tbody 		= $(`<tbody />`);
 		me.content.append(wrapper.append(table.append(thead)));
 
 		//create header
@@ -120,19 +117,18 @@ IT.DataTable = class extends IT.Component {
 		}
 		me.content.append(fixHeader.append(table.clone()));
 		table.append(tbody);
-
-		if(s.paging)
+		if(s.paging){
 			me.content.append(`
 				<div class="it-datatable-pagination" >
 					<ul>
-						<li><button class="it-datatable-icon" rel="first"><span class="fa fa-step-backward"></span></button></li>
-						<li><button class="it-datatable-icon" rel="back"><span class="fa fa-chevron-left"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="first"><span class="fa fa-step-backward"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
 						 	<span class="it-datatable-pagination-page"></span>
 						</li>
-						<li><button class="it-datatable-icon" rel="next"><span class="fa fa-chevron-right"></span></button></li>
-						<li><button class="it-datatable-icon" rel="last"><span class="fa fa-step-forward"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
 						<li >
 							Menampilkan
 							<span class='it-datatable-pagination-show'></span> 
@@ -144,44 +140,67 @@ IT.DataTable = class extends IT.Component {
 					<div class='it-datatable-pagination-info'></div>
 				</div>
 			`);
+			me.content.find(".it-datatable-pagination .it-datatable-icon").click(function(){
+				if(me.getDataChanged().length){
+					let msg = new IT.MessageBox({
+						type:'question',
+						title:'Konfirmasi',
+						width: 400,
+						message:'Yakin akan menghapus data tersebut ?',
+						buttons:[{
+							text:'Ya',
+							handler:function(){
+								me.setPage($(this).data("page"));
+							}
+						}, {
+							text:'Tidak',
+							handler:function(){
+								msg.close();
+							}
+						}]
+					});
+				}else me.setPage($(this).data("page"));
+			});
+			me.content.find(".it-datatable-pagination .it-datatable-pagination-current").change(function(){
+				me.setPage($(this).val());
+			});
+		}
 	}
-	assignData(storeData){
-		let me =this;
-		if (storeData && storeData.rows) {
-			me.content.find("tbody").empty();
-			
-			let total_rows = storeData.total_rows;
-			let start = me.params.start;
-			let limit = me.params.limit;
-			let last_data = (start + limit) < total_rows ? (start + limit) : total_rows;
-			let data_show = total_rows > 0 ? (start + 1) + "/" + last_data : "0";
-			let page_count = Math.ceil(total_rows / limit);
 
-			me.paging = {
-				total_rows:total_rows,
-				pageCount:page_count
+	/**
+	 * Assign Data from store
+	 * @param  {IT.Store} store 
+	 */
+	assignData(store){
+		let me =this,
+			storeData = store.getData();
+		if (storeData.length) {
+			me.content.find("tbody").empty();
+			//console.info("obj");
+			let start		= me.params.start;
+			let limit		= me.params.limit;
+			let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
+
+			let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
+			let page_count	= Math.ceil(store.total_rows / limit);
+			me.paging		= {start, limit, page_count,
+				total_rows 	: store.total_rows
 			}
 
 			me.content.find('.it-datatable-pagination-show').html(data_show);
-			me.content.find('.it-datatable-pagination-count').html(total_rows);
+			me.content.find('.it-datatable-pagination-count').html(store.total_rows);
 			me.content.find('.it-datatable-pagination-page').html(page_count);
-
 			if (start == 0) 
 				me.content.find('.it-datatable-pagination-current').val(1);
 
-			for (let k=0;k<storeData.rows.length;k++){	
-				let current_row = storeData.rows[k];
-				/*
-				error_highlight = typeof current_row.errorRow == 'object' && current_row.errorRow.length > 0 ? "style='background:#ffeeee;'" : "";
-				error_highlight = typeof current_row.isError != 'undefined' && current_row.isError == true ? "style='background:#ffeeee;'" : error_highlight;
-				
-				var $rows = "<tr " + error_highlight + ">";
-				 */
+			for (let indexRow=0;indexRow<store.data.length;indexRow++){	
+				let current_row = storeData[indexRow];
 				let row_element = $("<tr>");
-				for (let i = 0; i < me.settings.columns.length; i++){
-					let current_col = me.settings.columns[i];
-					let data = current_row[me.settings.columns[i].dataIndex];
-					data = !data ? "" : data;
+				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+					let current_col = me.settings.columns[indexCol];
+					let field = me.settings.columns[indexCol].dataIndex;
+					let data = current_row.get(field);
+					data = !data?"":data;
 					let editor;
 					let td = $("<td />",{
 						html:$("<div />",{html:data}),
@@ -193,58 +212,28 @@ IT.DataTable = class extends IT.Component {
 					td.on('click',function(){
 					 	if(current_col.editor 
 					 		&& current_col.editor.editable
-					 		&& !!!$(this).find(".it-selected-edit").length
+					 		&& !td.hasClass("it-datatable-editing")
 					 	){
+					 		td.addClass("it-datatable-editing");
 							td.attr("data-oldval",data);
-							td.find("div").addClass("it-selected-edit").empty();
 							editor = IT.Utils.createObject(current_col.editor);
+							editor.val(td.find("div").html());
+							td.find("div").empty();
 							editor.input.on("blur",function(){
 								if(editor.validate()){
-									td.find("div.it-selected-edit")
-									  .removeClass("it-selected-edit");
-									data=editor.val();
-									td.find("div").html(data);
+									current_row.update(field,editor.val());
+									td.removeClass("it-datatable-editing");
+									td.find("div").html(editor.val());
 									editor.content.remove();
+									td[editor.val()==td.data("oldval")?"removeClass":"addClass"]("it-datatable-changed");
 								}
 							});
 							editor.renderTo(td.find("div"));
-							editor.val(data);
 							editor.input.focus();
 					 	}
 					});
-
 					row_element.append(td);
-					// var comboData = null;
-					// var $value = "";
-					// var editor = typeof current_col.editor != 'undefined' ? current_col.editor : null;
-					// var dataIndex = settings.columns[i].dataIndex;
-
-					// if ((editor != null && editor.xtype == 'combo') || typeof current_col.data != 'undefined') {
-					// 	$value = " value='" + $data + "'";
-					// 	comboData = typeof current_col.data != 'undefined' ? current_col.data : settings.columns[i].editor.data;
-					// 	arrayIndex = null;
-					// 	for (z = 0; z < comboData.length; z++){
-					// 		if (comboData[z]['key'] == $data){
-					// 			arrayIndex = z;
-					// 			break;
-					// 		}
-					// 	}
-					// 	$data = arrayIndex != null ? comboData[arrayIndex]['value'] : "";
-					// 	$data = $data != "" && editor != null && typeof editor.format != 'undefined' ? editor.format.format(comboData[arrayIndex].key, comboData[arrayIndex].value) : $data;
-					// }
-
-					// if (editor != null && editor.xtype == 'check') {
-					// 	$value = " value='1' ";
-					// 	$checked = $data == 1 || $data == "Y" ? "checked" : "";
-					// 	$data = " <input name='" + dataIndex + "[]' class='" + dataIndex + "' type='checkbox' " + $value + $checked + ">";
-					// }
-					
-
 					/*
-
-					$cssTD += current_row.errorRow == 'object' && current_row.errorRow.length > 0 && jQuery.inArray(dataIndex, current_row.errorRow) >= 0 ? "class='it-datatable-error'" : "";
-					
-					
 					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
 					if ($img == true) $data = "<img src='" + $data + "' " + $cssTD + ">";
 					$rows += "<td " + $cssTD + "><div"+ $value + $cssDiv +">" + $data + "</div></td>";
@@ -255,12 +244,55 @@ IT.DataTable = class extends IT.Component {
 		}
 	}
 
+	/**
+	 * Overide renderTo
+	 * @override
+	 * @param  {Element} parent Element to be placed
+	 */
 	renderTo(parent){
 		super.renderTo(parent);
 		let me = this;
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
+	}
 
+	/**
+	 * [getDataChanged description]
+	 * @return {array} array of object
+	 */
+	getDataChanged(){
+		let me 	= this,
+			r 	= [];
+		for(let key in me.store.data){
+			if(me.store.data[key].isChanged())
+				r.push(me.store.data[key].getChanged());
+		}
+		return r;
+	}
+
+	setPage(to=1){
+		let me=this;
+		console.info(me.paging);
+		return;
+		if (me.store.getData().length){
+			let lastPage = Math.ceil(me.data.total_rows / me.params.limit);
+			
+			switch(act){
+				case 'first':
+					if (me.page != 1) me.loadPage(1);
+				break;
+				case 'last':
+					if (me.page != $lastPage) me.loadPage($lastPage);
+				break;
+				case 'next':
+					if (me.page < $lastPage) me.loadPage(me.page + 1);
+				break;
+				case 'back':
+					if (me.page > 1) me.loadPage(me.page - 1);
+				break;
+			}
+			
+		}
 	}
 }

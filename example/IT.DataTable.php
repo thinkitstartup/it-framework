@@ -38,7 +38,7 @@
 			var config = {
 				x:"datatable",
 				paging:true,
-				height:400,
+				height:"100%",
 				//wrap:true,
 				columns:[{
 					header: "Nama Lengkap", 
@@ -61,7 +61,7 @@
 				store: {
 					type: 'json',
 					url: "data.json",
-					autoLoad:true,
+					autoLoad:false,
 					params:{
 						start:0,
 						limit:20
@@ -76,6 +76,8 @@
 			//render to html
 			var obj = IT.Utils.createObject(config);
 			obj.renderTo($("#mainRender"));
+
+			obj.store.load();
 
 			//as item of dialog
 			if(false)

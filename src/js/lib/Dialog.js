@@ -35,7 +35,7 @@ IT.Dialog = class extends IT.Component {
 		 * @property {boolean} cancelable cancelable
 		 * @property {object} css css
 		 */
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			title: '',
 			iconCls: '',

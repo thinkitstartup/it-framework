@@ -1,9 +1,9 @@
 IT.Tabs = class extends IT.Component {
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			titles: {
 				align: 'left',
@@ -13,7 +13,7 @@ IT.Tabs = class extends IT.Component {
 			defaultIndexActive: 0,
 			height: 100,
 			autoHeight: false
-		}, params);
+		}, settings);
 
 		me.id = me.settings.id || IT.Utils.id();
 		me.ids = [];	

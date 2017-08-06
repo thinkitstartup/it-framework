@@ -3,8 +3,8 @@
  * @type {object}
  */
 IT.Component = class extends IT.BaseClass {
-	constructor(opt) {
-		super(opt);
+	constructor(settings) {
+		super(settings);
 		let me = this;
 
 		me._id = "";
@@ -14,7 +14,7 @@ IT.Component = class extends IT.BaseClass {
 		 * @member {Object}
 		 * @name IT.Component#settings
 		 */
-		me.settings = opt||{};
+		me.settings = settings||{};
 
 
 		me.content = null;

@@ -1,8 +1,8 @@
 IT.MessageBox = class extends IT.Component {
-	constructor(params){
-		super();
+	constructor(settings){
+		super(settings);
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			type: 'info',
 			title: 'Title Here !',
@@ -12,7 +12,7 @@ IT.MessageBox = class extends IT.Component {
 			buttons: [],
 			btnAlign: 'right',
 			autoShow: true,
-		}, params);
+		}, settings);
 		me.id = me.settings.id || IT.Utils.id();
 
 		var html = `
@@ -50,7 +50,7 @@ IT.MessageBox = class extends IT.Component {
 			$.each(me.settings.buttons, function(k, el) {
 				el = $.extend({ xtype: 'button' }, el);
 				if(typeof el.renderTo !== 'function')
-					el = createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-messagebox-btn'));
 			});
 		}
@@ -84,7 +84,11 @@ IT.MessageBox = class extends IT.Component {
 						setTimeout(() => {
 							me.content.remove();	
 						}, 300);
-					})
-			});
+					});
+		});
+	}
+	
+	close(){
+		this.hide();
 	}
 }

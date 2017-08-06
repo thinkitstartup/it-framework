@@ -5,8 +5,8 @@
  */
 IT.Grid = class extends IT.Component {
 	/** @param {object} opt */
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 		let me = this;
 	
 		/** 
@@ -18,14 +18,14 @@ IT.Grid = class extends IT.Component {
 		 * @property {string} columnRule any 12 bootstrap grid system. ex : "col-sm-12", "col-md-8"
 		 * @property {object} css style for this item
 		 */
-		me.settings = $.extend(true,{ 
+		me.settings = $.extend(true,{
 			id: '',
 			type: 'row',
 			columnRule: '',
 			rowContainer: '',
 			css: {},
 			items:[]
-		}, params);
+		}, settings);
 		
 		// set id
 		me.id = me.settings.id || IT.Utils.id();

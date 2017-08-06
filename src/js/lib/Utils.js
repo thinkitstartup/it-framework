@@ -5,10 +5,10 @@
  */
 IT.Utils = class extends IT.BaseClass{
 	/**
-	 * @param  {object} opt option for class
+	 * @param  {object} settings aturan for class
 	 */
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 	}
 
 	/**

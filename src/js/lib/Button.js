@@ -9,7 +9,7 @@ IT.Button = class extends IT.Component {
 		super(params);
 
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			buttonClass: '',
 			iconClass: '',

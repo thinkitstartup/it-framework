@@ -23,8 +23,8 @@ IT.BaseClass = class {
  * @type {object}
  */
 IT.Component = class extends IT.BaseClass {
-	constructor(opt) {
-		super(opt);
+	constructor(settings) {
+		super(settings);
 		let me = this;
 
 		me._id = "";
@@ -34,7 +34,7 @@ IT.Component = class extends IT.BaseClass {
 		 * @member {Object}
 		 * @name IT.Component#settings
 		 */
-		me.settings = opt||{};
+		me.settings = settings||{};
 
 
 		me.content = null;
@@ -90,7 +90,7 @@ IT.Button = class extends IT.Component {
 		super(params);
 
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			buttonClass: '',
 			iconClass: '',
@@ -198,12 +198,12 @@ IT.Button = class extends IT.Component {
  * base class for form item
  * @extends IT.Component
  * @type IT.FormItem
- * @param {Object} opt setting for class
+ * @param {Object} settings setting for class
  */
 IT.FormItem = class extends IT.Component {
-	/** @param  {object} opt  */
-	constructor(opt){
-		super(opt);
+	/** @param  {object} settings  */
+	constructor(settings){
+		super(settings);
 	}
 	/**
 	 * getter or setter for value
@@ -259,10 +259,10 @@ IT.FormItem = class extends IT.Component {
  */
 
 IT.CheckBox = class extends IT.FormItem {
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 		let me=this,s;
-		me.opt = $.extend(true, {
+		me.settings = $.extend(true,{
 			x:"optionbox",
 			type: "checkbox",
 			id:"", // id the classs
@@ -272,8 +272,8 @@ IT.CheckBox = class extends IT.FormItem {
 			value:0, // value for input
 			readonly:false, // set readonly of the input 
 			enabled:true, // set enabled of the input 
-		}, opt);
-		s = me.opt;
+		}, settings);
+		s = me.settings;
 
 		// set id
 		me.id = s.id||IT.Utils.id();
@@ -307,11 +307,9 @@ IT.CheckBox = class extends IT.FormItem {
  */
 IT.DataTable = class extends IT.Component {
 	/** @param  {object} opt  */
-	constructor(opt){
-		super(opt);
-		let me = this;	
-		
-
+	constructor(settings){
+		super(settings);
+		let me = this;
 
 		/** 
 		 * Setting for class
@@ -339,7 +337,7 @@ IT.DataTable = class extends IT.Component {
 			},
 			columns: [{}],
 			customHeader:""
-		}, opt);
+		}, settings);
 
 		/** 
 		 * ID of class or element
@@ -348,17 +346,25 @@ IT.DataTable = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-
 		/**
 		 * listeners
 		 * @type {object}
 		 */
-		me.listener = new IT.Listener(me, me.settings, [
+		me.listener 		= new IT.Listener(me, me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
 			"onChangePage"
 		]);
+		me.params 			= {}
+		me.selectedRecord 	= null;
+		me.selectedColumn 	= null;
+		me.paging 			= { 
+			page_count	: 0,
+			total_rows 	: 0
+		}
+		me.createComponent();
+
 
 		/**
 		 * store data
@@ -368,26 +374,17 @@ IT.DataTable = class extends IT.Component {
 		 */
 		if(!me.settings.store.isClass){
 			me.store = new IT.Store($.extend(true, {
-				onLoad:function(store,storeData,params){
-					me.assignData(storeData);
+				afterLoad:function(store,storeData,params){
+					me.assignData(store);
 					me.listener.fire("onLoad",[me,store]);
 				}
 			}, me.settings.store));
+			me.params = me.store.params;
 		}
-
-
-		me.params = me.store.params;
-		me.selectedRecord = null;
-		me.selectedColumn = null;
-		me.paging = {
-			total_rows:0
-		}
-		me.createComponent();
 	}
 
 	createComponent(){
 		let me =this,s = me.settings;
-		//spaceimg='data:image/gif;base64,R0lGODlhAQABAJEAAAAAAP///////wAAACH5BAEHAAIALAAAAAABAAEAAAICVAEAOw==';
 		
 		//content .it-datatable
 		me.content = $('<div />', {
@@ -399,8 +396,8 @@ IT.DataTable = class extends IT.Component {
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
 		let table 		= $(`<table width='${s.width}' height='${s.height}'/>`);
-		let thead 		= $(`<thead/>`);
-		let tbody 		= $(`<tbody/>`);
+		let thead 		= $(`<thead />`);
+		let tbody 		= $(`<tbody />`);
 		me.content.append(wrapper.append(table.append(thead)));
 
 		//create header
@@ -420,19 +417,18 @@ IT.DataTable = class extends IT.Component {
 		}
 		me.content.append(fixHeader.append(table.clone()));
 		table.append(tbody);
-
-		if(s.paging)
+		if(s.paging){
 			me.content.append(`
 				<div class="it-datatable-pagination" >
 					<ul>
-						<li><button class="it-datatable-icon" rel="first"><span class="fa fa-step-backward"></span></button></li>
-						<li><button class="it-datatable-icon" rel="back"><span class="fa fa-chevron-left"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="first"><span class="fa fa-step-backward"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
 						 	<span class="it-datatable-pagination-page"></span>
 						</li>
-						<li><button class="it-datatable-icon" rel="next"><span class="fa fa-chevron-right"></span></button></li>
-						<li><button class="it-datatable-icon" rel="last"><span class="fa fa-step-forward"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
+						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
 						<li >
 							Menampilkan
 							<span class='it-datatable-pagination-show'></span> 
@@ -444,44 +440,67 @@ IT.DataTable = class extends IT.Component {
 					<div class='it-datatable-pagination-info'></div>
 				</div>
 			`);
+			me.content.find(".it-datatable-pagination .it-datatable-icon").click(function(){
+				if(me.getDataChanged().length){
+					let msg = new IT.MessageBox({
+						type:'question',
+						title:'Konfirmasi',
+						width: 400,
+						message:'Yakin akan menghapus data tersebut ?',
+						buttons:[{
+							text:'Ya',
+							handler:function(){
+								me.setPage($(this).data("page"));
+							}
+						}, {
+							text:'Tidak',
+							handler:function(){
+								msg.close();
+							}
+						}]
+					});
+				}else me.setPage($(this).data("page"));
+			});
+			me.content.find(".it-datatable-pagination .it-datatable-pagination-current").change(function(){
+				me.setPage($(this).val());
+			});
+		}
 	}
-	assignData(storeData){
-		let me =this;
-		if (storeData && storeData.rows) {
-			me.content.find("tbody").empty();
-			
-			let total_rows = storeData.total_rows;
-			let start = me.params.start;
-			let limit = me.params.limit;
-			let last_data = (start + limit) < total_rows ? (start + limit) : total_rows;
-			let data_show = total_rows > 0 ? (start + 1) + "/" + last_data : "0";
-			let page_count = Math.ceil(total_rows / limit);
 
-			me.paging = {
-				total_rows:total_rows,
-				pageCount:page_count
+	/**
+	 * Assign Data from store
+	 * @param  {IT.Store} store 
+	 */
+	assignData(store){
+		let me =this,
+			storeData = store.getData();
+		if (storeData.length) {
+			me.content.find("tbody").empty();
+			//console.info("obj");
+			let start		= me.params.start;
+			let limit		= me.params.limit;
+			let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
+
+			let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
+			let page_count	= Math.ceil(store.total_rows / limit);
+			me.paging		= {start, limit, page_count,
+				total_rows 	: store.total_rows
 			}
 
 			me.content.find('.it-datatable-pagination-show').html(data_show);
-			me.content.find('.it-datatable-pagination-count').html(total_rows);
+			me.content.find('.it-datatable-pagination-count').html(store.total_rows);
 			me.content.find('.it-datatable-pagination-page').html(page_count);
-
 			if (start == 0) 
 				me.content.find('.it-datatable-pagination-current').val(1);
 
-			for (let k=0;k<storeData.rows.length;k++){	
-				let current_row = storeData.rows[k];
-				/*
-				error_highlight = typeof current_row.errorRow == 'object' && current_row.errorRow.length > 0 ? "style='background:#ffeeee;'" : "";
-				error_highlight = typeof current_row.isError != 'undefined' && current_row.isError == true ? "style='background:#ffeeee;'" : error_highlight;
-				
-				var $rows = "<tr " + error_highlight + ">";
-				 */
+			for (let indexRow=0;indexRow<store.data.length;indexRow++){	
+				let current_row = storeData[indexRow];
 				let row_element = $("<tr>");
-				for (let i = 0; i < me.settings.columns.length; i++){
-					let current_col = me.settings.columns[i];
-					let data = current_row[me.settings.columns[i].dataIndex];
-					data = !data ? "" : data;
+				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+					let current_col = me.settings.columns[indexCol];
+					let field = me.settings.columns[indexCol].dataIndex;
+					let data = current_row.get(field);
+					data = !data?"":data;
 					let editor;
 					let td = $("<td />",{
 						html:$("<div />",{html:data}),
@@ -493,58 +512,28 @@ IT.DataTable = class extends IT.Component {
 					td.on('click',function(){
 					 	if(current_col.editor 
 					 		&& current_col.editor.editable
-					 		&& !!!$(this).find(".it-selected-edit").length
+					 		&& !td.hasClass("it-datatable-editing")
 					 	){
+					 		td.addClass("it-datatable-editing");
 							td.attr("data-oldval",data);
-							td.find("div").addClass("it-selected-edit").empty();
 							editor = IT.Utils.createObject(current_col.editor);
+							editor.val(td.find("div").html());
+							td.find("div").empty();
 							editor.input.on("blur",function(){
 								if(editor.validate()){
-									td.find("div.it-selected-edit")
-									  .removeClass("it-selected-edit");
-									data=editor.val();
-									td.find("div").html(data);
+									current_row.update(field,editor.val());
+									td.removeClass("it-datatable-editing");
+									td.find("div").html(editor.val());
 									editor.content.remove();
+									td[editor.val()==td.data("oldval")?"removeClass":"addClass"]("it-datatable-changed");
 								}
 							});
 							editor.renderTo(td.find("div"));
-							editor.val(data);
 							editor.input.focus();
 					 	}
 					});
-
 					row_element.append(td);
-					// var comboData = null;
-					// var $value = "";
-					// var editor = typeof current_col.editor != 'undefined' ? current_col.editor : null;
-					// var dataIndex = settings.columns[i].dataIndex;
-
-					// if ((editor != null && editor.xtype == 'combo') || typeof current_col.data != 'undefined') {
-					// 	$value = " value='" + $data + "'";
-					// 	comboData = typeof current_col.data != 'undefined' ? current_col.data : settings.columns[i].editor.data;
-					// 	arrayIndex = null;
-					// 	for (z = 0; z < comboData.length; z++){
-					// 		if (comboData[z]['key'] == $data){
-					// 			arrayIndex = z;
-					// 			break;
-					// 		}
-					// 	}
-					// 	$data = arrayIndex != null ? comboData[arrayIndex]['value'] : "";
-					// 	$data = $data != "" && editor != null && typeof editor.format != 'undefined' ? editor.format.format(comboData[arrayIndex].key, comboData[arrayIndex].value) : $data;
-					// }
-
-					// if (editor != null && editor.xtype == 'check') {
-					// 	$value = " value='1' ";
-					// 	$checked = $data == 1 || $data == "Y" ? "checked" : "";
-					// 	$data = " <input name='" + dataIndex + "[]' class='" + dataIndex + "' type='checkbox' " + $value + $checked + ">";
-					// }
-					
-
 					/*
-
-					$cssTD += current_row.errorRow == 'object' && current_row.errorRow.length > 0 && jQuery.inArray(dataIndex, current_row.errorRow) >= 0 ? "class='it-datatable-error'" : "";
-					
-					
 					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
 					if ($img == true) $data = "<img src='" + $data + "' " + $cssTD + ">";
 					$rows += "<td " + $cssTD + "><div"+ $value + $cssDiv +">" + $data + "</div></td>";
@@ -555,13 +544,56 @@ IT.DataTable = class extends IT.Component {
 		}
 	}
 
+	/**
+	 * Overide renderTo
+	 * @override
+	 * @param  {Element} parent Element to be placed
+	 */
 	renderTo(parent){
 		super.renderTo(parent);
 		let me = this;
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
+	}
 
+	/**
+	 * [getDataChanged description]
+	 * @return {array} array of object
+	 */
+	getDataChanged(){
+		let me 	= this,
+			r 	= [];
+		for(let key in me.store.data){
+			if(me.store.data[key].isChanged())
+				r.push(me.store.data[key].getChanged());
+		}
+		return r;
+	}
+
+	setPage(to=1){
+		let me=this;
+		console.info(me.paging);
+		return;
+		if (me.store.getData().length){
+			let lastPage = Math.ceil(me.data.total_rows / me.params.limit);
+			
+			switch(act){
+				case 'first':
+					if (me.page != 1) me.loadPage(1);
+				break;
+				case 'last':
+					if (me.page != $lastPage) me.loadPage($lastPage);
+				break;
+				case 'next':
+					if (me.page < $lastPage) me.loadPage(me.page + 1);
+				break;
+				case 'back':
+					if (me.page > 1) me.loadPage(me.page - 1);
+				break;
+			}
+			
+		}
 	}
 }
 /**
@@ -601,7 +633,7 @@ IT.Dialog = class extends IT.Component {
 		 * @property {boolean} cancelable cancelable
 		 * @property {object} css css
 		 */
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			title: '',
 			iconCls: '',
@@ -791,7 +823,7 @@ IT.Form = class extends IT.Component{
 		 * @property {String} id ID of element
 		 * @property {array} items Items
 		 */
-		me.settings = $.extend(true,{ 
+		me.settings = $.extend(true,{
 			id: '',
 			items:[]
 		}, opt);
@@ -957,8 +989,8 @@ function Form(params){
  */
 IT.Grid = class extends IT.Component {
 	/** @param {object} opt */
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 		let me = this;
 	
 		/** 
@@ -970,14 +1002,14 @@ IT.Grid = class extends IT.Component {
 		 * @property {string} columnRule any 12 bootstrap grid system. ex : "col-sm-12", "col-md-8"
 		 * @property {object} css style for this item
 		 */
-		me.settings = $.extend(true,{ 
+		me.settings = $.extend(true,{
 			id: '',
 			type: 'row',
 			columnRule: '',
 			rowContainer: '',
 			css: {},
 			items:[]
-		}, params);
+		}, settings);
 		
 		// set id
 		me.id = me.settings.id || IT.Utils.id();
@@ -1024,9 +1056,9 @@ IT.Grid = class extends IT.Component {
  * @extends IT.Component
  */
 IT.HTML = class extends IT.Component{
-	/** @param {object} opt */
-	constructor(params){
-		super(params);
+	/** @param {object} settings */
+	constructor(settings){
+		super(settings);
 		let me = this;
 
 		/** 
@@ -1039,13 +1071,13 @@ IT.HTML = class extends IT.Component{
 		 * @property {object} css style for this item
 		 * @property {string} class append this string to attribute class
 		 */
-		me.settings = $.extend(true, { // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			url: '',
 			content: '', 
 			css: {},
 			class:""
-		},params);
+		},settings);
 		
 		me.id = me.settings.id||IT.Utils.id();
 		me.content = $('<div/>', {id: me.id});
@@ -1103,10 +1135,10 @@ IT.Listener = class extends IT.BaseClass {
 	}
 }
 IT.MessageBox = class extends IT.Component {
-	constructor(params){
-		super();
+	constructor(settings){
+		super(settings);
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			type: 'info',
 			title: 'Title Here !',
@@ -1116,7 +1148,7 @@ IT.MessageBox = class extends IT.Component {
 			buttons: [],
 			btnAlign: 'right',
 			autoShow: true,
-		}, params);
+		}, settings);
 		me.id = me.settings.id || IT.Utils.id();
 
 		var html = `
@@ -1154,7 +1186,7 @@ IT.MessageBox = class extends IT.Component {
 			$.each(me.settings.buttons, function(k, el) {
 				el = $.extend({ xtype: 'button' }, el);
 				if(typeof el.renderTo !== 'function')
-					el = createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-messagebox-btn'));
 			});
 		}
@@ -1188,16 +1220,85 @@ IT.MessageBox = class extends IT.Component {
 						setTimeout(() => {
 							me.content.remove();	
 						}, 300);
-					})
-			});
+					});
+		});
+	}
+	
+	close(){
+		this.hide();
+	}
+}
+/**
+ * Record Store
+ * @extends IT.RecordStore
+ * @type IT.RecordStore
+ * @param {Object} record
+ * @depend IT.BaseClass
+ */
+IT.RecordStore = class extends IT.BaseClass {
+	/** conctructor */
+	constructor(record){
+		super();
+		
+		let me 			= this;
+		me.rawData 		= record,
+		me.changed		= {},
+		me.field		= Object.keys(record);
+	}
+	/**
+	 * is this record has been updated
+	 * @return {Boolean} true if record has changed
+	 */
+	isChanged(){
+		return Object.keys(this.changed).length>0;
+	}
+
+	/**
+	 * Update the record, but it's appended to changed data. Raw data still untouched
+	 * @param  {String} key   [description]
+	 * @param  {String} value [description]
+	 * @return {true}       true if updating succes. (append to changed data)
+	 */
+	update(key,value){
+		let me = this;
+		if (me.rawData.hasOwnProperty(key)){
+			if(me.rawData[key] === value){
+				if (me.changed[key]){
+					delete me.changed[key];
+				}
+			}
+			else {
+				me.changed[key] = value;
+				return true;
+			}
+		}else {console.error("Field "+key+" is not exists");}
+		return false;
+	}
+
+	/**
+	 * Get data changed
+	 * @return {Object} return null if isChanged false. otherwise return rawdata with changed applied
+	 */
+	getChanged(){
+		let me=this;
+		return !me.isChanged()?null:Object.assign({},me.rawData,me.changed);
+	}
+
+	/**
+	 * Get record data property
+	 * @param  {String} key key field
+	 * @return {Object}     value
+	 */
+	get(key){
+		return this.rawData[key];
 	}
 }
 IT.Select = class extends IT.Component {
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 		let me = this,cls;
 		
-		me.settings = $.extend(true,{ // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			value: 'Button',
 			emptyText: '',
@@ -1215,7 +1316,7 @@ IT.Select = class extends IT.Component {
 			selectize: {
 				allowEmptyOption: true
 			}
-		}, params);
+		}, settings);
 		
 		me.id = me.settings.id || makeid();
 
@@ -1320,13 +1421,14 @@ IT.Select = class extends IT.Component {
  * Data Store
  * @extends IT.BaseClass
  * @type IT.Store
- * @param {Object} opt setting for class
+ * @param {Object} settings setting for class
  * @depend IT.BaseClass
+ * @depend IT.RecordStore
  */
 IT.Store = class extends IT.BaseClass {
 	/** conctructor */
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 
 		let me =this;
 		/** 
@@ -1335,23 +1437,25 @@ IT.Store = class extends IT.BaseClass {
 		 * @name IT.Store#settings
 		 * @property {string} id ID of element
 		 */
-		me.settings = $.extend({
+		me.settings = $.extend(true,{
 			type: 'json',
 			url: '',
-			//data: {},
+			data: [],
 			autoLoad:false,
 			params:{
 				start: 0,
 				limit: 20
 			}
-		}, opt);
+		}, settings);
 		me.params = me.settings.params;
-		me.dataChanged = [];
-		me.storeData = {rows:[],total_rows:0};
+		me.data = [];
+		me.total_rows = 0;
 		me.listener = new IT.Listener(me, me.settings, [
 			"beforeLoad",
+			"afterLoad",
 			"onLoad",
 			"onError",
+			"onEmpty"
 		]);
 
 		if (me.settings.autoLoad) me.load();
@@ -1361,37 +1465,42 @@ IT.Store = class extends IT.BaseClass {
 	 * empty store data
 	 */
 	empty(){
-		me.dataChanged=[];
-		me.storeData={rows:[],total_rows:0};
-		//me.events.fire("onLoad", [me.storeData, me.params]);
+		let me=this;
+		me.total_rows = 0;
+		me.data = [];
+		me.listener.fire("onEmpty", [me.data, me.params]);
 	}
 	/**
 	 * Load Data
 	 * @param  {object} opt optional params
 	 */
-	load(opt){
+	load(opt={}){
 		let me = this;
-		var opt = opt || {};
+		//var opt = opt || {};
 		switch(me.settings.type){
 			case "json":
 				var params = $.extend(me.settings.params, opt.params);
 				me.params = params;
-				me.dataChanged=[];
+				me.empty();
 				$.ajax({
 					dataType: me.settings.type,
 					type	: 'POST',
 					url		: me.settings.url,
 					data	: params,
 					beforeSend: function(a,b){
+						me.total_rows = 0;
 						return me.listener.fire("beforeLoad",[me, a, b]);
 					},
 					success : function(data){
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
-							me.storeData=data;
-							me.listener.fire("onLoad",[me, me.storeData, me.params]);
+							$.each(data.rows ,(idx, item)=>{
+								me.data.push(new IT.RecordStore(item));
+							});							
+							me.total_rows = data.total_rows;
+							me.listener.fire("onLoad",[me, me.getData(true), me.params]);
 						}
 						else{
-							me.storeData = {};
+							me.empty();
 							me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 						}
 					},
@@ -1399,46 +1508,36 @@ IT.Store = class extends IT.BaseClass {
 						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					},
 					complete:function(){
-						me.listener.fire("afterLoad",[me,me.storeData]);
+						me.listener.fire("afterLoad",[me,me.getData()]);
 					},
 				});
 			break;
 			case "array":
-				me.listener.fire("beforeLoad",[me, a, b]);
-				if (typeof me.settings.data.rows != 'undefined' && typeof me.settings.data.total_rows != 'undefined'){
-					me.storeData = me.settings.data;
-					me.listener.fire("onLoad",[me, me.storeData, me.params]);
+				me.total_rows=0;
+				if(!me.beforeLoad || (me.beforeLoad && me.listener.fire("beforeLoad",[me, me.data||[], null]))){
+					if (typeof me.settings.data != 'undefined' ){
+						$.each(me.settings.data ,(idx, item)=>{
+							me.data.push(new IT.RecordStore(item));
+							me.total_rows++;
+						});
+						me.listener.fire("onLoad",[me, me.getData(true), null]);
+					}else{
+						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					}
+					me.listener.fire("afterLoad",[me,me.getData()]);
 				}else{
-					me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					me.empty();
+					me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 				}
-				me.listener.fire("afterLoad",[me,me.storeData]);
 			break;
 		}
-	}
-
-	/**
-	 * FuncsearchData 
-	 * @param  {string} key   field to search
-	 * @param  {object} value value to be search
-	 * @return {integer}       ifdex of storeData
-	 */
-	searchData(key, value){
-		index = null;
-		if(me.storeData.rows && me.storeData.rows.length>0){
-			for (i = 0; i < me.storeData.rows.length; i++){
-				if (me.storeData.rows[i][key] == value){
-					index = i;
-					break;
-				}
-			}
-		}
-		return index;
 	}
 
 	/**
 	 * sort data
 	 * @param  {string} field Sort by this field
 	 * @param  {boolean} asc  Determine if order is ascending. true=Ascending, false=Descending
+	 * @deprecated Deprecated, doesn't support ordering in front side
 	 */
 	sort(field,asc=true){
 		throw "Deprecated, doesn't support ordering in front side"
@@ -1451,15 +1550,40 @@ IT.Store = class extends IT.BaseClass {
 
 	/**
 	 * Get Stored Data
-	 * @return {object} current data
+	 * @param  {Boolean} sanitize wether return in raw or not, false = raw, true = sanitized
+	 * @return {array}           expected data
 	 */
-	getData(){ return this.storeData; }
+	getData(){
+		return this.data;
+	}
+
+	/**
+	 * Get only changed data from raw
+	 * @return {array}  array of record
+	 */
+	getChangedData(){
+		let me=this,r = [];
+		for(let idx in me.data){
+			if(me.data[idx].changed)
+				r.push($.extend({},me.data[idx].data,{indexRow: parseInt(idx) }));
+		}
+		return r;
+	}
 
 	/**
 	 * Set stored Data
-	 * @param {object} data replacement for storeData
+	 * @param {object} data replacement for data
 	 */
-	setData(data){ this.storeData = data; } 
+	setData(data){ 
+		let me=this;
+		data = me.type=="json"?data.rows:data;
+		me.empty();
+		$.each(data ,(idx, item)=>{
+			me.data.push(new IT.RecordStore(item));
+			me.total_rows++;
+		});
+		me.listener.fire("onLoad",[me, me.data, me.params]);
+	} 
 
 	/**
 	 * get generated settings
@@ -1467,35 +1591,24 @@ IT.Store = class extends IT.BaseClass {
 	 */
 	getSetting(){ return this.settings; }
 
-	/*
-	cekData(index, column, data){
-		let me = this;
-		if ($.trim(me.storeData.rows[index][column]) != $.trim(data))
-		{
-			rows = $.extend({indexRow: index}, me.storeData.rows[index]);
-			if (me.searchData(me.dataChanged, 'indexRow', index) == null)
-			{
-				me.dataChanged.push(rows);
-			}
-			me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)][column] = data;
-			me.events.fire("onChange", [{index: index, data: [me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)]]}]);
-			return true;
-		}else{
-			if (me.searchData(me.dataChanged, 'indexRow', index) != null)
-			{
-				me.dataChanged[me.searchData(me.dataChanged, 'indexRow', index)][column] = data;
-			}
-			return false;
+	/**
+	 * Change data
+	 * @param  {Object} data     Updated data
+	 * @param  {Number} indexRow index data to be changed
+	 */
+	replace(data={},indexRow=0){
+		let me=this;
+		for (let key in data) {
+			me.data[indexRow].update(key,data[key]);
 		}
 	}
-	*/
 }
 IT.Tabs = class extends IT.Component {
-	constructor(params){
-		super(params);
+	constructor(settings){
+		super(settings);
 
 		let me = this;
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			titles: {
 				align: 'left',
@@ -1505,7 +1618,7 @@ IT.Tabs = class extends IT.Component {
 			defaultIndexActive: 0,
 			height: 100,
 			autoHeight: false
-		}, params);
+		}, settings);
 
 		me.id = me.settings.id || IT.Utils.id();
 		me.ids = [];	
@@ -1683,7 +1796,7 @@ IT.TextBox = class extends IT.FormItem {
 
 				}
 		 */
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			x:"textbox",
 			type:'text',
 			cols:19, 
@@ -1790,14 +1903,14 @@ IT.TextBox = class extends IT.FormItem {
  * @depend IT.Component
  */
 IT.Toolbar = class extends IT.Component {
-	constructor(params){
+	constructor(settings){
 		super();
 		let me =this,cls;
-		me.settings = $.extend(true,{ // Object.assign in deep
+		me.settings = $.extend(true,{
 			id: '',
 			position: 'top',
 			items:[]
-		},params);
+		},settings);
 		me.id = me.settings.id||IT.Utils.id();
 		me.content = $(`
 			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position} clearfix">
@@ -1834,10 +1947,10 @@ IT.Toolbar = class extends IT.Component {
  */
 IT.Utils = class extends IT.BaseClass{
 	/**
-	 * @param  {object} opt option for class
+	 * @param  {object} settings aturan for class
 	 */
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 	}
 
 	/**

@@ -93,6 +93,15 @@ module.exports = function(grunt) {
 					spawn: false
 				}
 			},
+
+			script_no_docs:{
+				files: ['<%= watch.script.files %>',"example/**/*"],
+				tasks: ['concat_in_order', 'uglify'],
+				options: {
+					livereload: 8080,
+					spawn: false
+				}
+			},
 			all:{
 				files: ['<%= watch.configFiles.files %>'],
 				tasks: ['sass','concat_in_order','uglify','jsdoc']
@@ -112,5 +121,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.registerTask('default', ['sass','concat_in_order','uglify','jsdoc','watch']);
-	grunt.registerTask('simple', ['concat_in_order','uglify','watch']);
+	grunt.registerTask('onlyscript', ['concat_in_order','uglify','watch:script_no_docs']);
 };

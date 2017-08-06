@@ -6,10 +6,10 @@
  */
 
 IT.CheckBox = class extends IT.FormItem {
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 		let me=this,s;
-		me.opt = $.extend(true, {
+		me.settings = $.extend(true,{
 			x:"optionbox",
 			type: "checkbox",
 			id:"", // id the classs
@@ -19,8 +19,8 @@ IT.CheckBox = class extends IT.FormItem {
 			value:0, // value for input
 			readonly:false, // set readonly of the input 
 			enabled:true, // set enabled of the input 
-		}, opt);
-		s = me.opt;
+		}, settings);
+		s = me.settings;
 
 		// set id
 		me.id = s.id||IT.Utils.id();
