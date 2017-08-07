@@ -5,10 +5,10 @@
  */
 IT.Utils = class extends IT.BaseClass{
 	/**
-	 * @param  {object} opt option for class
+	 * @param  {object} settings aturan for class
 	 */
-	constructor(opt){
-		super(opt);
+	constructor(settings){
+		super(settings);
 	}
 
 	/**
@@ -19,19 +19,21 @@ IT.Utils = class extends IT.BaseClass{
 	static createObject(opt) {
 		let xtype = opt.xtype||opt.x;
 		let map = {
-			button 	: "Button",
-			toolbar	: "Toolbar",
-			html	: "HTML",
-			flex	: "Flex",
-			panel	: "Panel",
+			button 		: "Button",
+			toolbar		: "Toolbar",
+			html		: "HTML",
+			flex		: "Flex",
+			panel		: "Panel",
 			
-			form	: "Form",
-			textbox	: "TextBox",
-			checkbox: "CheckBox",
-			select  : "Select",
+			form		: "Form",
+			textbox		: "TextBox",
+			text		: "TextBox",
+			checkbox	: "CheckBox",
+			select  	: "Select",
 
-			grid	: "Grid",
-			tabs    : "Tabs"
+			grid		: "Grid",
+			datatable	: "DataTable",
+			tabs    	: "Tabs"
 		}
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
@@ -67,4 +69,23 @@ IT.Utils = class extends IT.BaseClass{
 		return text;
 	}
 
+
+	/**
+	 * check if value's in money format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is money
+	 */
+	static isMoney(value){
+		var m = value.replace( /[$,]/g, "" ).replace(/\./g, "").replace(/,/g, ".").replace(/\%/g, "");
+		return ! isNaN(m);
+	}
+	/**
+	 * check if value's in date format
+	 * @param  {string}  value text to be checked
+	 * @return {boolean}       return true if string is date
+	 */	
+	static isDate(value){
+		var d = new Date(value);
+		return ! isNaN(d);
+	}
 }

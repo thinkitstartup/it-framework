@@ -5,7 +5,7 @@
   "devDependencies": {
     "docdash": "git://github.com/thinkitstartup/docdash.git#fixconstructor",
     "grunt": "^1.0.1",
-    "grunt-contrib-concat": "^1.0.1",
+    "grunt-concat-in-order": "^0.2.6",
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "grunt-contrib-watch": "^1.0.0",

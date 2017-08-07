@@ -1,0 +1,134 @@
+.it {
+	&-edit {
+		width: 100%;
+		@include flexbox();
+		
+		&.for-option {
+			.it-input-label {
+				position: relative;
+				height: $checkbox_height_default;
+				line-height: $checkbox_height_default;
+				padding-left: $checkbox_width_default + 3;
+				font-size: $checkbox_label_fontsize;
+				@include flex(1);
+				
+				&:hover {
+					&:before {
+						background: $state_primary_dark_color;
+					}
+				}
+
+				&:before {
+					content: "";
+					left: 0;
+					position: absolute;	
+					background: $state_primary_color;
+					border-radius: 3px;
+					@include transition(all .2s);
+					@include prefix(box-shadow, 0 1px 2px rgba(0,0,0,.1));
+					@include size($checkbox_width_default - 5, $checkbox_height_default - 5);
+				}
+
+				&:after {
+					opacity: 0;
+					visibility: hidden;
+					content: '';
+					position: absolute;
+					top: 6px;
+					left: 5px;
+					border: 3px solid #fff;
+					border-top: none;
+					border-right: none;
+					@include transition(all .2s);
+					@include size(13px, 8px);
+					@include prefix(transform, rotate(-45deg));
+				}
+			}
+		}	
+
+		&-input {
+			box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.1);
+			font-family: Aller;
+			line-height: $input_height_default;
+			height: $input_height_default;
+			@include flex(1);
+
+			// State
+			&:focus {
+				border-color: $input_border_focus_color;
+			}
+
+			// Invalid
+			&.invalid {
+				border-color: $input_border_invalid_color;
+			}
+			
+			// For Textarea
+			@at-root textarea#{&}  {
+				line-height: auto;
+				height: auto;
+			}
+
+			// For Radio, Checkbox 
+			&[type="checkbox"], 
+			&[type="radio"] {
+				margin: 0;
+				position: relative;
+			 	visibility: hidden;
+				@include flex(none);
+				@include size($checkbox_width_default - 4, $checkbox_height_default - 4);
+
+				&:after {
+					content: "";
+					background: red;
+					position: absolute;
+ 	 				z-index: -1; 
+					@include size($checkbox_width_default, $checkbox_height_default);
+				}
+				
+			
+				&:checked + label:after {
+					visibility: visible;
+					opacity: 1;
+			    }  
+			}
+
+			&[readonly] {
+				background: $input_readonly_bg_color;
+				border-color: $input_readonly_border_color;
+				pointer-events: none;
+				@include prefix(box-shadow, none);
+			}
+		}
+
+		&-input,
+		&-item {
+		  	border: 1px solid $input_border_color;
+			padding: 0 5px;
+		}
+
+		&-item {
+			background: $input_info_bg_color;
+			color: $input_info_text_color;
+			font-weight: normal;
+			line-height: $input_height_default;
+			height: $input_height_default;
+		}
+
+		&-input,
+		&-item {
+		  	border: 1px solid $input_border_color;
+			padding: 0 5px;
+			height: $input_height_default;
+			line-height: $input_height_default;
+		}
+
+		&-item:first-child {
+			border-right: none;
+		}
+
+		&-item:last-child {
+			border-left: none;
+		}
+	}
+}

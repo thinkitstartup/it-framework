@@ -1,13 +1,16 @@
 /**
- * Create window like dialogsssss
- * @class IT.Dialog
+ * Create window like dialog
+ * @extends IT.Component
+ * @depend IT.Component
+ * 
  * @param {Object} opt setting for class
+ * 
  * @see IT.Dialog#settings
  */
 IT.Dialog = class extends IT.Component {
 	/** @param  {object} opt  */
 	constructor(opt){
-		super();
+		super(opt);
 		let me = this;
 		/** 
 		 * Wether is element exists
@@ -29,9 +32,10 @@ IT.Dialog = class extends IT.Component {
 		 * @property {number} width width
 		 * @property {number} height height
 		 * @property {boolean} autoHeight autoHeight
+		 * @property {boolean} cancelable cancelable
 		 * @property {object} css css
 		 */
-		me.settings = $.extend(true, {
+		me.settings = $.extend(true,{
 			id: '',
 			title: '',
 			iconCls: '',
@@ -41,6 +45,7 @@ IT.Dialog = class extends IT.Component {
 			width: 300,
 			height: 100,
             autoHeight: true,
+            cancelable: false,
 			css:{}
 		}, opt);
 
@@ -56,7 +61,7 @@ IT.Dialog = class extends IT.Component {
 		 * @member {IT.Listener}
 		 * @name IT.Dialog#listener
 		 */
-		me.listener = new Listener(me, me.settings,["onShow", "onHide", "onClose"]);
+		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
 		me.createElement();
 		if(me.settings.autoShow) me.show();
 	}
@@ -118,6 +123,16 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
+		}
+
+		if(me.settings.cancelable) {
+			me.content.find('.it-dialog-container').click(function(e){
+				e.stopPropagation();
+			})
+
+			me.content.click(function(){
+				me.close();
+			});
 		}
 	}
 	

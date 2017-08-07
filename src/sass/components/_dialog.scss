@@ -33,7 +33,6 @@
 
 			> .it-title {
 				background: #eee;
-				margin: 0 0 5px;
 				padding: 13px;
 				font-family: Aller-Bold;
 				@include prefix(border-radius, 0 0 0 0);
@@ -42,8 +41,9 @@
 		}	
 
 		&-content {
-			//@include flexbox();
-			//@include flex-direction(column);
+			position: relative;
+			// @include flexbox();
+			// @include flex-direction(column);
 		}
 	}
 }

@@ -8,22 +8,25 @@ $view_lg: 1200px;
 $form_space_padding: 15px 0;
 $form_space_items: 15px;
 
-$input_height_default: 33px;
-$input_width_default: 200px;
-
+$input_height_default: 25px;
 $label_width_default: 100px;
+$input_width_default: 200px;
+$input_height_default: 25px;
+$checkbox_width_default: 28px;
+$checkbox_height_default: 28px;
+$checkbox_label_fontsize: 15px;
+
 
 $button_height_default: 30px;
-
-$select_height_default: 33px;
+$select_height_default: 25px;
 
 $toolbar_height_default : 38px;
 $toolbar_input_height: 26px;
 $toolbar_select_height: 26px;
 $toolbar_button_height: 26px;
 
-$grid_column_height: 35px;
-$grid_paging_height: 35px;
+$grid_column_height: 25px;
+$grid_paging_height: 30px;
 $grid_paging_item_height: 30px;
 $grid_paging_item_width: 30px;
 

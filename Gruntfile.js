@@ -1,31 +1,47 @@
+var path = require('path');
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		concat: {
-			options: {
-				separator: ";"
+		concat_in_order: {
+			options:{
+				extractRequired: function(filepath, filecontent) {
+					var workingdir = path.normalize(filepath).split(path.sep);
+					workingdir.pop();
+					var deps = this.getMatches(/\*\s*@depend\s(.*)/g, filecontent);
+					deps.forEach(function(dep, i) {
+						dep = dep.replace(/^IT\./g, "")+ ".js";
+						var dependency = workingdir.concat([dep]);
+						deps[i] = path.join.apply(null, dependency);
+					});
+					return deps;
+				},
+				extractDeclared: function(filepath) {
+					return [filepath];
+				},
+				onlyConcatRequiredFiles: true
 			},
-			dist: {
-				src: ["src/js/namespace.js","src/js/lib/**/*.js"],
-				dest: "src/js/it-framework-all.js"
+			all:{
+				files: {
+					'src/js/it-framework-all.js':["src/js/namespace.js","src/js/lib/**/*.js"],
+				}
 			}
 		},
 		uglify: {
 			options: {
 				compress: {
-					drop_console: true
+					drop_console: !true
 				},
 				beautify: true
 			},
 			dist: {
 				files: {
-					'dist/it-framework.min.js': ['<%= concat.dist.dest %>']
+					'dist/it-framework.min.js': "src/js/it-framework-all.js"
 				}
 			}
 		},
 		jsdoc : {
 			dist : {
-				src: ['README.md','<%= concat.dist.src %>'],
+				src: ['README.md',"src/js/namespace.js","src/js/lib/**/*.js"],
 				options: {
 					destination: 'docs',
 					recurse: true,
@@ -55,9 +71,10 @@ module.exports = function(grunt) {
 				}
 			},
 			sass:{
-				files:'src/sass/it-framework.scss',
+				files:['src/sass/it-framework.scss','src/sass/**/*.scss'],
 				tasks:['sass'],
 				options: {
+					livereload: 8080,
 					spawn: false,
 				}
 			},
@@ -69,21 +86,40 @@ module.exports = function(grunt) {
 				}
 			},
 			script:{
-				files: ['<%= concat.dist.src %>'],
-				tasks: ['concat', 'uglify', 'jsdoc'],
+				files: ["src/js/namespace.js","src/js/lib/**/*.js"],
+				tasks: ['concat_in_order', 'uglify', 'jsdoc'],
 				options: {
 					livereload: 8080,
 					spawn: false
 				}
 			},
-			files: ['<%= watch.configFiles.files %>'],
-			tasks: ['sass', 'concat', 'uglify', 'jsdoc']
+
+			script_no_docs:{
+				files: ['<%= watch.script.files %>',"example/**/*"],
+				tasks: ['concat_in_order', 'uglify'],
+				options: {
+					livereload: 8080,
+					spawn: false
+				}
+			},
+			all:{
+				files: ['<%= watch.configFiles.files %>'],
+				tasks: ['sass','concat_in_order','uglify','jsdoc']
+			},
+			example:{
+				files: ["example/**/*"],
+				options: {
+					livereload: 8080,
+					reload: true
+				}	
+			}
 		}
 	});
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-sass');
-	grunt.registerTask('default', ['sass', 'concat', 'uglify', 'jsdoc', 'watch']);
+	grunt.loadNpmTasks('grunt-concat-in-order');
+	grunt.registerTask('default', ['sass','concat_in_order','uglify','jsdoc','watch']);
+	grunt.registerTask('onlyscript', ['concat_in_order','uglify','watch:script_no_docs']);
 };

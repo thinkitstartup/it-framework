@@ -1,6 +1,6 @@
 .it {
-	&-grid {	
-		position: absolute;
+	&-datatable {	
+		position: relative;
 		@include prePost('', 0, '', 0);
 		@include flexbox();
 		@include flex-direction(column);
@@ -20,8 +20,8 @@
 		}
 		
 		table { 
+			table-layout: fixed;
 			border-collapse: collapse; 
-
 			thead {
 				tr {
 					th {
@@ -48,7 +48,7 @@
 
 			tbody {
 				tr {
-
+					height: 25px;
 					&:nth-child(even) { 
 						background: $grid_row_strip_color; 
 					}
@@ -57,7 +57,7 @@
 						background: $grid_row_hover_color;
 					}
 
-					&.it-grid-selected {
+					&.it-datatable-selected {
 						background: $grid_row_selected_color;
 					}
 					
@@ -66,6 +66,9 @@
 						border-right: 1px solid transparent;
 						border-left: 1px solid transparent;
 						color: $grid_row_text_color;
+						text-overflow:ellipsis;
+						overflow:hidden;
+						white-space:nowrap;
 
 						div {
 							position: relative;
@@ -83,33 +86,38 @@
 								line-height: 1.4em;
 								height: auto;
 							}
+
 						}
 						
+						&.wrap{
+							white-space: normal !important;
+						}
+
 						// Mode Row Editing
-						&.it-grid-editing {
+						&.it-datatable-editing {
 							div {
 								padding: 0;
 								text-overflow: none;
 								overflow: visible;
 
-								.it-grid-form {
-									background: #fff;
-									border: 1px solid $grid_column_editing_border_color;
-								  	box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
-									font-family: Aller;
-									padding: 0 5px;
-									height: $grid_column_height;
-									line-height: $grid_column_height;
-								}
+								// .it-datatable-form {
+								// 	background: #fff;
+								// 	border: 1px solid $grid_column_editing_border_color;
+								//   	box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
+								// 	font-family: Aller;
+								// 	padding: 0 5px;
+								// 	height: $grid_column_height;
+								// 	line-height: $grid_column_height;
+								// }
 
-								select.it-grid-form {
-									padding: 0 1px;
-								}
+								// select.it-datatable-form {
+								// 	padding: 0 1px;
+								// }
 							}
 						}
 
 						// Perubahan Value Grid
-						&.it-grid-changed {
+						&.it-datatable-changed {
 							div {
 								&:before {
 									content: "";
@@ -142,7 +150,7 @@
 		}
 
 		&-pagination {
-			background: $base_color;
+			background: #ddd;
 			padding: 0 5px;
 			height: $grid_paging_height;
 
@@ -160,6 +168,7 @@
 				li {
 					float: left;
 					margin-right: 5px;
+					display: inline-table;
 				}
 			}
 
@@ -182,7 +191,7 @@
 }
 
 /*
-.it-grid {
+.it-datatable {
 	position:relative;
 	margin:0px; padding:0px;
 }
