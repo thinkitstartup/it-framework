@@ -33,12 +33,15 @@
 		style="border: solid 1px black;width: 800px;height: 500px;margin: 20px auto auto;padding: 20px"
 	>
 	</div>
+	<center>
+		<button id='test'>GetSelected</button>
+	</center>
 	<script type="text/javascript" defer>
 		$(function(){
 			var config = {
 				x:"datatable",
 				paging:true,
-				height:"100%",
+				height:450,
 				//wrap:true,
 				columns:[{
 					header: "Nama Lengkap", 
@@ -74,10 +77,20 @@
 
 
 			//render to html
-			var obj = IT.Utils.createObject(config);
+			var obj = new IT.DataTable(config);
 			obj.renderTo($("#mainRender"));
+			
+			setTimeout(function(){
+				obj.store.load();
+				setTimeout(function(){
+					console.info(obj.getSelectedRecords());
+					setTimeout(function(){
+						//obj.store.empty();
+					},1000);
+				},3000);
+			},1000);
 
-			obj.store.load();
+			
 
 			//as item of dialog
 			if(false)

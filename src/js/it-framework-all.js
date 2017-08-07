@@ -330,9 +330,7 @@ IT.DataTable = class extends IT.Component {
 				type: 'json',
 				params:{
 					start: 0,
-					limit: 20,
-					orderBy: '',
-					sortBy: ''
+					limit: 20
 				}
 			},
 			columns: [{}],
@@ -357,9 +355,10 @@ IT.DataTable = class extends IT.Component {
 			"onChangePage"
 		]);
 		me.params 			= {}
-		me.selectedRecord 	= null;
+		me.selectedRow 	= null;
 		me.selectedColumn 	= null;
 		me.paging 			= { 
+			page:1,
 			page_count	: 0,
 			total_rows 	: 0
 		}
@@ -374,15 +373,25 @@ IT.DataTable = class extends IT.Component {
 		 */
 		if(!me.settings.store.isClass){
 			me.store = new IT.Store($.extend(true, {
+				beforeLoad:function(){
+					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
+				},
 				afterLoad:function(store,storeData,params){
 					me.assignData(store);
 					me.listener.fire("onLoad",[me,store]);
+				},
+				onEmpty:function(store,storeData,params){
+					me.assignData(store);
+					me.listener.fire("onLoad",[me,store]);	
 				}
 			}, me.settings.store));
 			me.params = me.store.params;
 		}
 	}
 
+	/**
+	 * Create element content
+	 */
 	createComponent(){
 		let me =this,s = me.settings;
 		
@@ -395,7 +404,7 @@ IT.DataTable = class extends IT.Component {
 		//wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
-		let table 		= $(`<table width='${s.width}' height='${s.height}'/>`);
+		let table 		= $(`<table width='100%' />`);
 		let thead 		= $(`<thead />`);
 		let tbody 		= $(`<tbody />`);
 		me.content.append(wrapper.append(table.append(thead)));
@@ -425,15 +434,15 @@ IT.DataTable = class extends IT.Component {
 						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
-						 	<span class="it-datatable-pagination-page"></span>
+						 	<span class="it-datatable-pagination-page">0</span>
 						</li>
 						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
 						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
 						<li >
 							Menampilkan
-							<span class='it-datatable-pagination-show'></span> 
+							<span class='it-datatable-pagination-show'>0</span> 
 							dari
-							<span class='it-datatable-pagination-count'></span> 
+							<span class='it-datatable-pagination-count'>0</span> 
 							Data
 						</li>
 					</ul>
@@ -474,26 +483,30 @@ IT.DataTable = class extends IT.Component {
 	assignData(store){
 		let me =this,
 			storeData = store.getData();
+
+		if(storeData.length){
+			me.content.find("table").animate({ scrollTop: 0 }, "slow");
+		}
+
+		me.content.find("tbody").empty();
+		let start		= me.params.start;
+		let limit		= me.params.limit;
+		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
+		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
+		let page_count	= Math.ceil(store.total_rows / limit);
+		me.paging		= Object.assign({},me.paging,{
+			start, limit, page_count,
+			total_rows 	: store.total_rows
+		});
+		me.content.find('.it-datatable-pagination-show').html(data_show);
+		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
+		me.content.find('.it-datatable-pagination-page').html(page_count);
+
+		if (start == 0) 
+			me.content.find('.it-datatable-pagination-current').val(1);
+
 		if (storeData.length) {
-			me.content.find("tbody").empty();
-			//console.info("obj");
-			let start		= me.params.start;
-			let limit		= me.params.limit;
-			let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
-
-			let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
-			let page_count	= Math.ceil(store.total_rows / limit);
-			me.paging		= {start, limit, page_count,
-				total_rows 	: store.total_rows
-			}
-
-			me.content.find('.it-datatable-pagination-show').html(data_show);
-			me.content.find('.it-datatable-pagination-count').html(store.total_rows);
-			me.content.find('.it-datatable-pagination-page').html(page_count);
-			if (start == 0) 
-				me.content.find('.it-datatable-pagination-current').val(1);
-
-			for (let indexRow=0;indexRow<store.data.length;indexRow++){	
+			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
 				let current_row = storeData[indexRow];
 				let row_element = $("<tr>");
 				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
@@ -510,6 +523,12 @@ IT.DataTable = class extends IT.Component {
 					});
 
 					td.on('click',function(){
+
+						me.selectedRow = indexRow;
+						me.selectedColumn = indexCol;
+						me.content.find("tbody tr").removeClass('it-datatable-selected');
+						td.parent().addClass('it-datatable-selected');
+
 					 	if(current_col.editor 
 					 		&& current_col.editor.editable
 					 		&& !td.hasClass("it-datatable-editing")
@@ -573,27 +592,57 @@ IT.DataTable = class extends IT.Component {
 
 	setPage(to=1){
 		let me=this;
-		console.info(me.paging);
-		return;
 		if (me.store.getData().length){
-			let lastPage = Math.ceil(me.data.total_rows / me.params.limit);
-			
-			switch(act){
+			switch(to){
 				case 'first':
-					if (me.page != 1) me.loadPage(1);
+					if (me.paging.page != 1) {
+						me.paging.page = 1;
+						me.loadPage(1);
+					}
 				break;
 				case 'last':
-					if (me.page != $lastPage) me.loadPage($lastPage);
+					if (me.paging.page != me.paging.page_count) {
+						me.paging.page = me.paging.page_count;
+						me.loadPage(me.paging.page_count);
+					}
 				break;
 				case 'next':
-					if (me.page < $lastPage) me.loadPage(me.page + 1);
+					if (me.paging.page < me.paging.page_count) {
+						me.paging.page++;
+						me.loadPage(me.paging.page);
+					}
 				break;
 				case 'back':
-					if (me.page > 1) me.loadPage(me.page - 1);
+					if (me.paging.page >1) {
+						me.paging.page--;
+						me.loadPage(me.paging.page);
+					}
+				break;
+				default:
+					if(to>=1 && to<=me.paging.page_count){
+						me.paging.page = to;
+						me.loadPage(to);
+					}else {
+						alert("Invalid page");
+						me.content.find(".it-datatable-pagination-current").val(me.paging.page);
+						throw "Invalid page";
+					}
 				break;
 			}
-			
 		}
+	}
+	loadPage(page){
+		let me=this;
+		let start = (page - 1) * me.paging.limit;
+		me.content.find(".it-datatable-pagination .it-datatable-pagination-current").val(page);
+		me.store.load({
+			params:{start:start,limit:me.paging.limit}
+		});
+	}
+
+	getSelectedRecords(){
+		let me =this;
+		return !me.selectedRow?null:me.store.data[me.selectedRow];
 	}
 }
 /**
@@ -1468,7 +1517,7 @@ IT.Store = class extends IT.BaseClass {
 		let me=this;
 		me.total_rows = 0;
 		me.data = [];
-		me.listener.fire("onEmpty", [me.data, me.params]);
+		me.listener.fire("onEmpty",[me, me.getData(), me.params]);
 	}
 	/**
 	 * Load Data
@@ -1495,9 +1544,9 @@ IT.Store = class extends IT.BaseClass {
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
 							$.each(data.rows ,(idx, item)=>{
 								me.data.push(new IT.RecordStore(item));
-							});							
+							});
 							me.total_rows = data.total_rows;
-							me.listener.fire("onLoad",[me, me.getData(true), me.params]);
+							me.listener.fire("onLoad",[me, me.getData(), me.params]);
 						}
 						else{
 							me.empty();
@@ -1520,7 +1569,7 @@ IT.Store = class extends IT.BaseClass {
 							me.data.push(new IT.RecordStore(item));
 							me.total_rows++;
 						});
-						me.listener.fire("onLoad",[me, me.getData(true), null]);
+						me.listener.fire("onLoad",[me, me.getData(), null]);
 					}else{
 						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					}

@@ -49,7 +49,7 @@ IT.Store = class extends IT.BaseClass {
 		let me=this;
 		me.total_rows = 0;
 		me.data = [];
-		me.listener.fire("onEmpty", [me.data, me.params]);
+		me.listener.fire("onEmpty",[me, me.getData(), me.params]);
 	}
 	/**
 	 * Load Data
@@ -76,9 +76,9 @@ IT.Store = class extends IT.BaseClass {
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
 							$.each(data.rows ,(idx, item)=>{
 								me.data.push(new IT.RecordStore(item));
-							});							
+							});
 							me.total_rows = data.total_rows;
-							me.listener.fire("onLoad",[me, me.getData(true), me.params]);
+							me.listener.fire("onLoad",[me, me.getData(), me.params]);
 						}
 						else{
 							me.empty();
@@ -101,7 +101,7 @@ IT.Store = class extends IT.BaseClass {
 							me.data.push(new IT.RecordStore(item));
 							me.total_rows++;
 						});
-						me.listener.fire("onLoad",[me, me.getData(true), null]);
+						me.listener.fire("onLoad",[me, me.getData(), null]);
 					}else{
 						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					}
