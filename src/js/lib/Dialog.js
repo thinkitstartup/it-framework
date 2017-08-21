@@ -63,7 +63,8 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
 		me.createElement();
-		if(me.settings.autoShow) me.show();
+		if(me.settings.autoShow) 
+			me.show();
 	}
 
 	/**
@@ -206,4 +207,5 @@ IT.Dialog = class extends IT.Component {
 			});
 		}
 	}
+
 }

@@ -323,9 +323,9 @@ IT.DataTable = class extends IT.Component {
 			width: '100%',
 			height: '',
 			cellEditing: true,
+			enableFixedHeader: true,
 			wrap: false,
-			paging:true,
-
+			paging: true,
 			store: {
 				type: 'json',
 				params:{
@@ -348,7 +348,7 @@ IT.DataTable = class extends IT.Component {
 		 * listeners
 		 * @type {object}
 		 */
-		me.listener 		= new IT.Listener(me, me.settings, [
+		me.listener = new IT.Listener(me, me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
@@ -424,7 +424,10 @@ IT.DataTable = class extends IT.Component {
 			}
 			thead.append(tr);
 		}
-		me.content.append(fixHeader.append(table.clone()));
+
+		if(s.enableFixedHeader) 
+			me.content.append(fixHeader.append(table.clone()));
+		
 		table.append(tbody);
 		if(s.paging){
 			me.content.append(`
@@ -710,7 +713,8 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
 		me.createElement();
-		if(me.settings.autoShow) me.show();
+		if(me.settings.autoShow) 
+			me.show();
 	}
 
 	/**
@@ -853,6 +857,7 @@ IT.Dialog = class extends IT.Component {
 			});
 		}
 	}
+
 }
 
 /**

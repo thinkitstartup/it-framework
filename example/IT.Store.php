@@ -39,8 +39,8 @@
 					start:0,
 					limit:20
 				},
-				afterLoad:function(a){
-					let idx= 0;
+				afterLoad: function(a){
+					let idx = 0;
 					console.info("rawData",a.getData()[idx].rawData);
 					a.replace({
 						nama:"okhas"
