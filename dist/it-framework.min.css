@@ -492,7 +492,7 @@ html, body {
   background: #c2e9fb;
   white-space: nowrap;
   position: relative;
-  min-height: 38px;
+  min-height: 35px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -535,15 +535,15 @@ html, body {
     margin-left: -15px;
     margin-right: -15px; }
     .it-toolbar .it-edit-input, .it-toolbar .it-edit-item {
-      height: 26px;
-      line-height: 26px; }
+      height: 25px;
+      line-height: 25px; }
     .it-toolbar .it-edit .selectize-input {
-      line-height: 26px;
+      line-height: 25px;
       width: 100%;
-      height: 26px; }
+      height: 25px; }
   .it-toolbar .it-btn {
-    height: 26px;
-    line-height: 26px; }
+    height: 25px;
+    line-height: 25px; }
 
 .it-form {
   padding: 15px 0; }
@@ -693,8 +693,9 @@ html, body {
   color: #000;
   cursor: pointer;
   font-family: Aller;
+  font-size: 11px;
   display: inline-block;
-  padding: 0 20px;
+  padding: 0 10px;
   position: relative;
   height: 30px;
   line-height: 30px;
@@ -1306,13 +1307,13 @@ html, body {
     -moz-flex: 1;
     -ms-flex: 1;
     flex: 1;
-    overflow: auto; }
+    overflow: scroll; }
   .it-datatable-fixed-header {
     position: absolute;
     display: block;
     top: 0;
     left: 0;
-    right: 0;
+    right: 15px;
     width: auto;
     height: auto;
     background: #e3e4e6;
@@ -1388,7 +1389,7 @@ html, body {
     border: 1px solid transparent;
     cursor: pointer;
     width: 30px;
-    height: 30px;
+    height: 25px;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     -o-border-radius: 50%;
@@ -1440,12 +1441,12 @@ html, body {
         margin-right: 5px;
         display: inline-table; }
     .it-datatable-pagination-current {
-      line-height: 30px;
+      line-height: 25px;
       border: 1px solid #c2e9fb;
       text-align: center;
       margin-right: 5px;
       width: 30px;
-      height: 30px;
+      height: 25px;
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       -o-border-radius: 5px;

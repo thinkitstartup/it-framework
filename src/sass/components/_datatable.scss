@@ -7,13 +7,13 @@
 
 		&-wrapper {
 			@include flex(1);
-			overflow: auto;
+			overflow: scroll;
 		}
 
 		&-fixed-header{
 			position:absolute;
 			display:block;
-			top:0; left:0; right:0;
+			top:0; left:0; right:15px;
 			width:auto; height:auto;
 			background:#e3e4e6;
 			overflow:hidden;
