@@ -1,40 +1,48 @@
-// Dimens
-$z-index-default: 999;
-
-$view_sm: 768px;
-$view_md: 992px;
-$view_lg: 1200px;
-
-$form_space_padding: 15px 0;
-$form_space_items: 15px;
-
-$input_height_default: 25px;
-$label_width_default: 100px;
-$input_width_default: 200px;
-$input_height_default: 25px;
-$checkbox_width_default: 28px;
-$checkbox_height_default: 28px;
-$checkbox_label_fontsize: 15px;
-
-
-$button_height_default: 30px;
-$select_height_default: 25px;
-
-$toolbar_height_default : 38px;
-$toolbar_input_height: 26px;
-$toolbar_select_height: 26px;
-$toolbar_button_height: 26px;
-
-$grid_column_height: 25px;
-$grid_paging_height: 30px;
-$grid_paging_item_height: 30px;
-$grid_paging_item_width: 30px;
-
 
 // Color
 $base_color: #c2e9fb;
 $base_color_dark: #a1c4fd;
 
+
+// Dimens
+$z-index-default: 999;
+$view_sm: 768px;
+$view_md: 992px;
+$view_lg: 1200px;
+
+
+// Form 
+$form_space_padding: 15px 0;
+$form_space_items: 15px;
+$label_width_default: 100px;
+	// Input
+	$input_height_default: 25px;
+	$input_border_color: #ccc;
+	$input_border_focus_color: #66AFE9;
+	$input_border_invalid_color: red;
+	$input_info_bg_color: #eee;
+	$input_info_text_color: #666666;
+	$input_readonly_bg_color: #FFFADB;
+	$input_readonly_border_color: #F7FC71;
+	$input_width_default: 200px;
+	$input_height_default: 25px;
+	// Select 
+	$select_height_default: 25px;
+	// CheckBox
+	$checkbox_width_default: 28px;
+	$checkbox_height_default: 28px;
+	$checkbox_label_fontsize: 15px;
+
+
+// Toolbar
+$toolbar_height_default : 35px;
+$toolbar_input_height: 25px;
+$toolbar_select_height: 25px;
+$toolbar_button_height: 25px;
+
+
+
+// MessageBox
 $state_primary_color: #4BC0F9;
 $state_primary_dark_color: #3584EB;
 $state_success_color: #66A949;
@@ -44,27 +52,22 @@ $state_alert_dark_color: #D91515;
 $state_warning_color: #DEBD46;
 $state_warning_dark_color: #C99F01;
 
+// Button
+$button_height_default: 30px;
 $button_text_color: #000;
+$button_text_size: 11px;
 $button_border_color: #999;
 $button_border: 1px solid $button_border_color;
 $button_background_color: #fff;
 $button_rounded_size: 4px;
-$button_padding: 0 20px;
+$button_padding: 0 10px;
 $button_transition: all .2s;
-
 $button_hover_text_color: #000;
 $button_hover_background_color: #ebebeb;
 $button_hover_border_color: #666;
 $button_hover_border: 1px solid $button_hover_border_color;
 
-$input_border_color: #ccc;
-$input_border_focus_color: #66AFE9;
-$input_border_invalid_color: red;
-$input_info_bg_color: #eee;
-$input_info_text_color: #666666;
-$input_readonly_bg_color: #FFFADB;
-$input_readonly_border_color: #F7FC71;
-
+// Grid
 $grid_header_color: #eee;
 $grid_header_border_color: #ddd;
 $grid_header_text_color: #333;
@@ -74,3 +77,7 @@ $grid_row_strip_color: #f9f9f9;
 $grid_row_hover_color: #ccc;
 $grid_row_selected_color: #a1c4fd;
 $grid_column_editing_border_color: #66AFE9;
+$grid_column_height: 25px;
+$grid_paging_height: 30px;
+$grid_paging_item_height: 25px;
+$grid_paging_item_width: 30px;

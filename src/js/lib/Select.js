@@ -23,7 +23,7 @@ IT.Select = class extends IT.Component {
 			}
 		}, settings);
 		
-		me.id = me.settings.id || makeid();
+		me.id = me.settings.id || IT.Utils.id();
 
 		me.select = $('<select />', {
 			id: me.id,
