@@ -467,7 +467,7 @@ html, body {
 .it-hide {
   display: none; }
 
-.it-overlay, .it-messagebox, .it-dialog {
+.it-overlay, .it-datatable-loading-overlay, .it-messagebox, .it-dialog {
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
   z-index: 999;
@@ -487,6 +487,11 @@ html, body {
   font-family: Aller; }
   .it-title .fa, .it-messagebox-title .fa {
     margin-right: 8px; }
+
+.it-loading-rolling {
+  width: 80px;
+  height: 80px;
+  background: transparent no-repeat center center url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzlweCIgIGhlaWdodD0iMzlweCIgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIiBjbGFzcz0ibGRzLXJvbGxpbmciIHN0eWxlPSJiYWNrZ3JvdW5kOiBub25lOyI+ICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIGZpbGw9Im5vbmUiIG5nLWF0dHItc3Ryb2tlPSJ7e2NvbmZpZy5jb2xvcn19IiBuZy1hdHRyLXN0cm9rZS13aWR0aD0ie3tjb25maWcud2lkdGh9fSIgbmctYXR0ci1yPSJ7e2NvbmZpZy5yYWRpdXN9fSIgbmctYXR0ci1zdHJva2UtZGFzaGFycmF5PSJ7e2NvbmZpZy5kYXNoYXJyYXl9fSIgc3Ryb2tlPSIjOWI5YjliIiBzdHJva2Utd2lkdGg9IjYiIHI9IjM1IiBzdHJva2UtZGFzaGFycmF5PSIxNjQuOTMzNjE0MzEzNDY0MTUgNTYuOTc3ODcxNDM3ODIxMzgiIHRyYW5zZm9ybT0icm90YXRlKDEzOCA1MCA1MCkiPiAgICAgIDxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0icm90YXRlIiBjYWxjTW9kZT0ibGluZWFyIiB2YWx1ZXM9IjAgNTAgNTA7MzYwIDUwIDUwIiBrZXlUaW1lcz0iMDsxIiBkdXI9IjFzIiBiZWdpbj0iMHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIj48L2FuaW1hdGVUcmFuc2Zvcm0+ICAgIDwvY2lyY2xlPiAgPC9zdmc+); }
 
 .it-toolbar {
   background: #c2e9fb;
@@ -1287,8 +1292,6 @@ html, body {
 
 .it-datatable {
   position: relative;
-  right: 0;
-  left: 0;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -1309,15 +1312,13 @@ html, body {
     flex: 1;
     overflow: scroll; }
   .it-datatable-fixed-header {
-    position: absolute;
-    display: block;
-    top: 0;
-    left: 0;
-    right: 15px;
-    width: auto;
-    height: auto;
     background: #e3e4e6;
-    overflow: hidden; }
+    display: block;
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    right: 15px;
+    left: 0; }
   .it-datatable table {
     table-layout: fixed;
     border-collapse: collapse; }
@@ -1460,6 +1461,29 @@ html, body {
       -moz-flex: 1;
       -ms-flex: 1;
       flex: 1; }
+  .it-datatable-loading-overlay {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    -moz-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    align-items: center;
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.6); }
+    .it-datatable-loading-overlay.loading-show {
+      visibility: visible;
+      opacity: 1; }
 
 /*
 .it-datatable {

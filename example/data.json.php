@@ -1,5 +1,5 @@
 <?php
-
+	sleep(1);
 	$result=new stdClass();
 	$client=mysqli_connect("127.0.0.1", "root", "", "pendassd17");
 	$sql="SELECT CONCAT(nama_lengkap,' ',member_id) nama, IF(RAND()>0.5,'L','P') sex FROM members  where type='2' limit ".$_REQUEST["start"].",".$_REQUEST["limit"];

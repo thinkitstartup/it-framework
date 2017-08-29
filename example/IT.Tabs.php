@@ -55,7 +55,7 @@
 				}],
 				store: {
 					type: 'json',
-					url: "data.json",
+					url: "data.json.php",
 					autoLoad:false,
 					params:{
 						start:0,
