@@ -71,7 +71,9 @@ IT.DataTable = class extends IT.Component {
 		if(!me.settings.store.isClass){
 			me.store = new IT.Store($.extend(true, {
 				beforeLoad:function(){
+					console.info("load");
 					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
+					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
 				},
 				afterLoad:function(store,storeData,params){
 					me.assignData(store);
@@ -80,7 +82,8 @@ IT.DataTable = class extends IT.Component {
 				onEmpty:function(store,storeData,params){
 					me.assignData(store);
 					me.doEvent("onLoad",[me,store]);
-				}
+					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
+				},
 			}, me.settings.store));
 			me.params = me.store.params;
 		}
@@ -91,14 +94,14 @@ IT.DataTable = class extends IT.Component {
 	 */
 	createComponent(){
 		let me =this,s = me.settings;
-		
+
 		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
 			class: s.cls 
 		}).width(s.width).height(s.height);
 
-		//wrapper
+		// wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
 		let table 		= $(`<table width='100%' />`);
@@ -170,9 +173,19 @@ IT.DataTable = class extends IT.Component {
 					});
 				}else me.setPage($(this).data("page"));
 			});
+
 			me.content.find(".it-datatable-pagination .it-datatable-pagination-current").change(function(){
 				me.setPage($(this).val());
 			});
+
+			// Loading Inline
+			let loadingInline = $(`
+				<div class="it-datatable-loading-overlay">
+					<div class="it-loading-rolling"></div>
+				</div>
+			`);
+
+			me.content.append(loadingInline);
 		}
 	}
 
