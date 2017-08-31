@@ -17,6 +17,27 @@ IT.BaseClass = class {
 	get isClass(){
 		return true;
 	}
+	/**
+	 * addEvents to the the class
+	 * @param  {option} object of functions 
+	 * @param  {events_available} array array of string. Can be act as event available
+	 */
+	addEvents(option,events_available=[]){
+		let me=this;
+		events_available.forEach((a) => me[a]=option[a]||function(){});
+	}	
+	/**
+	 * Call event from available events.
+	 * @param  {event} string of the event to be called
+	 * @param  {params} array array of argument to be passed
+	 * @param  {scope} object scope where the event will be called
+	 */
+	doEvent(event,params,scope=null){
+		var me=this;
+		if(typeof me[event]=="function"){
+			return me[event].apply(scope||me,params);
+		}
+	}
 }
 /**
  * Default Component CLass
@@ -35,8 +56,6 @@ IT.Component = class extends IT.BaseClass {
 		 * @name IT.Component#settings
 		 */
 		me.settings = settings||{};
-
-
 		me.content = null;
 	}
 	/**
@@ -47,8 +66,6 @@ IT.Component = class extends IT.BaseClass {
 		if(this.content.appendTo)
 			this.content.appendTo(parentEl);
 	}
-
-
 	/**
 	 * ID of component
 	 * @name IT.Component#id
@@ -60,19 +77,16 @@ IT.Component = class extends IT.BaseClass {
 	set id(id) {
 		this._id = id;
 	}
-
 	/**
 	 * get ID
 	 * @return {string} Component ID
 	 */
 	getId() { return this.id; }
-
 	/**
 	 * get Content  selector 
 	 * @return {selector} content
 	 */
 	getContent() { return this.content; }
-
 	/**
 	 * get generated settings
 	 * @return {object}
@@ -344,11 +358,8 @@ IT.DataTable = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		/**
-		 * listeners
-		 * @type {object}
-		 */
-		me.listener = new IT.Listener(me, me.settings, [
+
+		me.addEvents(me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
@@ -378,11 +389,11 @@ IT.DataTable = class extends IT.Component {
 				},
 				afterLoad:function(store,storeData,params){
 					me.assignData(store);
-					me.listener.fire("onLoad",[me,store]);
+					me.doEvent("onLoad",[me,store]);
 				},
 				onEmpty:function(store,storeData,params){
 					me.assignData(store);
-					me.listener.fire("onLoad",[me,store]);	
+					me.doEvent("onLoad",[me,store]);
 				}
 			}, me.settings.store));
 			me.params = me.store.params;
@@ -706,12 +717,12 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		/** 
-		 * Listeners
-		 * @member {IT.Listener}
-		 * @name IT.Dialog#listener
-		 */
-		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
+		me.addEvents(me.settings, [
+			"onShow", 
+			"onHide", 
+			"onClose"
+		]);
+
 		me.createElement();
 		if(me.settings.autoShow) 
 			me.show();
@@ -796,7 +807,7 @@ IT.Dialog = class extends IT.Component {
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
 		});
-		me.listener.fire("onShow", [me, me.id]);
+		me.doEvent("onShow",[me, me.id]);
 
 		$(window).resize(function() {
 			me._autoScrollContainer();
@@ -812,7 +823,7 @@ IT.Dialog = class extends IT.Component {
 			.removeClass('dialog-show')
 			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
-				me.listener.fire("onHide", [me, me.id]);
+				me.doEvent("onHide",[me, me.id]);
 			});
 	}
 
@@ -829,7 +840,7 @@ IT.Dialog = class extends IT.Component {
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();
-							me.listener.fire("onClose", [me, me.id]);	
+							me.doEvent("onClose",[me, me.id]);
 						}, 300);
 					})
 			});
@@ -1208,34 +1219,37 @@ IT.HTML = class extends IT.Component{
  * CLass listener to handdle event function 
  * @extends IT.BaseClass
  * @depend IT.BaseClass
+ * @deprecated No longer used
  */
-IT.Listener = class extends IT.BaseClass {
-	/**
-	 * set the listeners
-	 * @param  {function} scope scope where listeners lies
-	 * @param  {object} option object of event function
-	 * @param  {sting[]}  listen_enable	array of string to register
-	 */
-	constructor(scope,option,listen_enable=[]){
-		super();
-		let me =this;
-		me.events={};
-		me.scope=scope;
-		listen_enable.forEach((a) => me.events[a]=option[a]);
-	}
+// IT.Listener = class extends IT.BaseClass {
+// 	/**
+// 	 * set the listeners
+// 	 * @param  {function} scope scope where listeners lies
+// 	 * @param  {object} option object of event function
+// 	 * @param  {sting[]}  listen_enable	array of string to register
+// 	 */
+// 	constructor(scope,option,listen_enable=[]){
+// 		super();
+// 		// let me =this;
+// 		// me.events={};
+// 		// me.scope=scope;
+// 		// listen_enable.forEach((a) => me.events[a]=option[a]);
+// 		console.info("Deprecated");
+// 		throw "Deprecated";
+// 	}
 
-	/**
-	 * apply a function listener with params
-	 * @param  {sting} listener listener tobe called
-	 * @param  {array} params   array of string to pass as argument listener
-	 */
-	fire(listener,params){
-		var me=this;
-		if(typeof me.events[listener]=="function"){
-			return me.events[listener].apply(me.scope,params);
-		}
-	}
-}
+// 	/**
+// 	 * apply a function listener with params
+// 	 * @param  {sting} listener listener tobe called
+// 	 * @param  {array} params   array of string to pass as argument listener
+// 	 */
+// 	fire(listener,params){
+// 		// var me=this;
+// 		// if(typeof me.events[listener]=="function"){
+// 		// 	return me.events[listener].apply(me.scope,params);
+// 		// }
+// 	}
+// }
 IT.MessageBox = class extends IT.Component {
 	constructor(settings){
 		super(settings);
@@ -1430,10 +1444,9 @@ IT.Select = class extends IT.Component {
 			},
 			val: me.settings.defaultValue,
 		});
-
 		me.content = $('<div />', { class: 'it-edit' });
 		me.content.append(me.select);
-		me.select.selectize($.extend( true, me.settings.selectize ));
+		me.select.selectize(me.settings.selectize);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -1441,18 +1454,15 @@ IT.Select = class extends IT.Component {
 			})
 		}
 
-		// If has value of empty text
-		if(me.settings.emptyText) {
-			me.getSelect().addOption({
-				value: '',
-				text: me.settings.emptyText
-			});
-		}
-
 		// Jika Autuload OK 
 		if(me.settings.autoLoad) {
 			me.getDataSource();
 		}
+
+		me.addEvents(me.settings,["onChange"]);
+
+		//console.info("listener", me.listener.events.prototype);
+		//console.info(me.listener.onChange());
 	}
 
 	val(v) {
@@ -1474,9 +1484,19 @@ IT.Select = class extends IT.Component {
 		let selectize = me.getSelect();
 
 		//Empty Option
-		selectize.clear();
+		let a = selectize.clear();
 
-		// Type of Data Source array or ajax
+		console.info(selectize);
+
+		// If has value of empty text
+		if(me.settings.emptyText) {
+			me.getSelect().addOption({
+				value: '',
+				text: me.settings.emptyText
+			});
+		}
+
+		//Type of Data Source array or ajax
 		switch(ds.type) {
 			case 'array' :
 				if(typeof ds.data !== 'undefined' && ds.data.length > 0 ) { 
@@ -1507,7 +1527,7 @@ IT.Select = class extends IT.Component {
 								});
 							});
 						}
-						selectize.setValue(me.settings.defaultValue);
+						//selectize.setValue(me.settings.defaultValue);
 					}
 				});
 			break;
@@ -1552,14 +1572,13 @@ IT.Store = class extends IT.BaseClass {
 		me.params = me.settings.params;
 		me.data = [];
 		me.total_rows = 0;
-		me.listener = new IT.Listener(me, me.settings, [
+		me.addEvents(me.settings, [
 			"beforeLoad",
 			"afterLoad",
 			"onLoad",
 			"onError",
 			"onEmpty"
 		]);
-
 		if (me.settings.autoLoad) me.load();
 	}
 
@@ -1570,7 +1589,7 @@ IT.Store = class extends IT.BaseClass {
 		let me=this;
 		me.total_rows = 0;
 		me.data = [];
-		me.listener.fire("onEmpty",[me, me.getData(), me.params]);
+		me.doEvent("onEmpty",[me, me.getData(), me.params]);
 	}
 	/**
 	 * Load Data
@@ -1591,7 +1610,8 @@ IT.Store = class extends IT.BaseClass {
 					data	: params,
 					beforeSend: function(a,b){
 						me.total_rows = 0;
-						return me.listener.fire("beforeLoad",[me, a, b]);
+						let ret =me.doEvent("beforeLoad",[me, a, b]);
+						return (typeof ret == 'undefined'?true:ret);
 					},
 					success : function(data){
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
@@ -1599,37 +1619,38 @@ IT.Store = class extends IT.BaseClass {
 								me.data.push(new IT.RecordStore(item));
 							});
 							me.total_rows = data.total_rows;
-							me.listener.fire("onLoad",[me, me.getData(), me.params]);
+							me.doEvent("onLoad",[me, me.getData(), me.params]);
 						}
 						else{
 							me.empty();
-							me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+							me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 						}
 					},
 					error: function(){
-						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					},
 					complete:function(){
-						me.listener.fire("afterLoad",[me,me.getData()]);
+						me.doEvent("afterLoad",[me,me.getData()]);
 					},
 				});
 			break;
 			case "array":
 				me.total_rows=0;
-				if(!me.beforeLoad || (me.beforeLoad && me.listener.fire("beforeLoad",[me, me.data||[], null]))){
+				let bl_return = me.doEvent("beforeLoad",[me, me.data||[], null]);
+				if(typeof bl_return == 'undefined'?true:bl_return){
 					if (typeof me.settings.data != 'undefined' ){
 						$.each(me.settings.data ,(idx, item)=>{
 							me.data.push(new IT.RecordStore(item));
 							me.total_rows++;
 						});
-						me.listener.fire("onLoad",[me, me.getData(), null]);
+						me.doEvent("onLoad",[me, me.getData(), null]);
 					}else{
-						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					}
-					me.listener.fire("afterLoad",[me,me.getData()]);
+					me.doEvent("afterLoad",[me,me.getData()]);
 				}else{
 					me.empty();
-					me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+					me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 				}
 			break;
 		}
@@ -1684,7 +1705,7 @@ IT.Store = class extends IT.BaseClass {
 			me.data.push(new IT.RecordStore(item));
 			me.total_rows++;
 		});
-		me.listener.fire("onLoad",[me, me.data, me.params]);
+		me.doEvent("onLoad",[me, me.data, me.params]);
 	} 
 
 	/**
@@ -2054,7 +2075,6 @@ IT.Utils = class extends IT.BaseClass{
 	constructor(settings){
 		super(settings);
 	}
-
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -2082,7 +2102,6 @@ IT.Utils = class extends IT.BaseClass{
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
-
 	/**
 	 * create template literal
 	 * @param  {string}    strings base template
@@ -2100,7 +2119,6 @@ IT.Utils = class extends IT.BaseClass{
 			return result.join('');
 		});
 	}
-
 	/**
 	 * create random id with prefix "IT-"
 	 * @return {string} string random id 
@@ -2112,8 +2130,6 @@ IT.Utils = class extends IT.BaseClass{
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	}
-
-
 	/**
 	 * check if value's in money format
 	 * @param  {string}  value text to be checked

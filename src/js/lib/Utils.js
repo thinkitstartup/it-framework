@@ -10,7 +10,6 @@ IT.Utils = class extends IT.BaseClass{
 	constructor(settings){
 		super(settings);
 	}
-
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -38,7 +37,6 @@ IT.Utils = class extends IT.BaseClass{
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
-
 	/**
 	 * create template literal
 	 * @param  {string}    strings base template
@@ -56,7 +54,6 @@ IT.Utils = class extends IT.BaseClass{
 			return result.join('');
 		});
 	}
-
 	/**
 	 * create random id with prefix "IT-"
 	 * @return {string} string random id 
@@ -68,8 +65,6 @@ IT.Utils = class extends IT.BaseClass{
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	}
-
-
 	/**
 	 * check if value's in money format
 	 * @param  {string}  value text to be checked

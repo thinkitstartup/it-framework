@@ -44,11 +44,8 @@ IT.DataTable = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		/**
-		 * listeners
-		 * @type {object}
-		 */
-		me.listener = new IT.Listener(me, me.settings, [
+
+		me.addEvents(me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
@@ -78,11 +75,11 @@ IT.DataTable = class extends IT.Component {
 				},
 				afterLoad:function(store,storeData,params){
 					me.assignData(store);
-					me.listener.fire("onLoad",[me,store]);
+					me.doEvent("onLoad",[me,store]);
 				},
 				onEmpty:function(store,storeData,params){
 					me.assignData(store);
-					me.listener.fire("onLoad",[me,store]);	
+					me.doEvent("onLoad",[me,store]);
 				}
 			}, me.settings.store));
 			me.params = me.store.params;

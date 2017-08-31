@@ -22,101 +22,59 @@
 <script type="text/javascript">
 	$(function(){
 		
-		var dialog = new IT.Dialog({
-			title: 'Ini Dialog Box',
-			width: 500,
-			css: {padding: 10},
-			items:[{
-				xtype:"form",
-				items:[					
-				{
-					x:"textbox",
-					type:"mask",
-					label:"masukan nama",
-					placeholder:"masukan nama",
-					allowBlank:false,
-					info:{
-						prepend:"Rp. ",
-						append:"-,."
-					},
-					maskSettings:{
-						groupSeparator: ".",
-						radixPoint: "",
-						alias: "numeric",
-						placeholder: "0",
-						autoGroup: !0,
-						digits: 2
-					},
 
-				},
-				
-				// {
-				// 	x:"grid",
-				// 	type:"row",
-				// 	rowContainer:"fluid",
-				// 	items:[{
-				// 		x:"grid",
-				// 		type:"column",
-				// 		columnRule:'col-sm-4',
-				// 		items:[{					
-				// 			x:"html",
-				// 			content:"Hobby",		
-				// 		}]
-				// 	},
-					
-				// 	 {
-				// 		x:"grid",
-				// 		type:"column",
-				// 		columnRule:'col-sm-8',
-				// 		items:[{
-				// 			x:"checkbox",
-				// 			label:"Renang",
-				// 		},{
-				// 			x:"checkbox",
-				// 			label:"Lari",
-				// 		}]
-				// 	}
-				// 	]
-				// }
-				
-				]
-			}]	
-		});		
+		IT.ComponentB = class extends IT.Component {
+			constructor(settings){
+				super(settings);
+				this.listeners = ["onLoad"];
+				//Object.assign(this,settings);
+			}
+			addEvents(option,listen_enable=[]){
+				let me=this;
+				listen_enable.forEach((a) => me[a]=option[a]||function(){console.info("Function "+ a+" is Empty")});
+			}
+			doEvents(listener,params,scope=null){
+				var me=this;
+				if(typeof me[listener]=="function"){
+					return me[listener].apply(scope||me,params);
+				}
+			}
+			test(){
+				console.info("this is test");
+			}
+			/*
+			onLoad(){
+				console.info("ini On Load dari definisi");
+			}
+			*/
+		}
+		
+		
+		IT.Div = class extends IT.ComponentB{
+			constructor(settings){
+				super(settings);
+				let me = this;
+				me.addEvents(me.settings,["onLoad"]);
+				me.settings = $.extend(true,{
+					id: '',
+					iconCls: '',
+					cancelable: false,
+					css:{}
+				}, settings);
+				me.doEvents("onLoad",[me,"b","c"],window);
+			}
+		}
+		
+		let a = new IT.Div({
+			onLoad(a,b,c){
+				console.info("From a euy on load");
+				console.info(a,b,c);
+				console.info("this",this);
+			}
+		});
 
-		// var dialog = new IT.Dialog({
-		// 	title: 'Ini Dialog Box',
-		// 	width: 900,
-		// 	height:500,
-		// 	//css: {padding: 10},
-		// 	items:[
-		// 	{
-		// 		x:"datatable",
-		// 		paging:true,
-		// 	// 	height:"100%",
-		// 		columns:[{
-		// 			header: "Nama Lengkap", 
-		// 			dataIndex:"nama", 
-		// 			width: 100
-		// 		},{
-		// 			header: "b", 
-		// 			dataIndex:"sex", 
-		// 			width: 100
-		// 		},{	
-		// 			header: "", 
-		// 			dataIndex:""
-		// 		}],
-		// 		store: {
-		// 			type: 'json',
-		// 			url: "data.json",
-		// 			autoLoad:true,
-		// 			params:{
-		// 				start:0,
-		// 				limit:20
-		// 			}
-		// 		}
-		// 	}
-		// 	]
-		// });
+		console.info(a);
+		//a.onLoad();
 	});
 </script>	
 </body>

@@ -41,22 +41,22 @@
 				},
 				afterLoad: function(a){
 					let idx = 0;
-					console.info("rawData",a.getData()[idx].rawData);
-					a.replace({
-						nama:"okhas"
-					},idx);
-					console.info("isChanged",a.getData()[idx].isChanged());
-					console.info("getChanged",a.getData()[idx].getChanged());
-					console.info("total_rows",a.total_rows);
-					console.info("rawData",a.getData()[idx].rawData);
+					// console.info("rawData",a.getData()[idx].rawData);
+					// a.replace({
+					// 	nama:"okhas"
+					// },idx);
+					// console.info("isChanged",a.getData()[idx].isChanged());
+					// console.info("getChanged",a.getData()[idx].getChanged());
+					// console.info("total_rows",a.total_rows);
+					// console.info("rawData",a.getData()[idx].rawData);
 
-					a.setData([
-						{nama:"arief",sex:"L"},
-					]);
-					console.info("isChanged",a.getData()[idx].isChanged());
-					console.info("getChanged",a.getData()[idx].getChanged());
-					console.info("total_rows",a.total_rows);
-					console.info("rawData",a.getData()[idx].rawData);
+					// a.setData([
+					// 	{nama:"arief",sex:"L"},
+					// ]);
+					// console.info("isChanged",a.getData()[idx].isChanged());
+					// console.info("getChanged",a.getData()[idx].getChanged());
+					// console.info("total_rows",a.total_rows);
+					// console.info("rawData",a.getData()[idx].rawData);
 					
 
 					console.info("type : array");
@@ -72,6 +72,7 @@
 					{nama:"wati",sex:"P"},
 				],
 				afterLoad:function(a){
+					console.info("masuk ga");
 					let idx= 0;
 					console.info("rawData",a.getData()[idx].rawData);
 					a.replace({

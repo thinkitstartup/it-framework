@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
 	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="bower_components/inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
-	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.min.js"></script>
+	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.js"></script>
 
 	<!-- ThinkIT -->
 	<link rel="stylesheet" href="../dist/it-framework.min.css?dc=<?php echo time();?>" />
@@ -66,53 +66,47 @@
 
 			var select = new IT.Select({
 				emptyText:'- Pilih Data -',
+				autoLoad:false,
 				datasource: {
-					type: 'array',
-					data:[{
-						key: 'A',
-						value: 'ini A'
-					}, {
-						key: 'B',
-						value: 'ini B'
-					}, {
-						key: 'C`',
-						value: 'ini C`'
-					}]
+					type: 'ajax',
+					url:"datajson/ref_agama.php"
+					// data:[{
+					// 	key: 'A',
+					// 	value: 'ini A'
+					// }, {
+					// 	key: 'B',
+					// 	value: 'ini B'
+					// }, {
+					// 	key: 'C`',
+					// 	value: 'ini C`'
+					// }]
 				}
 			});
 
-			var config = {
+			var container = {
 				x:"tabs",
 				height: 500,
 				autoHeight: false,
 				titles: {
 					items:[
-						"Tab A",
-						"Tab B",
-						"Tab C",
+						"Select",
+						"DataTable"
 					]
 				}, 
-				items:[{
-						x:"html",
-						content: "Ini Untuk TAB A",
-						css: {
-							padding: 10
-						}
-					}, table, select
-				]
+				items:[select,table]
 			}
 
 			//render to html
 			$("#render").click(()=>{
-				var obj = IT.Utils.createObject(config);
+				var obj = IT.Utils.createObject(container);
 				obj.renderTo($("#mainRender"));
-				obj.setActive(1);
+				obj.setActive(0);
 
 				select.content.css({
 					margin: 10
 				})
 
-				table.store.load();
+				//table.store.load();
 			});
 
 			$('#render').click();
@@ -124,9 +118,22 @@
 					width: 500,
 					cancelable: true,
 					css: {padding: 10},
-					items:[config]
+					items:[container]
 				});
 			});
+
+			setTimeout(function(){
+				//select.val("A");
+				//console.info(select.getSelect().setValue("B"));
+				//console.info(select.getSelect().getValue());
+
+				//select.listener.fire("onChange",["satu","dua"]);
+				//select.onChange(); // 
+				select.getDataSource();
+				setTimeout(function(){
+					select.getDataSource();
+				},2000);
+			},2000);
 		});
 	</script>
 </body>

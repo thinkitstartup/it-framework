@@ -15,8 +15,6 @@ IT.Component = class extends IT.BaseClass {
 		 * @name IT.Component#settings
 		 */
 		me.settings = settings||{};
-
-
 		me.content = null;
 	}
 	/**
@@ -27,8 +25,6 @@ IT.Component = class extends IT.BaseClass {
 		if(this.content.appendTo)
 			this.content.appendTo(parentEl);
 	}
-
-
 	/**
 	 * ID of component
 	 * @name IT.Component#id
@@ -40,19 +36,16 @@ IT.Component = class extends IT.BaseClass {
 	set id(id) {
 		this._id = id;
 	}
-
 	/**
 	 * get ID
 	 * @return {string} Component ID
 	 */
 	getId() { return this.id; }
-
 	/**
 	 * get Content  selector 
 	 * @return {selector} content
 	 */
 	getContent() { return this.content; }
-
 	/**
 	 * get generated settings
 	 * @return {object}

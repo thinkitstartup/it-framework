@@ -33,10 +33,9 @@ IT.Select = class extends IT.Component {
 			},
 			val: me.settings.defaultValue,
 		});
-
 		me.content = $('<div />', { class: 'it-edit' });
 		me.content.append(me.select);
-		me.select.selectize($.extend( true, me.settings.selectize ));
+		me.select.selectize(me.settings.selectize);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -44,18 +43,15 @@ IT.Select = class extends IT.Component {
 			})
 		}
 
-		// If has value of empty text
-		if(me.settings.emptyText) {
-			me.getSelect().addOption({
-				value: '',
-				text: me.settings.emptyText
-			});
-		}
-
 		// Jika Autuload OK 
 		if(me.settings.autoLoad) {
 			me.getDataSource();
 		}
+
+		me.addEvents(me.settings,["onChange"]);
+
+		//console.info("listener", me.listener.events.prototype);
+		//console.info(me.listener.onChange());
 	}
 
 	val(v) {
@@ -77,9 +73,19 @@ IT.Select = class extends IT.Component {
 		let selectize = me.getSelect();
 
 		//Empty Option
-		selectize.clear();
+		let a = selectize.clear();
 
-		// Type of Data Source array or ajax
+		console.info(selectize);
+
+		// If has value of empty text
+		if(me.settings.emptyText) {
+			me.getSelect().addOption({
+				value: '',
+				text: me.settings.emptyText
+			});
+		}
+
+		//Type of Data Source array or ajax
 		switch(ds.type) {
 			case 'array' :
 				if(typeof ds.data !== 'undefined' && ds.data.length > 0 ) { 
@@ -110,7 +116,7 @@ IT.Select = class extends IT.Component {
 								});
 							});
 						}
-						selectize.setValue(me.settings.defaultValue);
+						//selectize.setValue(me.settings.defaultValue);
 					}
 				});
 			break;
