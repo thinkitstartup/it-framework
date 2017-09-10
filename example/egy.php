@@ -22,59 +22,29 @@
 <script type="text/javascript">
 	$(function(){
 		
-
-		IT.ComponentB = class extends IT.Component {
-			constructor(settings){
-				super(settings);
-				this.listeners = ["onLoad"];
-				//Object.assign(this,settings);
+		let a = class {
+			constructor(){
+				this.onReady = false;
+				this.doSomething();
 			}
-			addEvents(option,listen_enable=[]){
+			doSomething(){
 				let me=this;
-				listen_enable.forEach((a) => me[a]=option[a]||function(){console.info("Function "+ a+" is Empty")});
-			}
-			doEvents(listener,params,scope=null){
-				var me=this;
-				if(typeof me[listener]=="function"){
-					return me[listener].apply(scope||me,params);
+				if(me.onReady){
+					console.info("ekskusi");
+				}else{
+					setTimeout(()=>{
+						console.info("hold");
+						me.doSomething.call(me, arguments);
+					},1000)
 				}
 			}
-			test(){
-				console.info("this is test");
-			}
-			/*
-			onLoad(){
-				console.info("ini On Load dari definisi");
-			}
-			*/
 		}
-		
-		
-		IT.Div = class extends IT.ComponentB{
-			constructor(settings){
-				super(settings);
-				let me = this;
-				me.addEvents(me.settings,["onLoad"]);
-				me.settings = $.extend(true,{
-					id: '',
-					iconCls: '',
-					cancelable: false,
-					css:{}
-				}, settings);
-				me.doEvents("onLoad",[me,"b","c"],window);
-			}
-		}
-		
-		let a = new IT.Div({
-			onLoad(a,b,c){
-				console.info("From a euy on load");
-				console.info(a,b,c);
-				console.info("this",this);
-			}
-		});
 
-		console.info(a);
-		//a.onLoad();
+		let instance = new a();
+		$(document).click(function(){
+			console.info("clicked");
+			instance.onReady = true;
+		});
 	});
 </script>	
 </body>

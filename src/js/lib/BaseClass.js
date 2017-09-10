@@ -3,6 +3,19 @@
  * @type {class}
  */
 IT.BaseClass = class {
+	constructor(settings) {
+		let me = this;
+		me._id = "";//private
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Component#settings
+		 */
+		me.settings = settings||{};
+	}
+
+
 	/**
 	 * used to check if this is a class
 	 * @type {boolean}
@@ -15,20 +28,31 @@ IT.BaseClass = class {
 	 * @param  {option} object of functions 
 	 * @param  {events_available} array array of string. Can be act as event available
 	 */
-	addEvents(option,events_available=[]){
+	//https://stackoverflow.com/questions/23344625/create-javascript-custom-event
+	addEvents(option,listen_enable=[]){
 		let me=this;
-		events_available.forEach((a) => me[a]=option[a]||function(){});
-	}	
+		if (listen_enable.length==0){
+			Object.keys(option).forEach((e)=>
+				typeof option[e]=="function"
+					?listen_enable.push(e)
+					:null
+			);
+		}
+		let sel = option.selector || $(me);
+		//sel = (typeof sel.on=="function")?sel:$(sel);
+		listen_enable.forEach((event) =>
+			sel.on(
+				event, 
+				(option[event]||IT.Utils.emptyFn)
+			)
+		)
+	}
 	/**
 	 * Call event from available events.
 	 * @param  {event} string of the event to be called
 	 * @param  {params} array array of argument to be passed
-	 * @param  {scope} object scope where the event will be called
 	 */
-	doEvent(event,params,scope=null){
-		var me=this;
-		if(typeof me[event]=="function"){
-			return me[event].apply(scope||me,params);
-		}
+	doEvent(event,params){
+		$(this).trigger(event,params);
 	}
 }

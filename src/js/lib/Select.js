@@ -1,11 +1,11 @@
-IT.Select = class extends IT.Component {
+IT.Select = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me = this,cls;
 		
 		me.settings = $.extend(true,{
 			id: '',
-			value: 'Button',
+			value: '',
 			emptyText: '',
 			format: null,
 			defaultValue: '',
@@ -13,10 +13,10 @@ IT.Select = class extends IT.Component {
 			allowBlank: true,
 			disabled: false,
 			width: 200,
-			datasource: {
-				type: 'array',
-				url: '',
-				data: null,
+			store: {
+				url		: '',
+				type	: 'array',
+				data	: null,
 			},
 			selectize: {
 				allowEmptyOption: true
@@ -25,7 +25,7 @@ IT.Select = class extends IT.Component {
 		
 		me.id = me.settings.id || IT.Utils.id();
 
-		me.select = $('<select />', {
+		me.input = $('<select />', {
 			id: me.id,
 			name: me.id,
 			attr: {
@@ -34,8 +34,8 @@ IT.Select = class extends IT.Component {
 			val: me.settings.defaultValue,
 		});
 		me.content = $('<div />', { class: 'it-edit' });
-		me.content.append(me.select);
-		me.select.selectize(me.settings.selectize);
+		me.content.append(me.input);
+		me.input.selectize(me.settings.selectize);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -43,87 +43,88 @@ IT.Select = class extends IT.Component {
 			})
 		}
 
-		// Jika Autuload OK 
-		if(me.settings.autoLoad) {
-			me.getDataSource();
-		}
-
-		me.addEvents(me.settings,["onChange"]);
-
-		//console.info("listener", me.listener.events.prototype);
-		//console.info(me.listener.onChange());
-	}
-
-	val(v) {
-		if(typeof v === 'undefined') {
-			this.getSelect().setValue(v);
-		} else {
-			this.getSelect().getValue();
-		}
-	}
-	
- 	setDataSouce(source) {
-		this.settings.datasource = source;
-		this.dataSource();
-	}
-
-	getDataSource() {
-		let me = this;
-		let ds = me.settings.datasource; 
-		let selectize = me.getSelect();
-
-		//Empty Option
-		let a = selectize.clear();
-
-		console.info(selectize);
+		me.addEvents(me.settings,[
+			"onLoad",
+			"onChange"
+		]);
+		
+		me.getSelect().on("change",function(){
+			me.doEvent("onChange",[me,me.val()]);
+		});
 
 		// If has value of empty text
-		if(me.settings.emptyText) {
+		if(me.settings.emptyText && !me.settings.autoLoad) {
 			me.getSelect().addOption({
 				value: '',
 				text: me.settings.emptyText
 			});
+			me.getSelect().setValue('');
 		}
 
-		//Type of Data Source array or ajax
-		switch(ds.type) {
-			case 'array' :
-				if(typeof ds.data !== 'undefined' && ds.data.length > 0 ) { 
-					$.each(ds.data, function(k, v){
-						selectize.addOption({ 
-							value: v.key, 
-							text: v.value, 
-							params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
-						}); 
-					});
-				}
-				selectize.setValue(me.settings.defaultValue);
-			break;
-			case 'ajax' :
-				$.ajax({
-					url: ds.url,
-					type: ds.method || "POST",
-					data: ds.params || {},
-					dataType: 'json',
-					success: function(data) {
-						var row = data.rows;
-						if(typeof row !== 'undefined' && row.length > 0){
-							$.each(row, function(k, v){
-								selectize.addOption({ 
-									value: v.key, 
-									text: v.value, 
-									params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
-								});
-							});
-						}
-						//selectize.setValue(me.settings.defaultValue);
-					}
-				});
-			break;
-		}
+		//setting store
+		me.store = new IT.Store($.extend(true,{},me.settings.store,{
+			// replace autoLoad with false, we need extra event 'afterload'
+			// wich is not created at the moment
+			autoLoad:false 
+		}));
+		me.store.addEvents({// add extra afterload
+			beforeLoad:function(){
+				me.readyState = false;
+			},
+			afterLoad:function(ev,cls,data){
+				data.forEach((obj)=>
+					me.getSelect().addOption({ 
+						value: obj.rawData.key, 
+						text: obj.rawData.value, 
+						params: typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : ''
+					})
+				);
+				me.readyState = true;
+			}
+		}); 
+		
+		// If Autuload
+		if(me.settings.autoLoad) {
+			me.getDataStore();
+		}else me.readyState = true;
 	}
+	getDisplayValue(){
+		let me = this;
+		return me.getSelect().getItem(me.val())[0].innerHTML;
+	}
+ 	setDataStore(store) {
+		this.settings.store = store;
+		this.dataStore();
+	}
+	getDataStore() {
+		let me = this;
+		let ds = me.settings.store; 
+		let selectize = me.getSelect();
 
+		//Empty Option
+		selectize.clearOptions();
+
+		// If has value of empty text
+		if(me.settings.emptyText) {
+			selectize.addOption({
+				value: '',
+				text: me.settings.emptyText
+			});
+			selectize.setValue('');
+		}
+		me.store.load();
+	}
 	getSelect() {
-		return this.select[0].selectize;
+		return this.input[0].selectize;
+	}
+	/**
+	 * Override
+	 * @param  {Optional} value Value to setter
+	 * @return {String}   value for getter
+	 */
+	val(value) {
+		if (typeof value === "undefined")
+			return this.getSelect().getValue();
+		else return this.getSelect().setValue(value);
 	}
 }

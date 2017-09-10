@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
 	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="bower_components/inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
-	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.js"></script>
+	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.min.js"></script>
 
 	<!-- ThinkIT -->
 	<link rel="stylesheet" href="../dist/it-framework.min.css?dc=<?php echo time();?>" />
@@ -54,7 +54,7 @@
 					dataIndex:""
 				}],
 				store: {
-					type: 'json',
+					type: 'ajax',
 					url: "data.json.php",
 					autoLoad:false,
 					params:{
@@ -66,20 +66,32 @@
 
 			var select = new IT.Select({
 				emptyText:'- Pilih Data -',
-				autoLoad:false,
+				autoLoad:true,
 				datasource: {
+
+					//ajax / json version
 					type: 'ajax',
-					url:"datajson/ref_agama.php"
-					// data:[{
-					// 	key: 'A',
-					// 	value: 'ini A'
-					// }, {
-					// 	key: 'B',
-					// 	value: 'ini B'
-					// }, {
-					// 	key: 'C`',
-					// 	value: 'ini C`'
-					// }]
+					url:"datajson/ref_agama.php",
+					autoLoad:true,
+					params:{
+						start:0,
+						limit:20
+					},
+					// array version
+					/*
+					type: 'array',
+					autoLoad:true,
+					data:[
+						{key:"A",value:"Satu"},
+						{key:"B",value:"Dua"},
+						{key:"C",value:"Tiga"},
+					],
+					*/
+				},
+				onChange(e,a,val){
+					if(val!=""){
+						console.info(a.getDisplayValue());
+					}
 				}
 			});
 
@@ -123,16 +135,7 @@
 			});
 
 			setTimeout(function(){
-				//select.val("A");
-				//console.info(select.getSelect().setValue("B"));
-				//console.info(select.getSelect().getValue());
-
-				//select.listener.fire("onChange",["satu","dua"]);
-				//select.onChange(); // 
-				select.getDataSource();
-				setTimeout(function(){
-					select.getDataSource();
-				},2000);
+				
 			},2000);
 		});
 	</script>

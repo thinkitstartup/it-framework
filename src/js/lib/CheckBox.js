@@ -43,5 +43,6 @@ IT.CheckBox = class extends IT.FormItem {
 		me.content= $("<div class='it-edit for-option' />")
 			.append(me.input)
 			.append(`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`);
+		me.readyState = true;
 	}
 }

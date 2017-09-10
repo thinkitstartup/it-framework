@@ -17,10 +17,14 @@ IT.RecordStore = class extends IT.BaseClass {
 	}
 	/**
 	 * is this record has been updated
+	 * @param {String} [String] Optional. If set, it will check if the record is changed base on key.
+	 * if not set it will check from all key
 	 * @return {Boolean} true if record has changed
 	 */
-	isChanged(){
-		return Object.keys(this.changed).length>0;
+	isChanged(key=null){
+		if(key) {
+			return (key in this.changed);
+		}else return Object.keys(this.changed).length>0;
 	}
 
 	/**
@@ -33,9 +37,7 @@ IT.RecordStore = class extends IT.BaseClass {
 		let me = this;
 		if (me.rawData.hasOwnProperty(key)){
 			if(me.rawData[key] === value){
-				if (me.changed[key]){
-					delete me.changed[key];
-				}
+				if (me.changed[key])delete me.changed[key];
 			}
 			else {
 				me.changed[key] = value;
@@ -49,9 +51,11 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * Get data changed
 	 * @return {Object} return null if isChanged false. otherwise return rawdata with changed applied
 	 */
-	getChanged(){
+	getChanged(key=null){
 		let me=this;
-		return !me.isChanged()?null:Object.assign({},me.rawData,me.changed);
+		if(key) {
+			return (me.isChanged(key)?me.changed[key]:null);
+		}else return !me.isChanged()?null:Object.assign({},me.rawData,me.changed);
 	}
 
 	/**
@@ -59,7 +63,7 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
-	get(key){
+	get(key,from){
 		return this.rawData[key];
 	}
 }

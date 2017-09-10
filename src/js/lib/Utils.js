@@ -1,15 +1,10 @@
 /**
  * Class Utils, all the members should static
  * @type {function}
- * @extends {IT.BaseClass}
+ * @extends IT.BaseClass
+ * @depend IT.BaseClass
  */
 IT.Utils = class extends IT.BaseClass{
-	/**
-	 * @param  {object} settings aturan for class
-	 */
-	constructor(settings){
-		super(settings);
-	}
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -82,5 +77,11 @@ IT.Utils = class extends IT.BaseClass{
 	static isDate(value){
 		var d = new Date(value);
 		return ! isNaN(d);
+	}
+	/**
+	 * Empty Function
+	 */
+	static emptyFn(){
+		//console.info("Empty function");
 	}
 }

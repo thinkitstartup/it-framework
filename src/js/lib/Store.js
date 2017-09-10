@@ -23,14 +23,17 @@ IT.Store = class extends IT.BaseClass {
 			url: '',
 			data: [],
 			autoLoad:false,
+			async: true,
 			params:{
 				start: 0,
 				limit: 20
 			}
 		}, settings);
-		me.params = me.settings.params;
-		me.data = [];
-		me.total_rows = 0;
+		me.params 		= me.settings.params;
+		me.data 		= [];
+		me.total_rows 	= 0;
+		me.procces		= false;
+
 		me.addEvents(me.settings, [
 			"beforeLoad",
 			"afterLoad",
@@ -38,6 +41,7 @@ IT.Store = class extends IT.BaseClass {
 			"onError",
 			"onEmpty"
 		]);
+
 		if (me.settings.autoLoad) me.load();
 	}
 
@@ -56,9 +60,10 @@ IT.Store = class extends IT.BaseClass {
 	 */
 	load(opt={}){
 		let me = this;
-		//var opt = opt || {};
 		switch(me.settings.type){
+			case "ajax":
 			case "json":
+				me.settings.type = "json";
 				var params = $.extend(me.settings.params, opt.params);
 				me.params = params;
 				me.empty();
@@ -67,12 +72,14 @@ IT.Store = class extends IT.BaseClass {
 					type	: 'POST',
 					url		: me.settings.url,
 					data	: params,
+					async	: me.settings.async,
 					beforeSend: function(a,b){
-						me.total_rows = 0;
-						let ret =me.doEvent("beforeLoad",[me, a, b]);
+						me.procces 		= true;
+						me.total_rows 	= 0;
+						let ret 		= me.doEvent("beforeLoad",[me, a, b]);
 						return (typeof ret == 'undefined'?true:ret);
 					},
-					success : function(data){
+					success:function(data){
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
 							$.each(data.rows ,(idx, item)=>{
 								me.data.push(new IT.RecordStore(item));
@@ -85,17 +92,20 @@ IT.Store = class extends IT.BaseClass {
 							me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 						}
 					},
-					error: function(){
-						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+						throw errorThrown;
+						me.doEvent("onError",[me,{status:textStatus, message:errorThrown}]);
 					},
 					complete:function(){
+						me.procces = false;
 						me.doEvent("afterLoad",[me,me.getData()]);
 					},
 				});
 			break;
 			case "array":
-				me.total_rows=0;
-				let bl_return = me.doEvent("beforeLoad",[me, me.data||[], null]);
+				me.total_rows	= 0;
+				me.procces 		= true;
+				let bl_return 	= me.doEvent("beforeLoad",[me, me.data||[], null]);
 				if(typeof bl_return == 'undefined'?true:bl_return){
 					if (typeof me.settings.data != 'undefined' ){
 						$.each(me.settings.data ,(idx, item)=>{
@@ -103,14 +113,13 @@ IT.Store = class extends IT.BaseClass {
 							me.total_rows++;
 						});
 						me.doEvent("onLoad",[me, me.getData(), null]);
-					}else{
-						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
-					}
-					me.doEvent("afterLoad",[me,me.getData()]);
+					}else me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 				}else{
 					me.empty();
 					me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 				}
+				me.doEvent("afterLoad",[me,me.getData()]);
+				me.procces = false;
 			break;
 		}
 	}
@@ -132,11 +141,22 @@ IT.Store = class extends IT.BaseClass {
 
 	/**
 	 * Get Stored Data
-	 * @param  {Boolean} sanitize wether return in raw or not, false = raw, true = sanitized
-	 * @return {array}           expected data
+	 * @return {array} expected data
 	 */
 	getData(){
 		return this.data;
+	}
+
+	/**
+	 * Get Stored Raw Datas
+	 * @return {array} expected data
+	 */
+	getRawData(){
+		let me=this,ret = [];
+		$.each(me.data ,(idx, item)=>{
+			ret.push(item.rawData);
+		});
+		return ret;
 	}
 
 	/**

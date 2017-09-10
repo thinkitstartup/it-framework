@@ -168,5 +168,7 @@ IT.TextBox = class extends IT.FormItem {
 			`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`+
 		`</div>`:"") + `<div class="${s.size.field}"></div>`);
 		me.content.last().append(wraper);
+
+		me.readyState = true;
 	}
 }

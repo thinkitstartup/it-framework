@@ -10,6 +10,19 @@ var animationEnd = 'webkitAnimationEnd oanimationend msAnimationEnd animationend
  * @type {class}
  */
 IT.BaseClass = class {
+	constructor(settings) {
+		let me = this;
+		me._id = "";//private
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Component#settings
+		 */
+		me.settings = settings||{};
+	}
+
+
 	/**
 	 * used to check if this is a class
 	 * @type {boolean}
@@ -22,40 +35,43 @@ IT.BaseClass = class {
 	 * @param  {option} object of functions 
 	 * @param  {events_available} array array of string. Can be act as event available
 	 */
-	addEvents(option,events_available=[]){
+	//https://stackoverflow.com/questions/23344625/create-javascript-custom-event
+	addEvents(option,listen_enable=[]){
 		let me=this;
-		events_available.forEach((a) => me[a]=option[a]||function(){});
-	}	
+		if (listen_enable.length==0){
+			Object.keys(option).forEach((e)=>
+				typeof option[e]=="function"
+					?listen_enable.push(e)
+					:null
+			);
+		}
+		let sel = option.selector || $(me);
+		//sel = (typeof sel.on=="function")?sel:$(sel);
+		listen_enable.forEach((event) =>
+			sel.on(
+				event, 
+				(option[event]||IT.Utils.emptyFn)
+			)
+		)
+	}
 	/**
 	 * Call event from available events.
 	 * @param  {event} string of the event to be called
 	 * @param  {params} array array of argument to be passed
-	 * @param  {scope} object scope where the event will be called
 	 */
-	doEvent(event,params,scope=null){
-		var me=this;
-		if(typeof me[event]=="function"){
-			return me[event].apply(scope||me,params);
-		}
+	doEvent(event,params){
+		$(this).trigger(event,params);
 	}
 }
 /**
  * Default Component CLass
- * @type {object}
+ * @extends IT.BaseClass
+ * @depend IT.BaseClass
  */
 IT.Component = class extends IT.BaseClass {
 	constructor(settings) {
 		super(settings);
-		let me = this;
-
-		me._id = "";
-
-		/** 
-		 * Setting for class
-		 * @member {Object}
-		 * @name IT.Component#settings
-		 */
-		me.settings = settings||{};
+		let me=this;
 		me.content = null;
 	}
 	/**
@@ -63,8 +79,9 @@ IT.Component = class extends IT.BaseClass {
 	 * @param  {selector} parentEl selector for parent
 	 */
 	renderTo(parentEl) {
-		if(this.content.appendTo)
+		if(this.content.appendTo){
 			this.content.appendTo(parentEl);
+		}
 	}
 	/**
 	 * ID of component
@@ -218,7 +235,22 @@ IT.FormItem = class extends IT.Component {
 	/** @param  {object} settings  */
 	constructor(settings){
 		super(settings);
+		let me = this;
+		me._readyState = false;
+		me.addEvents(me.settings, [
+			"stateChange"
+		]);
+		me.readyState = true;
 	}
+	get readyState(){
+		return this._readyState;
+	}
+	set readyState(state){
+		this._readyState = state;
+		this.doEvent("stateChange",state);
+	}
+
+
 	/**
 	 * getter or setter for value
 	 * @param  {object} value if value is exist, then it's setter for value
@@ -240,6 +272,7 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item invalid
 	 */
 	setInvalid(state=true){
+		if(this.input)
 		this.input[state?"addClass":"removeClass"]("invalid");
 	}
 
@@ -253,6 +286,7 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item readonly
 	 */
 	setReadonly(state=false){
+		if(this.input)
 		this.input.attr('readonly', state)
 			[state?"addClass":"removeClass"]('input-readonly');
 	}
@@ -261,6 +295,7 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item invalid
 	 */
 	setEnabled(state=false){
+		if(this.input)
 		this.input.attr('disabled', !state)
 			[!state?"addClass":"removeClass"]('input-disabled');
 	}
@@ -310,17 +345,293 @@ IT.CheckBox = class extends IT.FormItem {
 		me.content= $("<div class='it-edit for-option' />")
 			.append(me.input)
 			.append(`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`);
+		me.readyState = true;
+	}
+}
+/**
+ * Record Store
+ * @extends IT.RecordStore
+ * @type IT.RecordStore
+ * @param {Object} record
+ * @depend IT.BaseClass
+ */
+IT.RecordStore = class extends IT.BaseClass {
+	/** conctructor */
+	constructor(record){
+		super();
+		
+		let me 			= this;
+		me.rawData 		= record,
+		me.changed		= {},
+		me.field		= Object.keys(record);
+	}
+	/**
+	 * is this record has been updated
+	 * @param {String} [String] Optional. If set, it will check if the record is changed base on key.
+	 * if not set it will check from all key
+	 * @return {Boolean} true if record has changed
+	 */
+	isChanged(key=null){
+		if(key) {
+			return (key in this.changed);
+		}else return Object.keys(this.changed).length>0;
+	}
+
+	/**
+	 * Update the record, but it's appended to changed data. Raw data still untouched
+	 * @param  {String} key   [description]
+	 * @param  {String} value [description]
+	 * @return {true}       true if updating succes. (append to changed data)
+	 */
+	update(key,value){
+		let me = this;
+		if (me.rawData.hasOwnProperty(key)){
+			if(me.rawData[key] === value){
+				if (me.changed[key])delete me.changed[key];
+			}
+			else {
+				me.changed[key] = value;
+				return true;
+			}
+		}else {console.error("Field "+key+" is not exists");}
+		return false;
+	}
+
+	/**
+	 * Get data changed
+	 * @return {Object} return null if isChanged false. otherwise return rawdata with changed applied
+	 */
+	getChanged(key=null){
+		let me=this;
+		if(key) {
+			return (me.isChanged(key)?me.changed[key]:null);
+		}else return !me.isChanged()?null:Object.assign({},me.rawData,me.changed);
+	}
+
+	/**
+	 * Get record data property
+	 * @param  {String} key key field
+	 * @return {Object}     value
+	 */
+	get(key,from){
+		return this.rawData[key];
+	}
+}
+/**
+ * Data Store
+ * @extends IT.BaseClass
+ * @type IT.Store
+ * @param {Object} settings setting for class
+ * @depend IT.BaseClass
+ * @depend IT.RecordStore
+ */
+IT.Store = class extends IT.BaseClass {
+	/** conctructor */
+	constructor(settings){
+		super(settings);
+
+		let me =this;
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Store#settings
+		 * @property {string} id ID of element
+		 */
+		me.settings = $.extend(true,{
+			type: 'json',
+			url: '',
+			data: [],
+			autoLoad:false,
+			async: true,
+			params:{
+				start: 0,
+				limit: 20
+			}
+		}, settings);
+		me.params 		= me.settings.params;
+		me.data 		= [];
+		me.total_rows 	= 0;
+		me.procces		= false;
+
+		me.addEvents(me.settings, [
+			"beforeLoad",
+			"afterLoad",
+			"onLoad",
+			"onError",
+			"onEmpty"
+		]);
+
+		if (me.settings.autoLoad) me.load();
+	}
+
+	/**
+	 * empty store data
+	 */
+	empty(){
+		let me=this;
+		me.total_rows = 0;
+		me.data = [];
+		me.doEvent("onEmpty",[me, me.getData(), me.params]);
+	}
+	/**
+	 * Load Data
+	 * @param  {object} opt optional params
+	 */
+	load(opt={}){
+		let me = this;
+		switch(me.settings.type){
+			case "ajax":
+			case "json":
+				me.settings.type = "json";
+				var params = $.extend(me.settings.params, opt.params);
+				me.params = params;
+				me.empty();
+				$.ajax({
+					dataType: me.settings.type,
+					type	: 'POST',
+					url		: me.settings.url,
+					data	: params,
+					async	: me.settings.async,
+					beforeSend: function(a,b){
+						me.procces 		= true;
+						me.total_rows 	= 0;
+						let ret 		= me.doEvent("beforeLoad",[me, a, b]);
+						return (typeof ret == 'undefined'?true:ret);
+					},
+					success:function(data){
+						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
+							$.each(data.rows ,(idx, item)=>{
+								me.data.push(new IT.RecordStore(item));
+							});
+							me.total_rows = data.total_rows;
+							me.doEvent("onLoad",[me, me.getData(), me.params]);
+						}
+						else{
+							me.empty();
+							me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+						}
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+						throw errorThrown;
+						me.doEvent("onError",[me,{status:textStatus, message:errorThrown}]);
+					},
+					complete:function(){
+						me.procces = false;
+						me.doEvent("afterLoad",[me,me.getData()]);
+					},
+				});
+			break;
+			case "array":
+				me.total_rows	= 0;
+				me.procces 		= true;
+				let bl_return 	= me.doEvent("beforeLoad",[me, me.data||[], null]);
+				if(typeof bl_return == 'undefined'?true:bl_return){
+					if (typeof me.settings.data != 'undefined' ){
+						$.each(me.settings.data ,(idx, item)=>{
+							me.data.push(new IT.RecordStore(item));
+							me.total_rows++;
+						});
+						me.doEvent("onLoad",[me, me.getData(), null]);
+					}else me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+				}else{
+					me.empty();
+					me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+				}
+				me.doEvent("afterLoad",[me,me.getData()]);
+				me.procces = false;
+			break;
+		}
+	}
+
+	/**
+	 * sort data
+	 * @param  {string} field Sort by this field
+	 * @param  {boolean} asc  Determine if order is ascending. true=Ascending, false=Descending
+	 * @deprecated Deprecated, doesn't support ordering in front side
+	 */
+	sort(field,asc=true){
+		throw "Deprecated, doesn't support ordering in front side"
+	}
+	/**
+	 * Get parameter(s)
+	 * @return {object} paramters
+	 */
+	getParams(){ return this.params; }
+
+	/**
+	 * Get Stored Data
+	 * @return {array} expected data
+	 */
+	getData(){
+		return this.data;
+	}
+
+	/**
+	 * Get Stored Raw Datas
+	 * @return {array} expected data
+	 */
+	getRawData(){
+		let me=this,ret = [];
+		$.each(me.data ,(idx, item)=>{
+			ret.push(item.rawData);
+		});
+		return ret;
+	}
+
+	/**
+	 * Get only changed data from raw
+	 * @return {array}  array of record
+	 */
+	getChangedData(){
+		let me=this,r = [];
+		for(let idx in me.data){
+			if(me.data[idx].changed)
+				r.push($.extend({},me.data[idx].data,{indexRow: parseInt(idx) }));
+		}
+		return r;
+	}
+
+	/**
+	 * Set stored Data
+	 * @param {object} data replacement for data
+	 */
+	setData(data){ 
+		let me=this;
+		data = me.type=="json"?data.rows:data;
+		me.empty();
+		$.each(data ,(idx, item)=>{
+			me.data.push(new IT.RecordStore(item));
+			me.total_rows++;
+		});
+		me.doEvent("onLoad",[me, me.data, me.params]);
+	} 
+
+	/**
+	 * get generated settings
+	 * @return {object}
+	 */
+	getSetting(){ return this.settings; }
+
+	/**
+	 * Change data
+	 * @param  {Object} data     Updated data
+	 * @param  {Number} indexRow index data to be changed
+	 */
+	replace(data={},indexRow=0){
+		let me=this;
+		for (let key in data) {
+			me.data[indexRow].update(key,data[key]);
+		}
 	}
 }
 /**
  * DataTable element
- * @extends IT.DataTable
- * @type IT.DataTable
+ * @extends IT.Component
+ * @depend IT.Store
  * @param {Object} opt setting for class
- * @see IT.Component#settings
+ * @see IT.DataTable#settings
  */
 IT.DataTable = class extends IT.Component {
-	/** @param  {object} opt  */
 	constructor(settings){
 		super(settings);
 		let me = this;
@@ -351,13 +662,17 @@ IT.DataTable = class extends IT.Component {
 			customHeader:""
 		}, settings);
 
-		/** 
-		 * ID of class or element
-		 * @member {boolean}
-		 * @name IT.DataTable#id
-		 */
-		me.id = me.settings.id || IT.Utils.id();
 
+		me.id 				= me.settings.id || IT.Utils.id();
+		me.params 			= {}
+		me.selectedRow 		= null;
+		me.selectedColumn 	= null;
+		me.editors			= [];
+		me.paging 			= { 
+			page 		: 1,
+			page_count	: 0,
+			total_rows 	: 0
+		}
 
 		me.addEvents(me.settings, [
 			"onItemClick",
@@ -365,15 +680,8 @@ IT.DataTable = class extends IT.Component {
 			"onLoad",
 			"onChangePage"
 		]);
-		me.params 			= {}
-		me.selectedRow 	= null;
-		me.selectedColumn 	= null;
-		me.paging 			= { 
-			page:1,
-			page_count	: 0,
-			total_rows 	: 0
-		}
 		me.createComponent();
+
 
 
 		/**
@@ -383,22 +691,38 @@ IT.DataTable = class extends IT.Component {
 		 * @see IT.Store
 		 */
 		if(!me.settings.store.isClass){
-			me.store = new IT.Store($.extend(true, {
+			class cstmStore extends IT.Store {
+				load(opt){
+					let readyState = true;
+					let thse = this;
+					thse.doEvent("beforeLoad");
+					me.editors.forEach((e)=>{
+						if(e) readyState = readyState && !!e.readyState;
+					});
+					if (!readyState)
+						setTimeout(()=>{
+							thse.load.call(thse, opt)
+						},1000);
+					else super.load(opt);
+				}
+			}
+			me.store = new cstmStore($.extend(true, {
 				beforeLoad:function(){
-					console.info("load");
 					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
 					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
 				},
-				afterLoad:function(store,storeData,params){
+				afterLoad:function(event,store,storeData,params){
+					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
 					me.assignData(store);
 					me.doEvent("onLoad",[me,store]);
 				},
-				onEmpty:function(store,storeData,params){
+				onEmpty:function(event,store,storeData,params){
 					me.assignData(store);
 					me.doEvent("onLoad",[me,store]);
 					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-				},
+				}
 			}, me.settings.store));
+			cstmStore = null;
 			me.params = me.store.params;
 		}
 	}
@@ -431,14 +755,15 @@ IT.DataTable = class extends IT.Component {
 				col =s.columns[i];
 				tr.append($(`<th />`,{
 					css:{
-						"min-width":col.width, 	// to precise width
-						"width":col.width,		// to precise width
+						// to precise width
+						"min-width":col.width,
+						"width":col.width,
 					}
-				}).append(col.header))
+				}).append(col.header));
+				me.editors.push(col.editor?IT.Utils.createObject(col.editor):null);
 			}
 			thead.append(tr);
 		}
-
 		if(s.enableFixedHeader) 
 			me.content.append(fixHeader.append(table.clone()));
 		
@@ -534,47 +859,65 @@ IT.DataTable = class extends IT.Component {
 
 		if (storeData.length) {
 			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
-				let current_row = storeData[indexRow];
+				let curRecord = storeData[indexRow];
 				let row_element = $("<tr>");
 				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
 					let current_col = me.settings.columns[indexCol];
-					let field = me.settings.columns[indexCol].dataIndex;
-					let data = current_row.get(field);
-					data = !data?"":data;
-					let editor;
+					let field 		= me.settings.columns[indexCol].dataIndex;
+					
+					//let value 	= !curRecord.get(field)?"":curRecord.get(field);
+					let value 		= curRecord.get(field);
+					let html		= "";
+					let render 		= 	
+						current_col.data 		|| 
+						current_col.renderer 	|| 
+						(me.editors[indexCol]	&& me.editors[indexCol].store
+							?me.editors[indexCol].store.getRawData()
+							:null) 				|| 
+						[];
+					if(render.length){
+						for (let i =0;i<render.length;i++) {
+							let el = render[i];
+							if(el.key==value){
+								html = el.value;
+								break;
+							}
+						}
+					}
 					let td = $("<td />",{
-						html:$("<div />",{html:data}),
+						html:$("<div />",{html:(html==""?value:html)}),
 						valign:current_col.valign ||"top",
 						align:current_col.align ||"left",
 						class:"" + (me.settings.wrap?"wrap":""),
 					});
 
 					td.on('click',function(){
-
+						//change UI
 						me.selectedRow = indexRow;
 						me.selectedColumn = indexCol;
 						me.content.find("tbody tr").removeClass('it-datatable-selected');
-						td.parent().addClass('it-datatable-selected');
-
+						$(this).parent().addClass('it-datatable-selected');
 					 	if(current_col.editor 
 					 		&& current_col.editor.editable
-					 		&& !td.hasClass("it-datatable-editing")
+					 		&& !$(this).hasClass("it-datatable-editing")
 					 	){
 					 		td.addClass("it-datatable-editing");
-							td.attr("data-oldval",data);
-							editor = IT.Utils.createObject(current_col.editor);
-							editor.val(td.find("div").html());
+					 		let editor = me.editors[indexCol];
+					 		let u = curRecord.getChanged(field)||curRecord.get(field);
+							editor.val(u);
 							td.find("div").empty();
 							editor.input.on("blur",function(){
 								if(editor.validate()){
-									current_row.update(field,editor.val());
+									curRecord.update(field,editor.val());
+									let u = curRecord.getChanged(field)||curRecord.get(field);
+									editor.input.off();
+							 		editor.content.detach();	
 									td.removeClass("it-datatable-editing");
-									td.find("div").html(editor.val());
-									editor.content.remove();
-									td[editor.val()==td.data("oldval")?"removeClass":"addClass"]("it-datatable-changed");
+									td.find("div").html(u);
+									td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
 								}
 							});
-							editor.renderTo(td.find("div"));
+							editor.renderTo($(this).find("div"));
 							editor.input.focus();
 					 	}
 					});
@@ -666,7 +1009,6 @@ IT.DataTable = class extends IT.Component {
 			params:{start:start,limit:me.paging.limit}
 		});
 	}
-
 	getSelectedRecords(){
 		let me =this;
 		return !me.selectedRow?null:me.store.data[me.selectedRow];
@@ -730,11 +1072,11 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		me.addEvents(me.settings, [
-			"onShow", 
-			"onHide", 
-			"onClose"
-		]);
+		// me.addEvents(me.settings, [
+		// 	"onShow", 
+		// 	"onHide", 
+		// 	"onClose"
+		// ]);
 
 		me.createElement();
 		if(me.settings.autoShow) 
@@ -820,7 +1162,7 @@ IT.Dialog = class extends IT.Component {
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
 		});
-		me.doEvent("onShow",[me, me.id]);
+		//me.doEvent("onShow",[me, me.id]);
 
 		$(window).resize(function() {
 			me._autoScrollContainer();
@@ -836,7 +1178,7 @@ IT.Dialog = class extends IT.Component {
 			.removeClass('dialog-show')
 			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
-				me.doEvent("onHide",[me, me.id]);
+				//me.doEvent("onHide",[me, me.id]);
 			});
 	}
 
@@ -853,7 +1195,7 @@ IT.Dialog = class extends IT.Component {
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();
-							me.doEvent("onClose",[me, me.id]);
+							//me.doEvent("onClose",[me, me.id]);
 						}, 300);
 					})
 			});
@@ -1228,41 +1570,6 @@ IT.HTML = class extends IT.Component{
 		else html.appendTo(this.content);
 	}
 }
-/**
- * CLass listener to handdle event function 
- * @extends IT.BaseClass
- * @depend IT.BaseClass
- * @deprecated No longer used
- */
-// IT.Listener = class extends IT.BaseClass {
-// 	/**
-// 	 * set the listeners
-// 	 * @param  {function} scope scope where listeners lies
-// 	 * @param  {object} option object of event function
-// 	 * @param  {sting[]}  listen_enable	array of string to register
-// 	 */
-// 	constructor(scope,option,listen_enable=[]){
-// 		super();
-// 		// let me =this;
-// 		// me.events={};
-// 		// me.scope=scope;
-// 		// listen_enable.forEach((a) => me.events[a]=option[a]);
-// 		console.info("Deprecated");
-// 		throw "Deprecated";
-// 	}
-
-// 	/**
-// 	 * apply a function listener with params
-// 	 * @param  {sting} listener listener tobe called
-// 	 * @param  {array} params   array of string to pass as argument listener
-// 	 */
-// 	fire(listener,params){
-// 		// var me=this;
-// 		// if(typeof me.events[listener]=="function"){
-// 		// 	return me.events[listener].apply(me.scope,params);
-// 		// }
-// 	}
-// }
 IT.MessageBox = class extends IT.Component {
 	constructor(settings){
 		super(settings);
@@ -1357,79 +1664,14 @@ IT.MessageBox = class extends IT.Component {
 		this.hide();
 	}
 }
-/**
- * Record Store
- * @extends IT.RecordStore
- * @type IT.RecordStore
- * @param {Object} record
- * @depend IT.BaseClass
- */
-IT.RecordStore = class extends IT.BaseClass {
-	/** conctructor */
-	constructor(record){
-		super();
-		
-		let me 			= this;
-		me.rawData 		= record,
-		me.changed		= {},
-		me.field		= Object.keys(record);
-	}
-	/**
-	 * is this record has been updated
-	 * @return {Boolean} true if record has changed
-	 */
-	isChanged(){
-		return Object.keys(this.changed).length>0;
-	}
-
-	/**
-	 * Update the record, but it's appended to changed data. Raw data still untouched
-	 * @param  {String} key   [description]
-	 * @param  {String} value [description]
-	 * @return {true}       true if updating succes. (append to changed data)
-	 */
-	update(key,value){
-		let me = this;
-		if (me.rawData.hasOwnProperty(key)){
-			if(me.rawData[key] === value){
-				if (me.changed[key]){
-					delete me.changed[key];
-				}
-			}
-			else {
-				me.changed[key] = value;
-				return true;
-			}
-		}else {console.error("Field "+key+" is not exists");}
-		return false;
-	}
-
-	/**
-	 * Get data changed
-	 * @return {Object} return null if isChanged false. otherwise return rawdata with changed applied
-	 */
-	getChanged(){
-		let me=this;
-		return !me.isChanged()?null:Object.assign({},me.rawData,me.changed);
-	}
-
-	/**
-	 * Get record data property
-	 * @param  {String} key key field
-	 * @return {Object}     value
-	 */
-	get(key){
-		return this.rawData[key];
-	}
-}
-IT.Select = class extends IT.Component {
+IT.Select = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me = this,cls;
 		
 		me.settings = $.extend(true,{
 			id: '',
-			value: 'Button',
+			value: '',
 			emptyText: '',
 			format: null,
 			defaultValue: '',
@@ -1437,10 +1679,10 @@ IT.Select = class extends IT.Component {
 			allowBlank: true,
 			disabled: false,
 			width: 200,
-			datasource: {
-				type: 'array',
-				url: '',
-				data: null,
+			store: {
+				url		: '',
+				type	: 'array',
+				data	: null,
 			},
 			selectize: {
 				allowEmptyOption: true
@@ -1449,7 +1691,7 @@ IT.Select = class extends IT.Component {
 		
 		me.id = me.settings.id || IT.Utils.id();
 
-		me.select = $('<select />', {
+		me.input = $('<select />', {
 			id: me.id,
 			name: me.id,
 			attr: {
@@ -1458,8 +1700,8 @@ IT.Select = class extends IT.Component {
 			val: me.settings.defaultValue,
 		});
 		me.content = $('<div />', { class: 'it-edit' });
-		me.content.append(me.select);
-		me.select.selectize(me.settings.selectize);
+		me.content.append(me.input);
+		me.input.selectize(me.settings.selectize);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -1467,278 +1709,92 @@ IT.Select = class extends IT.Component {
 			})
 		}
 
-		// Jika Autuload OK 
-		if(me.settings.autoLoad) {
-			me.getDataSource();
-		}
-
-		me.addEvents(me.settings,["onChange"]);
-
-		//console.info("listener", me.listener.events.prototype);
-		//console.info(me.listener.onChange());
-	}
-
-	val(v) {
-		if(typeof v === 'undefined') {
-			this.getSelect().setValue(v);
-		} else {
-			this.getSelect().getValue();
-		}
-	}
-	
- 	setDataSouce(source) {
-		this.settings.datasource = source;
-		this.dataSource();
-	}
-
-	getDataSource() {
-		let me = this;
-		let ds = me.settings.datasource; 
-		let selectize = me.getSelect();
-
-		//Empty Option
-		let a = selectize.clear();
-
-		console.info(selectize);
+		me.addEvents(me.settings,[
+			"onLoad",
+			"onChange"
+		]);
+		
+		me.getSelect().on("change",function(){
+			me.doEvent("onChange",[me,me.val()]);
+		});
 
 		// If has value of empty text
-		if(me.settings.emptyText) {
+		if(me.settings.emptyText && !me.settings.autoLoad) {
 			me.getSelect().addOption({
 				value: '',
 				text: me.settings.emptyText
 			});
+			me.getSelect().setValue('');
 		}
 
-		//Type of Data Source array or ajax
-		switch(ds.type) {
-			case 'array' :
-				if(typeof ds.data !== 'undefined' && ds.data.length > 0 ) { 
-					$.each(ds.data, function(k, v){
-						selectize.addOption({ 
-							value: v.key, 
-							text: v.value, 
-							params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
-						}); 
-					});
-				}
-				selectize.setValue(me.settings.defaultValue);
-			break;
-			case 'ajax' :
-				$.ajax({
-					url: ds.url,
-					type: ds.method || "POST",
-					data: ds.params || {},
-					dataType: 'json',
-					success: function(data) {
-						var row = data.rows;
-						if(typeof row !== 'undefined' && row.length > 0){
-							$.each(row, function(k, v){
-								selectize.addOption({ 
-									value: v.key, 
-									text: v.value, 
-									params: typeof v.params !== 'undefined' ? JSON.stringify(v.params) : ''
-								});
-							});
-						}
-						//selectize.setValue(me.settings.defaultValue);
-					}
-				});
-			break;
-		}
-	}
-
-	getSelect() {
-		return this.select[0].selectize;
-	}
-}
-
-/**
- * Data Store
- * @extends IT.BaseClass
- * @type IT.Store
- * @param {Object} settings setting for class
- * @depend IT.BaseClass
- * @depend IT.RecordStore
- */
-IT.Store = class extends IT.BaseClass {
-	/** conctructor */
-	constructor(settings){
-		super(settings);
-
-		let me =this;
-		/** 
-		 * Setting for class
-		 * @member {Object}
-		 * @name IT.Store#settings
-		 * @property {string} id ID of element
-		 */
-		me.settings = $.extend(true,{
-			type: 'json',
-			url: '',
-			data: [],
-			autoLoad:false,
-			params:{
-				start: 0,
-				limit: 20
+		//setting store
+		me.store = new IT.Store($.extend(true,{},me.settings.store,{
+			// replace autoLoad with false, we need extra event 'afterload'
+			// wich is not created at the moment
+			autoLoad:false 
+		}));
+		me.store.addEvents({// add extra afterload
+			beforeLoad:function(){
+				me.readyState = false;
+			},
+			afterLoad:function(ev,cls,data){
+				data.forEach((obj)=>
+					me.getSelect().addOption({ 
+						value: obj.rawData.key, 
+						text: obj.rawData.value, 
+						params: typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : ''
+					})
+				);
+				me.readyState = true;
 			}
-		}, settings);
-		me.params = me.settings.params;
-		me.data = [];
-		me.total_rows = 0;
-		me.addEvents(me.settings, [
-			"beforeLoad",
-			"afterLoad",
-			"onLoad",
-			"onError",
-			"onEmpty"
-		]);
-		if (me.settings.autoLoad) me.load();
+		}); 
+		
+		// If Autuload
+		if(me.settings.autoLoad) {
+			me.getDataStore();
+		}else me.readyState = true;
 	}
-
-	/**
-	 * empty store data
-	 */
-	empty(){
-		let me=this;
-		me.total_rows = 0;
-		me.data = [];
-		me.doEvent("onEmpty",[me, me.getData(), me.params]);
-	}
-	/**
-	 * Load Data
-	 * @param  {object} opt optional params
-	 */
-	load(opt={}){
+	getDisplayValue(){
 		let me = this;
-		//var opt = opt || {};
-		switch(me.settings.type){
-			case "json":
-				var params = $.extend(me.settings.params, opt.params);
-				me.params = params;
-				me.empty();
-				$.ajax({
-					dataType: me.settings.type,
-					type	: 'POST',
-					url		: me.settings.url,
-					data	: params,
-					beforeSend: function(a,b){
-						me.total_rows = 0;
-						let ret =me.doEvent("beforeLoad",[me, a, b]);
-						return (typeof ret == 'undefined'?true:ret);
-					},
-					success : function(data){
-						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
-							$.each(data.rows ,(idx, item)=>{
-								me.data.push(new IT.RecordStore(item));
-							});
-							me.total_rows = data.total_rows;
-							me.doEvent("onLoad",[me, me.getData(), me.params]);
-						}
-						else{
-							me.empty();
-							me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
-						}
-					},
-					error: function(){
-						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
-					},
-					complete:function(){
-						me.doEvent("afterLoad",[me,me.getData()]);
-					},
-				});
-			break;
-			case "array":
-				me.total_rows=0;
-				let bl_return = me.doEvent("beforeLoad",[me, me.data||[], null]);
-				if(typeof bl_return == 'undefined'?true:bl_return){
-					if (typeof me.settings.data != 'undefined' ){
-						$.each(me.settings.data ,(idx, item)=>{
-							me.data.push(new IT.RecordStore(item));
-							me.total_rows++;
-						});
-						me.doEvent("onLoad",[me, me.getData(), null]);
-					}else{
-						me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
-					}
-					me.doEvent("afterLoad",[me,me.getData()]);
-				}else{
-					me.empty();
-					me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
-				}
-			break;
+		return me.getSelect().getItem(me.val())[0].innerHTML;
+	}
+ 	setDataStore(store) {
+		this.settings.store = store;
+		this.dataStore();
+	}
+	getDataStore() {
+		let me = this;
+		let ds = me.settings.store; 
+		let selectize = me.getSelect();
+
+		//Empty Option
+		selectize.clearOptions();
+
+		// If has value of empty text
+		if(me.settings.emptyText) {
+			selectize.addOption({
+				value: '',
+				text: me.settings.emptyText
+			});
+			selectize.setValue('');
 		}
+		me.store.load();
 	}
-
-	/**
-	 * sort data
-	 * @param  {string} field Sort by this field
-	 * @param  {boolean} asc  Determine if order is ascending. true=Ascending, false=Descending
-	 * @deprecated Deprecated, doesn't support ordering in front side
-	 */
-	sort(field,asc=true){
-		throw "Deprecated, doesn't support ordering in front side"
+	getSelect() {
+		return this.input[0].selectize;
 	}
 	/**
-	 * Get parameter(s)
-	 * @return {object} paramters
+	 * Override
+	 * @param  {Optional} value Value to setter
+	 * @return {String}   value for getter
 	 */
-	getParams(){ return this.params; }
-
-	/**
-	 * Get Stored Data
-	 * @param  {Boolean} sanitize wether return in raw or not, false = raw, true = sanitized
-	 * @return {array}           expected data
-	 */
-	getData(){
-		return this.data;
-	}
-
-	/**
-	 * Get only changed data from raw
-	 * @return {array}  array of record
-	 */
-	getChangedData(){
-		let me=this,r = [];
-		for(let idx in me.data){
-			if(me.data[idx].changed)
-				r.push($.extend({},me.data[idx].data,{indexRow: parseInt(idx) }));
-		}
-		return r;
-	}
-
-	/**
-	 * Set stored Data
-	 * @param {object} data replacement for data
-	 */
-	setData(data){ 
-		let me=this;
-		data = me.type=="json"?data.rows:data;
-		me.empty();
-		$.each(data ,(idx, item)=>{
-			me.data.push(new IT.RecordStore(item));
-			me.total_rows++;
-		});
-		me.doEvent("onLoad",[me, me.data, me.params]);
-	} 
-
-	/**
-	 * get generated settings
-	 * @return {object}
-	 */
-	getSetting(){ return this.settings; }
-
-	/**
-	 * Change data
-	 * @param  {Object} data     Updated data
-	 * @param  {Number} indexRow index data to be changed
-	 */
-	replace(data={},indexRow=0){
-		let me=this;
-		for (let key in data) {
-			me.data[indexRow].update(key,data[key]);
-		}
+	val(value) {
+		if (typeof value === "undefined")
+			return this.getSelect().getValue();
+		else return this.getSelect().setValue(value);
 	}
 }
+
 IT.Tabs = class extends IT.Component {
 	constructor(settings){
 		super(settings);
@@ -2031,6 +2087,8 @@ IT.TextBox = class extends IT.FormItem {
 			`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`+
 		`</div>`:"") + `<div class="${s.size.field}"></div>`);
 		me.content.last().append(wraper);
+
+		me.readyState = true;
 	}
 }
 /**
@@ -2079,15 +2137,10 @@ IT.Toolbar = class extends IT.Component {
 /**
  * Class Utils, all the members should static
  * @type {function}
- * @extends {IT.BaseClass}
+ * @extends IT.BaseClass
+ * @depend IT.BaseClass
  */
 IT.Utils = class extends IT.BaseClass{
-	/**
-	 * @param  {object} settings aturan for class
-	 */
-	constructor(settings){
-		super(settings);
-	}
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -2160,5 +2213,11 @@ IT.Utils = class extends IT.BaseClass{
 	static isDate(value){
 		var d = new Date(value);
 		return ! isNaN(d);
+	}
+	/**
+	 * Empty Function
+	 */
+	static emptyFn(){
+		//console.info("Empty function");
 	}
 }

@@ -1,11 +1,12 @@
 /**
  * DataTable element
- * @extends IT.Component
- * @depend IT.Store
+ * @extends IT.DataTable
+ * @type IT.DataTable
  * @param {Object} opt setting for class
- * @see IT.DataTable#settings
+ * @see IT.Component#settings
  */
 IT.DataTable = class extends IT.Component {
+	/** @param  {object} opt  */
 	constructor(settings){
 		super(settings);
 		let me = this;
@@ -36,14 +37,19 @@ IT.DataTable = class extends IT.Component {
 			customHeader:""
 		}, settings);
 
+		/** 
+		 * ID of class or element
+		 * @member {boolean}
+		 * @name IT.DataTable#id
+		 */
+		me.id = me.settings.id || IT.Utils.id();
 
-		me.id 				= me.settings.id || IT.Utils.id();
+
 		me.params 			= {}
-		me.selectedRow 		= null;
+		me.selectedRow 	= null;
 		me.selectedColumn 	= null;
-		me.editors			= [];
 		me.paging 			= { 
-			page 		: 1,
+			page:1,
 			page_count	: 0,
 			total_rows 	: 0
 		}
@@ -57,7 +63,6 @@ IT.DataTable = class extends IT.Component {
 		me.createComponent();
 
 
-
 		/**
 		 * store data
 		 * @member {boolean}
@@ -65,22 +70,7 @@ IT.DataTable = class extends IT.Component {
 		 * @see IT.Store
 		 */
 		if(!me.settings.store.isClass){
-			class cstmStore extends IT.Store {
-				load(opt){
-					let readyState = true;
-					let thse = this;
-					thse.doEvent("beforeLoad");
-					me.editors.forEach((e)=>{
-						if(e) readyState = readyState && !!e.readyState;
-					});
-					if (!readyState)
-						setTimeout(()=>{
-							thse.load.call(thse, opt)
-						},1000);
-					else super.load(opt);
-				}
-			}
-			me.store = new cstmStore($.extend(true, {
+			me.store = new IT.Store($.extend(true, {
 				beforeLoad:function(){
 					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
 					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
@@ -94,9 +84,9 @@ IT.DataTable = class extends IT.Component {
 					me.assignData(store);
 					me.doEvent("onLoad",[me,store]);
 					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-				}
+				},
+
 			}, me.settings.store));
-			cstmStore = null;
 			me.params = me.store.params;
 		}
 	}
@@ -129,15 +119,14 @@ IT.DataTable = class extends IT.Component {
 				col =s.columns[i];
 				tr.append($(`<th />`,{
 					css:{
-						// to precise width
-						"min-width":col.width,
-						"width":col.width,
+						"min-width":col.width, 	// to precise width
+						"width":col.width,		// to precise width
 					}
-				}).append(col.header));
-				me.editors.push(col.editor?IT.Utils.createObject(col.editor):null);
+				}).append(col.header))
 			}
 			thead.append(tr);
 		}
+
 		if(s.enableFixedHeader) 
 			me.content.append(fixHeader.append(table.clone()));
 		
@@ -233,68 +222,79 @@ IT.DataTable = class extends IT.Component {
 
 		if (storeData.length) {
 			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
-				let curRecord = storeData[indexRow];
+				let current_row = storeData[indexRow];
 				let row_element = $("<tr>");
 				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
 					let current_col = me.settings.columns[indexCol];
-					let field 		= me.settings.columns[indexCol].dataIndex;
+					let field = me.settings.columns[indexCol].dataIndex;
+					let render = current_col.data || current_col.renderer || ['default'];
+
+					//let editor = current_col.editor?IT.Utils.createObject(current_col.editor):null;
+					//let data = current_row.get(field);
 					
-					//let value 	= !curRecord.get(field)?"":curRecord.get(field);
-					let value 		= curRecord.get(field);
-					let html		= "";
-					let render 		= 	
-						current_col.data 		|| 
-						current_col.renderer 	|| 
-						(me.editors[indexCol]	&& me.editors[indexCol].store
-							?me.editors[indexCol].store.getRawData()
-							:null) 				|| 
-						[];
-					if(render.length){
-						for (let i =0;i<render.length;i++) {
-							let el = render[i];
-							if(el.key==value){
-								html = el.value;
-								break;
-							}
-						}
-					}
+					// if(render.length){
+
+					// 	for (var z = 0; z < arrayData.length; z++) {
+					// 		if (arrayData[z]['key'] == data) {
+					// 			arrayIndex = z;
+					// 			break;
+					// 		}
+					// 	}
+
+					// 	render.forEach(()){
+
+					// 	}
+					// }
+					// data = !data?"":data;
+					
+					console.info("editor", render);
+
+
 					let td = $("<td />",{
-						html:$("<div />",{html:(html==""?value:html)}),
+						//html:$("<div />",{html:data}),
+						html:$("<div />",{html:"data"}),
 						valign:current_col.valign ||"top",
 						align:current_col.align ||"left",
 						class:"" + (me.settings.wrap?"wrap":""),
 					});
-
+					/*
 					td.on('click',function(){
-						//change UI
 						me.selectedRow = indexRow;
 						me.selectedColumn = indexCol;
 						me.content.find("tbody tr").removeClass('it-datatable-selected');
-						$(this).parent().addClass('it-datatable-selected');
+						td.parent().addClass('it-datatable-selected');
+
 					 	if(current_col.editor 
 					 		&& current_col.editor.editable
-					 		&& !$(this).hasClass("it-datatable-editing")
+					 		&& !td.hasClass("it-datatable-editing")
 					 	){
+							let editor = IT.Utils.createObject(current_col.editor);
 					 		td.addClass("it-datatable-editing");
-					 		let editor = me.editors[indexCol];
-					 		let u = curRecord.getChanged(field)||curRecord.get(field);
-							editor.val(u);
+							td.attr("data-oldval",data);
+							console.info("data",data);
+							console.info("obj",td.find("div").html());
+							//console.info(editor);
+							return;
+							
+
+							console.info(editor);
+							editor.val(td.find("div").html());
+
 							td.find("div").empty();
 							editor.input.on("blur",function(){
 								if(editor.validate()){
-									curRecord.update(field,editor.val());
-									let u = curRecord.getChanged(field)||curRecord.get(field);
-									editor.input.off();
-							 		editor.content.detach();	
+									current_row.update(field,editor.val());
 									td.removeClass("it-datatable-editing");
-									td.find("div").html(u);
-									td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
+									td.find("div").html(editor.val());
+									editor.content.remove();
+									td[editor.val()==td.data("oldval")?"removeClass":"addClass"]("it-datatable-changed");
 								}
 							});
-							editor.renderTo($(this).find("div"));
+							editor.renderTo(td.find("div"));
 							editor.input.focus();
 					 	}
 					});
+					*/
 					row_element.append(td);
 					/*
 					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
@@ -383,6 +383,7 @@ IT.DataTable = class extends IT.Component {
 			params:{start:start,limit:me.paging.limit}
 		});
 	}
+
 	getSelectedRecords(){
 		let me =this;
 		return !me.selectedRow?null:me.store.data[me.selectedRow];

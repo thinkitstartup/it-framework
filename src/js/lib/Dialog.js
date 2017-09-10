@@ -56,11 +56,11 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		me.addEvents(me.settings, [
-			"onShow", 
-			"onHide", 
-			"onClose"
-		]);
+		// me.addEvents(me.settings, [
+		// 	"onShow", 
+		// 	"onHide", 
+		// 	"onClose"
+		// ]);
 
 		me.createElement();
 		if(me.settings.autoShow) 
@@ -146,7 +146,7 @@ IT.Dialog = class extends IT.Component {
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
 		});
-		me.doEvent("onShow",[me, me.id]);
+		//me.doEvent("onShow",[me, me.id]);
 
 		$(window).resize(function() {
 			me._autoScrollContainer();
@@ -162,7 +162,7 @@ IT.Dialog = class extends IT.Component {
 			.removeClass('dialog-show')
 			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
-				me.doEvent("onHide",[me, me.id]);
+				//me.doEvent("onHide",[me, me.id]);
 			});
 	}
 
@@ -179,7 +179,7 @@ IT.Dialog = class extends IT.Component {
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();
-							me.doEvent("onClose",[me, me.id]);
+							//me.doEvent("onClose",[me, me.id]);
 						}, 300);
 					})
 			});

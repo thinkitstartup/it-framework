@@ -19,53 +19,20 @@
 <body>
 	<div 
 		id="mainRender" 
-		style="width: 500px;height: 200px;margin: 20px auto auto;padding: 20px;background: grey"
-	></div>
-	<div 
-		id="secondRender" 
-		style="width: 500px;height: 200px;margin: 20px auto auto;padding: 20px;background: blue"
+		style="width: 500px;height: 200px;margin: 20px auto auto;padding: 20px;"
 	></div>
 
 
 	<script type="text/javascript" defer>
 		$(function(){
 			
-			//IDR Currency
-			var a = IT.Utils.createObject({
-				x:"textbox",
-				type:"mask",
-				label:"Please Input",
-				placeholder:"Please Input",
-				allowBlank:false,
-				info:{
-					prepend:"Rp. ",
-					append:"-,."
-				},
-				maskSettings:{
-					groupSeparator: ".",
-					radixPoint: "",
-					alias: "numeric",
-					placeholder: "0",
-					autoGroup: !0
+			var fi = new IT.FormItem({
+				stateChange:function(ev, state){
+					console.info("ss",state);
 				}
 			});
-			a.renderTo($("#mainRender"));
-			a.val(1000000);
-			a.addEvents({
-				selector:a.input,
-				blur:function(){
-					console.info(a.val())
-				}
-			})
-			
 
 
-			setTimeout(function(){
-				$('#mainRender').empty();
-				setTimeout(function(){
-					a.renderTo($('#secondRender'));
-				},3000);
-			},3000);
 		});
 	</script>
 </body>

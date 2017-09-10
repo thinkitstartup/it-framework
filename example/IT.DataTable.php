@@ -34,7 +34,8 @@
 	>
 	</div>
 	<center>
-		<button id='test'>GetSelected</button>
+		<button id='GetChanged'>GetChanged</button>
+		<button id='Test'>Test Render</button>
 	</center>
 	<script type="text/javascript" defer>
 		$(function(){
@@ -42,10 +43,10 @@
 				x:"datatable",
 				paging:true,
 				height:450,
-				//wrap:true,
+				wrap:true,
 				columns:[{
 					header: "Nama Lengkap", 
-					dataIndex:"nama", 
+					dataIndex:"nm_pes", 
 					width: 399,
 					editor:{
 						x:'text',
@@ -54,25 +55,47 @@
 					}
 				},{
 					header: "b", 
-					dataIndex:"sex", 
-					width: 40,
-					align:"center"
+					dataIndex:"kd_agama", 
+					width: 100,
+					editor:{
+						x:'select',
+						editable:true,
+						width: 100,
+						store: {
+							// type: 'ajax',
+							// url:"datajson/ref_agama.php",
+							// autoLoad:true,
+							type:"array",
+							data:[
+								{key:"A",value:"A. Islam"},
+								{key:"B",value:"B. Kristen"},
+								{key:"C",value:"C. Protestan"},
+								{key:"D",value:"D. Hindu"},
+								{key:"E",value:"E. Buda"},
+							]
+						}
+					}
+				},{	
+					header: "Jenis Kelamin", 
+					dataIndex:"sex",
+					width:100,
+					data:[ // data added to column, not editor
+						{key:"L",value:"Laki - laki"},
+						{key:"P",value:"Perempuan"},
+					]
 				},{	
 					header: "", 
 					dataIndex:""
 				}],
 				store: {
 					type: 'json',
-					url: "data.json",
+					url: "datajson/biodata_dynamis.php",
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:20
+						limit:3
 					}
 				},
-				// onItemDblClick:function(){
-				// 	onedit()
-				// }
 			};
 
 
@@ -81,37 +104,40 @@
 			obj.renderTo($("#mainRender"));
 			
 			setTimeout(function(){
-				obj.store.load();
-				setTimeout(function(){
-					console.info(obj.getSelectedRecords());
-					setTimeout(function(){
-						//obj.store.empty();
-					},1000);
-				},3000);
+				obj.store.load({kola:"ss"});
 			},1000);
 
-			
 
-			//as item of dialog
-			if(false)
-			var dialog = new IT.Dialog({
-				title: 'TEST',
-				width: 800,
-				autoHeight:true,
-				height: 200,
-				//css: {padding: 10},
-				items:[{
-					x:"toolbar",
-					items:[{
-						x:"button",
-						align:"right",
-						text:"Close",
-						handler:function(){
-							dialog.close();
+			$("#GetChanged").click(function(){
+				console.info(obj.getDataChanged());
+			})
+
+			$("#Test").click(function(){
+				var el = $(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)");
+				el.find("div").html("");
+				el.addClass("it-datatable-editing");
+				var select = new IT.Select({
+					width:95,
+					emptyText:'- Pilih Data -',
+					autoLoad:true,
+					datasource: { 
+						type: 'array',
+						autoLoad:true,
+						data:[
+							{key:"L",value:"Laki-Laki"},
+							{key:"P",value:"Perempuan"},
+						],
+					},
+					onChange(e,a,val){
+						if(val!=""){
+							console.info(a.getDisplayValue());
 						}
-					}]
-				},config]
+					}
+				});
+				select.renderTo(el.find("div"));
 			});
+			console.info($(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)"));
+
 		});
 	</script>
 </body>
