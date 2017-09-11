@@ -47,7 +47,7 @@
 				columns:[{
 					header: "Nama Lengkap", 
 					dataIndex:"nm_pes", 
-					width: 399,
+					width: 50,
 					editor:{
 						x:'text',
 						editable:true,

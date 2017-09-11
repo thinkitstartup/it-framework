@@ -93,7 +93,7 @@ IT.Store = class extends IT.BaseClass {
 						}
 					},
 					error:function(XMLHttpRequest, textStatus, errorThrown) {
-						throw errorThrown;
+						//throw errorThrown;
 						me.doEvent("onError",[me,{status:textStatus, message:errorThrown}]);
 					},
 					complete:function(){

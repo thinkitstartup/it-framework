@@ -1117,7 +1117,7 @@ html, body {
 }
 */
 .selectize-dropdown {
-  z-index: 10;
+  z-index: 100;
   position: absolute;
   border: 1px solid #d0d0d0;
   background: #ffffff;
@@ -1372,6 +1372,8 @@ html, body {
           padding: 0;
           text-overflow: none;
           overflow: visible; }
+          .it-datatable table tbody tr td.it-datatable-editing div select {
+            padding: 2px 1px; }
         .it-datatable table tbody tr td.it-datatable-changed div:before {
           content: "";
           border-width: 5px;
