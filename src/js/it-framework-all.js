@@ -1684,6 +1684,9 @@ IT.Select = class extends IT.FormItem {
 				type	: 'array',
 				data	: null,
 			},
+			selectize: {
+				allowEmptyOption: true
+			}
 		}, settings);
 		
 		me.id = me.settings.id || IT.Utils.id();
@@ -1691,7 +1694,6 @@ IT.Select = class extends IT.FormItem {
 		me.input = $('<select />', {
 			id: me.id,
 			name: me.id,
-			class: 'it-edit-input',
 			attr: {
 				disabled: me.settings.disabled,
 			},
@@ -1699,6 +1701,7 @@ IT.Select = class extends IT.FormItem {
 		});
 		me.content = $('<div />', { class: 'it-edit' });
 		me.content.append(me.input);
+		me.input.selectize(me.settings.selectize);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -1711,16 +1714,17 @@ IT.Select = class extends IT.FormItem {
 			"onChange"
 		]);
 		
-		me.input.on("change",function(){
+		me.getSelect().on("change",function(){
 			me.doEvent("onChange",[me,me.val()]);
 		});
 
 		// If has value of empty text
 		if(me.settings.emptyText && !me.settings.autoLoad) {
-			me.input.append($('<option/>', {
-				val: '',
+			me.getSelect().addOption({
+				value: '',
 				text: me.settings.emptyText
-			}));
+			});
+			me.getSelect().setValue('');
 		}
 
 		//setting store
@@ -1734,15 +1738,13 @@ IT.Select = class extends IT.FormItem {
 				me.readyState = false;
 			},
 			afterLoad:function(ev,cls,data){
-				data.forEach((obj)=> {
-					me.input.append($('<option/>', {
-						val: obj.rawData.key,
-						text: obj.rawData.value,
-						attr: {
-							'data-params' : (typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : '')
-						}
-					}));
-				});
+				data.forEach((obj)=>
+					me.getSelect().addOption({ 
+						value: obj.rawData.key, 
+						text: obj.rawData.value, 
+						params: typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : ''
+					})
+				);
 				me.readyState = true;
 			}
 		}); 
@@ -1763,19 +1765,24 @@ IT.Select = class extends IT.FormItem {
 	getDataStore() {
 		let me = this;
 		let ds = me.settings.store; 
+		let selectize = me.getSelect();
 
-		me.input.empty();
+		//Empty Option
+		selectize.clearOptions();
 
 		// If has value of empty text
 		if(me.settings.emptyText) {
-			me.input.append($('<option/>', {
-				val: '',
+			selectize.addOption({
+				value: '',
 				text: me.settings.emptyText
-			}));
+			});
+			selectize.setValue('');
 		}
 		me.store.load();
 	}
-	
+	getSelect() {
+		return this.input[0].selectize;
+	}
 	/**
 	 * Override
 	 * @param  {Optional} value Value to setter
@@ -1783,12 +1790,12 @@ IT.Select = class extends IT.FormItem {
 	 */
 	val(value) {
 		if (typeof value === "undefined")
-			return this.input.val();
-		else return this.input.val(value);
+			return this.getSelect().getValue();
+		else return this.getSelect().setValue(value);
 	}
 }
 
-IT.Selectize = class extends IT.FormItem {
+IT.Select = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me = this,cls;
