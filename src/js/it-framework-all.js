@@ -1788,7 +1788,7 @@ IT.Select = class extends IT.FormItem {
 	}
 }
 
-IT.Select = class extends IT.FormItem {
+IT.Selectize = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me = this,cls;
