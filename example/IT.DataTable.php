@@ -76,17 +76,17 @@
 						x:'select',
 						editable:true,
 						store: {
-							// type: 'ajax',
-							// url:"datajson/ref_agama.php",
-							// autoLoad:true,
-							type:"array",
-							data:[
-								{key:"A",value:"A. Islam"},
-								{key:"B",value:"B. Kristen"},
-								{key:"C",value:"C. Protestan"},
-								{key:"D",value:"D. Hindu"},
-								{key:"E",value:"E. Buda"},
-							]
+							type: 'ajax',
+							url:"datajson/ref_agama.php",
+							autoLoad:true,
+							// type:"array",
+							// data:[
+							// 	{key:"A",value:"A. Islam"},
+							// 	{key:"B",value:"B. Kristen"},
+							// 	{key:"C",value:"C. Protestan"},
+							// 	{key:"D",value:"D. Hindu"},
+							// 	{key:"E",value:"E. Buda"},
+							// ]
 						}
 					}
 				},{	
@@ -107,7 +107,7 @@
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:1
+						limit:3
 					}
 				},
 			};
@@ -119,7 +119,7 @@
 			
 			setTimeout(function(){
 				obj.store.load({kola:"ss"});
-			},1000);
+			},2000);
 
 
 			$("#GetChanged").click(function(){

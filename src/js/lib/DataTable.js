@@ -71,7 +71,7 @@ IT.DataTable = class extends IT.Component {
 					let thse = this;
 					thse.doEvent("beforeLoad");
 					me.editors.forEach((e)=>{
-						if(e) readyState = readyState && !!e.readyState;
+						if(e && e.isClass) readyState = readyState && !!e.readyState;
 					});
 					if (!readyState)
 						setTimeout(()=>{
@@ -134,17 +134,23 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				me.editors.push(col.editor
-					?IT.Utils.createObject($.extend(true,{},col.editor,{
-						width:col.width,
-						//name: col.dataIndex
-					})):null);
+				
+				if(col.editor && col.editor.store && 
+					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
+				){	
+					me.editors.push(IT.Utils.createObject(
+						$.extend(true,{},col.editor,{
+							width:col.width
+						})
+					));
+				}
+				else me.editors.push(col.editor);
 			}
 			thead.append(tr);
 		}
-		if(s.enableFixedHeader) 
+		if(s.enableFixedHeader) {
 			me.content.append(fixHeader.append(table.clone()));
-		
+		}
 		table.append(tbody);
 		if(s.paging){
 			me.content.append(`
@@ -213,11 +219,9 @@ IT.DataTable = class extends IT.Component {
 	assignData(store){
 		let me =this,
 			storeData = store.getData();
-
 		if(storeData.length){
 			me.content.find("table").animate({ scrollTop: 0 }, "slow");
 		}
-
 		me.content.find("tbody").empty();
 		let start		= me.params.start;
 		let limit		= me.params.limit;
@@ -232,9 +236,9 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
 		me.content.find('.it-datatable-pagination-page').html(page_count);
 
-		if (start == 0) 
+		if (start == 0) {
 			me.content.find('.it-datatable-pagination-current').val(1);
-
+		}
 		if (storeData.length) {
 			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
 				let curRecord = storeData[indexRow];
@@ -260,13 +264,17 @@ IT.DataTable = class extends IT.Component {
 
 					let editor = me.editors[indexCol];
 					if (editor) {
+						editor = editor.isClass ? editor : IT.Utils.createObject(
+							$.extend(true,{},current_col.editor,{
+								width:current_col.width
+							})
+						);
 						td.on('click',function(){
 							me.selectedRow 		= indexRow;
 							me.selectedColumn 	= indexCol;
 							me.content.find("tbody tr").removeClass('it-datatable-selected');
 							td.parent().addClass('it-datatable-selected');
 							if(current_col.editor.editable && !$(this).hasClass("it-datatable-editing")){
-								console.info("set ");
 								td.find("div").empty();
 						 		td.addClass("it-datatable-editing");
 								editor.val(curRecord.getChanged(field)||curRecord.get(field));

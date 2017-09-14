@@ -23,7 +23,6 @@ IT.Store = class extends IT.BaseClass {
 			url: '',
 			data: [],
 			autoLoad:false,
-			async: true,
 			params:{
 				start: 0,
 				limit: 20
@@ -41,7 +40,6 @@ IT.Store = class extends IT.BaseClass {
 			"onError",
 			"onEmpty"
 		]);
-
 		if (me.settings.autoLoad) me.load();
 	}
 
@@ -72,7 +70,6 @@ IT.Store = class extends IT.BaseClass {
 					type	: 'POST',
 					url		: me.settings.url,
 					data	: params,
-					async	: me.settings.async,
 					beforeSend: function(a,b){
 						me.procces 		= true;
 						me.total_rows 	= 0;
@@ -87,10 +84,7 @@ IT.Store = class extends IT.BaseClass {
 							me.total_rows = data.total_rows;
 							me.doEvent("onLoad",[me, me.getData(), me.params]);
 						}
-						else{
-							me.empty();
-							me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
-						}
+						else me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 					},
 					error:function(XMLHttpRequest, textStatus, errorThrown) {
 						//throw errorThrown;
