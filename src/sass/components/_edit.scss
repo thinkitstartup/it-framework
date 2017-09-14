@@ -30,18 +30,16 @@
 				}
 
 				&:after {
+					font: normal normal normal 13px/1 FontAwesome;
 					opacity: 0;
 					visibility: hidden;
-					content: '';
+					content: "\f00c";
 					position: absolute;
-					top: 6px;
-					left: 5px;
-					border: 3px solid #fff;
-					border-top: none;
-					border-right: none;
+					color: #fff;
+					top: 1px;
+					left: 1px;
 					@include transition(all .2s);
 					@include size(13px, 8px);
-					@include prefix(transform, rotate(-45deg));
 				}
 			}
 		}	

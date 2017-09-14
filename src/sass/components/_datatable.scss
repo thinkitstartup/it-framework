@@ -50,6 +50,7 @@
 			tbody {
 				tr {
 					height: 25px;
+
 					&:nth-child(even) { 
 						background: $grid_row_strip_color; 
 					}
@@ -80,12 +81,27 @@
 							text-overflow: ellipsis;
 							overflow: hidden; 
 							white-space: nowrap;
-
+	
 							&.wrap {
 								white-space: normal;
 								text-overflow: clip;
 								line-height: 1.4em;
 								height: auto;
+							}
+							
+							// Fixed Checkbox Layout in datatable
+							.it-edit.for-option {
+								.it-edit-input {
+									display: none;
+								}
+	
+								.it-input-label {
+									padding: 3px;
+
+									&:after {
+										top: 5px;
+									}	
+								}
 							}
 
 						}
@@ -110,7 +126,7 @@
 								// 	height: $grid_column_height;
 								// 	line-height: $grid_column_height;
 								// }
-
+								
 								select {
 									padding: 2px 1px;
 								}
