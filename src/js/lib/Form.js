@@ -17,6 +17,7 @@ IT.Form = class extends IT.Component{
 		 */
 		me.settings = $.extend(true,{
 			id: '',
+			url:'',
 			items:[]
 		}, opt);
 
@@ -43,7 +44,9 @@ IT.Form = class extends IT.Component{
 		});
 		me.content= $("<form />",{
 			name:IT.Utils.id(),
-			class:"it-form"
+			class:"it-form",
+			action: me.settings.url,
+			target: me.settings.target
 		});
 		me.content.append(wrapper);
 	}

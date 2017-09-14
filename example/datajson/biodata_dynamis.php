@@ -22,7 +22,7 @@
 				unset($rowBio['deleted']);
 
 				$rowBio["kd_agama"] = array_keys($listagama)[rand(0,4)];
-				$rowBio["sex"] = array("L","P",null)[rand(0,2)];
+				//$rowBio["sex"] = array("L","P",null)[rand(0,2)];
 				//$rowBio["sex"] = null;
 
 				$DtaFilter[]=$rowBio;

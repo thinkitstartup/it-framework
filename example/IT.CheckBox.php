@@ -30,6 +30,7 @@
 	</div>
 	<script type="text/javascript" defer>
 		$(function(){
+			/*
 			var config = {
 				x:"form",
 				items: [{
@@ -59,11 +60,50 @@
 					}]
 				}]
 			};
-
+			*/
 			//render to html
 			$("#render").click(()=>{
-				var obj = IT.Utils.createObject(config);
-				obj.renderTo($("#mainRender"));
+				var checkbox = new IT.CheckBox({
+					label:"Membaca",
+					value:"baca",
+					name:"hobby[]",
+					onChange:function(e,a,b){
+						console.info("holla amigos : ", a, b);
+					}
+				});
+				var checkbox2 = new IT.CheckBox({
+					label:"Renang",
+					value:"renang",
+					name:"hobby[]"
+				});
+
+				var form = new IT.Form({
+					x:"form",
+					url: "http://localhost/simpeg/resources/it-framework/example/datajson/request.php",
+					target:"_blank",
+					items: [checkbox,checkbox2,{
+						x:"button",
+						text:"Check Value",
+						handler:function(){
+							console.info(checkbox.val());
+							console.info(checkbox.checked);
+							setTimeout(function(){
+								checkbox.checked = !checkbox.checked
+							},3000);
+						}
+					}]
+				});
+				form.renderTo($("#mainRender"));
+
+
+				var form2 = new IT.Form({
+					x:"form",
+					items:[{
+						x:"text",
+						label:"hallo"
+					}]
+				});
+				form2.renderTo($("#mainRender"));
 			});
 			$('#render').click();
 

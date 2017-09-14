@@ -84,4 +84,24 @@ IT.Utils = class extends IT.BaseClass{
 	static emptyFn(){
 		//console.info("Empty function");
 	}
+
+
+	static findData(value,fromStore,opt=null){
+		let v = value,
+			dta = fromStore.getData ? fromStore.getData() : fromStore;
+		opt = $.extend(true,{
+			field:"key",
+			look:"value"
+		},opt||{}) ;
+		if(dta.length){
+			for (let i =0;i<dta.length;i++) {
+				let el = dta[i];
+				if(el[opt.field]==value){
+					v = el[opt.look];
+					break;
+				}
+			}
+		}
+		return v;
+	}
 }

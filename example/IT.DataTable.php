@@ -45,22 +45,36 @@
 				height:450,
 				wrap:true,
 				columns:[{
+					header: "Cek", 
+					dataIndex:"cek", 
+					width: 50,
+					editor:{
+						xtype: "checkbox",
+						editable:false,
+						onChange:function(a,b,c,d){
+							console.info(obj.getSelectedRecords());
+							console.info(obj.selectedRow);
+							console.info(obj.selectedColumn);
+							console.info(obj.store.data[obj.selectedRow]);
+							
+						}
+					}
+				},{
 					header: "Nama Lengkap", 
 					dataIndex:"nm_pes", 
-					width: 50,
+					width: 200,
 					editor:{
 						x:'text',
 						editable:true,
 						allowBlank:false
 					}
 				},{
-					header: "b", 
+					header: "Agama", 
 					dataIndex:"kd_agama", 
 					width: 100,
 					editor:{
 						x:'select',
 						editable:true,
-						width: 100,
 						store: {
 							// type: 'ajax',
 							// url:"datajson/ref_agama.php",
@@ -93,7 +107,7 @@
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:3
+						limit:1
 					}
 				},
 			};
@@ -136,7 +150,8 @@
 				});
 				select.renderTo(el.find("div"));
 			});
-			console.info($(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)"));
+			
+			//console.info($(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)"));
 
 		});
 	</script>

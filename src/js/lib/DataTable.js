@@ -134,7 +134,11 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				me.editors.push(col.editor?IT.Utils.createObject(col.editor):null);
+				me.editors.push(col.editor
+					?IT.Utils.createObject($.extend(true,{},col.editor,{
+						width:col.width,
+						//name: col.dataIndex
+					})):null);
 			}
 			thead.append(tr);
 		}
@@ -236,71 +240,59 @@ IT.DataTable = class extends IT.Component {
 				let curRecord = storeData[indexRow];
 				let row_element = $("<tr>");
 				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
-					let current_col = me.settings.columns[indexCol];
-					let field 		= me.settings.columns[indexCol].dataIndex;
-					
-					//let value 	= !curRecord.get(field)?"":curRecord.get(field);
-					let value 		= curRecord.get(field);
-					let html		= "";
-					let render 		= 	
+					let current_col = me.settings.columns[indexCol],
+						field 		= me.settings.columns[indexCol].dataIndex,
+						value 		= curRecord.get(field),
+						render 		= 	
 						current_col.data 		|| 
 						current_col.renderer 	|| 
 						(me.editors[indexCol]	&& me.editors[indexCol].store
 							?me.editors[indexCol].store.getRawData()
 							:null) 				|| 
-						[];
-					if(render.length){
-						for (let i =0;i<render.length;i++) {
-							let el = render[i];
-							if(el.key==value){
-								html = el.value;
-								break;
-							}
+						[],
+						html		= IT.Utils.findData(value,render),
+						td = $("<td />",{
+							html:$("<div />",{html:(html==""?value:html)}),
+							valign:current_col.valign ||"top",
+							align:current_col.align ||"left",
+							class:"" + (me.settings.wrap?"wrap":""),
+						});
+
+					let editor = me.editors[indexCol];
+					if (editor) {
+						td.on('click',function(){
+							me.selectedRow 		= indexRow;
+							me.selectedColumn 	= indexCol;
+							me.content.find("tbody tr").removeClass('it-datatable-selected');
+							td.parent().addClass('it-datatable-selected');
+							if(current_col.editor.editable && !$(this).hasClass("it-datatable-editing")){
+								console.info("set ");
+								td.find("div").empty();
+						 		td.addClass("it-datatable-editing");
+								editor.val(curRecord.getChanged(field)||curRecord.get(field));
+								editor.input.on("blur",function(){
+									if(editor.validate()){
+										curRecord.update(field,editor.val());
+										editor.input.off();
+								 		editor.content.detach();	
+										td.removeClass("it-datatable-editing");
+										td.find("div").html(IT.Utils.findData(
+											curRecord.getChanged(field)||
+											curRecord.get(field),
+										render));
+										td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
+									}
+								});
+								editor.renderTo(td.find("div"));
+								editor.input.focus();
+						 	}
+						});
+						if(editor.className=="checkbox"){
+							editor.renderTo(td.find("div"));
+							editor.input.focus();
 						}
 					}
-					let td = $("<td />",{
-						html:$("<div />",{html:(html==""?value:html)}),
-						valign:current_col.valign ||"top",
-						align:current_col.align ||"left",
-						class:"" + (me.settings.wrap?"wrap":""),
-					});
-
-					td.on('click',function(){
-						//change UI
-						me.selectedRow = indexRow;
-						me.selectedColumn = indexCol;
-						me.content.find("tbody tr").removeClass('it-datatable-selected');
-						$(this).parent().addClass('it-datatable-selected');
-					 	if(current_col.editor 
-					 		&& current_col.editor.editable
-					 		&& !$(this).hasClass("it-datatable-editing")
-					 	){
-					 		td.addClass("it-datatable-editing");
-					 		let editor = me.editors[indexCol];
-					 		let u = curRecord.getChanged(field)||curRecord.get(field);
-							editor.val(u);
-							td.find("div").empty();
-							editor.input.on("blur",function(){
-								if(editor.validate()){
-									curRecord.update(field,editor.val());
-									let u = curRecord.getChanged(field)||curRecord.get(field);
-									editor.input.off();
-							 		editor.content.detach();	
-									td.removeClass("it-datatable-editing");
-									td.find("div").html(u);
-									td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
-								}
-							});
-							editor.renderTo($(this).find("div"));
-							editor.input.focus();
-					 	}
-					});
 					row_element.append(td);
-					/*
-					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
-					if ($img == true) $data = "<img src='" + $data + "' " + $cssTD + ">";
-					$rows += "<td " + $cssTD + "><div"+ $value + $cssDiv +">" + $data + "</div></td>";
-					*/
 				}
 				me.content.find("tbody").append(row_element);
 			}

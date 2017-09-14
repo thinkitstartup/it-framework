@@ -16,6 +16,11 @@ IT.BaseClass = class {
 	}
 
 
+	get className(){
+		return this.classname || this.settings.xtype || this.settings.x || undefined;
+	}
+
+
 	/**
 	 * used to check if this is a class
 	 * @type {boolean}
@@ -54,5 +59,12 @@ IT.BaseClass = class {
 	 */
 	doEvent(event,params){
 		$(this).trigger(event,params);
+	}
+	/**
+	 * Clear all available events.
+	 * @param  {option} object of functions 
+	 */
+	clearEvents(option={}){
+		let sel = option.selector || $(this).off();
 	}
 }

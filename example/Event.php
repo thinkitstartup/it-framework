@@ -43,15 +43,12 @@
 			//add event after create
 			b.addEvents({
 				changeState:function(a,b,c){
-					console.info(a);//output event
-					console.info(b);//output "one"
-					console.info(c);//output "two"
-					//console.info(d);//Reference error, d is not defined
+					console.info("satu :",c);
 				}
 			});
 			b.addEvents({
-				changeState:function(){
-					console.info("second handler");
+				changeState:function(a,b,c){
+					console.info("dua ",c);
 				}
 			},["changeState"]);
 
@@ -59,6 +56,12 @@
 			//firing event
 			b.doEvent("changeState",["one","two","three"]);
 
+
+			b.clearEvents();
+			b.doEvent("changeState",["one","Terakhir","three"]);
+			b.doEvent("changeState",["one","Terakhir","three"]);
+			b.doEvent("changeState",["one","Terakhir","three"]);
+			b.doEvent("changeState",["one","Terakhir","three"]);
 		},2000);
 
 

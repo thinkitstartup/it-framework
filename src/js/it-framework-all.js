@@ -5,6 +5,22 @@ var base_events = ["blur", "change", "click", "dblclick", "focus", "hover", "key
 var transitionEnd = 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 var animationEnd = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
 
+
+
+(function($){
+	$.fn.serializeObject = function () {
+		var result = {};
+		var extend = function (i, element) {
+			var node = result[element.name];
+			if (typeof node !== 'undefined' && node !== null) {
+				if ($.isArray(node)) node.push(element.value);
+				else result[element.name] = [node, element.value];
+			} else result[element.name] = element.value;
+		};
+		$.each(this.serializeArray(), extend);
+		return result;
+	};
+})(jQuery);
 /**
  * BaseClass for every Class Instance
  * @type {class}
@@ -20,6 +36,11 @@ IT.BaseClass = class {
 		 * @name IT.Component#settings
 		 */
 		me.settings = settings||{};
+	}
+
+
+	get className(){
+		return this.classname || this.settings.xtype || this.settings.x || undefined;
 	}
 
 
@@ -61,6 +82,13 @@ IT.BaseClass = class {
 	 */
 	doEvent(event,params){
 		$(this).trigger(event,params);
+	}
+	/**
+	 * Clear all available events.
+	 * @param  {option} object of functions 
+	 */
+	clearEvents(option={}){
+		let sel = option.selector || $(this).off();
 	}
 }
 /**
@@ -133,8 +161,10 @@ IT.Button = class extends IT.Component {
 		}, params);
 		me.id = me.settings.id || IT.Utils.id();
 		me.enable = me.settings.enable;
-		me.listener = new IT.Listener(me, me.settings, ["onClick"]);
-		
+		//me.listener = new IT.Listener(me, me.settings, ["onClick"]);
+		me.addEvents(me.settings, ["onClick"]);
+
+
 		let btn = $('<a/>', {
 			id: me.id,
 			html: me.settings.text,
@@ -146,7 +176,8 @@ IT.Button = class extends IT.Component {
 			if(me.enable){
 				if (typeof me.settings.handler === 'function')
 					me.settings.handler.call();
-				me.listener.fire("onClick",[me, me.id]);
+				//me.listener.fire("onClick",[me, me.id]);
+				me.doEvent("onClick",[me, me.id]);
 				e.stopPropagation();
 			}
 		});
@@ -312,40 +343,48 @@ IT.CheckBox = class extends IT.FormItem {
 		super(settings);
 		let me=this,s;
 		me.settings = $.extend(true,{
-			x:"optionbox",
-			type: "checkbox",
+			x:"checkbox",
 			id:"", // id the classs
 			label:"", // set label description
 			name:"", // name for the input
-			allowBlank: true, // set the input can be leave blank or not
-			value:0, // value for input
+			value:"", // value for the input
 			readonly:false, // set readonly of the input 
 			enabled:true, // set enabled of the input 
 		}, settings);
 		s = me.settings;
+		me.addEvents(me.settings, ["onChange"]);
 
 		// set id
 		me.id = s.id||IT.Utils.id();
-
-		//if label empty, field size is 12
-		if(s.label=="")
-			s.size.field = "col-sm-12";
-
 		me.input = $(`<input id="${me.id}-item" `+
-			`type='${s.type}' `+
-			`class='it-edit-input' `+
+			`type='checkbox' `+
+			//`class='it-edit-input' `+
+			//`name='${s.name || IT.Utils.id()}[${s.value || IT.Utils.id()}]' `+
 			`name='${s.name || IT.Utils.id()}' `+
 			`${s.allowBlank==false?`required`:""} `+
 			`${s.readonly?` readonly `:""} `+
 			`${s.enabled==false?` disabled `:""} `+
-			`${s.value?`value='${s.value}'`:""} `+
+			`value='${s.value || IT.Utils.id()}' `+
 		`>`);
+		me.input.on("change",function(){
+			me.doEvent("onChange",[me, this.checked]);
+		});
 
 		//wrapper
 		me.content= $("<div class='it-edit for-option' />")
 			.append(me.input)
-			.append(`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`);
+			.append(`<label for="${me.id}-item" `+
+			//`class='it-input-label it-input-label-${s.labelAlign||'left'}'`+
+			`>${s.label}</label>`);
 		me.readyState = true;
+	}
+
+	get checked(){
+		return this.input.is(":checked");
+	}
+
+	set checked(v=true){
+		this.input.prop('checked', v);
 	}
 }
 /**
@@ -760,7 +799,11 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				me.editors.push(col.editor?IT.Utils.createObject(col.editor):null);
+				me.editors.push(col.editor
+					?IT.Utils.createObject($.extend(true,{},col.editor,{
+						width:col.width,
+						//name: col.dataIndex
+					})):null);
 			}
 			thead.append(tr);
 		}
@@ -862,71 +905,59 @@ IT.DataTable = class extends IT.Component {
 				let curRecord = storeData[indexRow];
 				let row_element = $("<tr>");
 				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
-					let current_col = me.settings.columns[indexCol];
-					let field 		= me.settings.columns[indexCol].dataIndex;
-					
-					//let value 	= !curRecord.get(field)?"":curRecord.get(field);
-					let value 		= curRecord.get(field);
-					let html		= "";
-					let render 		= 	
+					let current_col = me.settings.columns[indexCol],
+						field 		= me.settings.columns[indexCol].dataIndex,
+						value 		= curRecord.get(field),
+						render 		= 	
 						current_col.data 		|| 
 						current_col.renderer 	|| 
 						(me.editors[indexCol]	&& me.editors[indexCol].store
 							?me.editors[indexCol].store.getRawData()
 							:null) 				|| 
-						[];
-					if(render.length){
-						for (let i =0;i<render.length;i++) {
-							let el = render[i];
-							if(el.key==value){
-								html = el.value;
-								break;
-							}
+						[],
+						html		= IT.Utils.findData(value,render),
+						td = $("<td />",{
+							html:$("<div />",{html:(html==""?value:html)}),
+							valign:current_col.valign ||"top",
+							align:current_col.align ||"left",
+							class:"" + (me.settings.wrap?"wrap":""),
+						});
+
+					let editor = me.editors[indexCol];
+					if (editor) {
+						td.on('click',function(){
+							me.selectedRow 		= indexRow;
+							me.selectedColumn 	= indexCol;
+							me.content.find("tbody tr").removeClass('it-datatable-selected');
+							td.parent().addClass('it-datatable-selected');
+							if(current_col.editor.editable && !$(this).hasClass("it-datatable-editing")){
+								console.info("set ");
+								td.find("div").empty();
+						 		td.addClass("it-datatable-editing");
+								editor.val(curRecord.getChanged(field)||curRecord.get(field));
+								editor.input.on("blur",function(){
+									if(editor.validate()){
+										curRecord.update(field,editor.val());
+										editor.input.off();
+								 		editor.content.detach();	
+										td.removeClass("it-datatable-editing");
+										td.find("div").html(IT.Utils.findData(
+											curRecord.getChanged(field)||
+											curRecord.get(field),
+										render));
+										td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
+									}
+								});
+								editor.renderTo(td.find("div"));
+								editor.input.focus();
+						 	}
+						});
+						if(editor.className=="checkbox"){
+							editor.renderTo(td.find("div"));
+							editor.input.focus();
 						}
 					}
-					let td = $("<td />",{
-						html:$("<div />",{html:(html==""?value:html)}),
-						valign:current_col.valign ||"top",
-						align:current_col.align ||"left",
-						class:"" + (me.settings.wrap?"wrap":""),
-					});
-
-					td.on('click',function(){
-						//change UI
-						me.selectedRow = indexRow;
-						me.selectedColumn = indexCol;
-						me.content.find("tbody tr").removeClass('it-datatable-selected');
-						$(this).parent().addClass('it-datatable-selected');
-					 	if(current_col.editor 
-					 		&& current_col.editor.editable
-					 		&& !$(this).hasClass("it-datatable-editing")
-					 	){
-					 		td.addClass("it-datatable-editing");
-					 		let editor = me.editors[indexCol];
-					 		let u = curRecord.getChanged(field)||curRecord.get(field);
-							editor.val(u);
-							td.find("div").empty();
-							editor.input.on("blur",function(){
-								if(editor.validate()){
-									curRecord.update(field,editor.val());
-									let u = curRecord.getChanged(field)||curRecord.get(field);
-									editor.input.off();
-							 		editor.content.detach();	
-									td.removeClass("it-datatable-editing");
-									td.find("div").html(u);
-									td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
-								}
-							});
-							editor.renderTo($(this).find("div"));
-							editor.input.focus();
-					 	}
-					});
 					row_element.append(td);
-					/*
-					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
-					if ($img == true) $data = "<img src='" + $data + "' " + $cssTD + ">";
-					$rows += "<td " + $cssTD + "><div"+ $value + $cssDiv +">" + $data + "</div></td>";
-					*/
 				}
 				me.content.find("tbody").append(row_element);
 			}
@@ -1293,6 +1324,7 @@ IT.Form = class extends IT.Component{
 		 */
 		me.settings = $.extend(true,{
 			id: '',
+			url:'',
 			items:[]
 		}, opt);
 
@@ -1319,7 +1351,9 @@ IT.Form = class extends IT.Component{
 		});
 		me.content= $("<form />",{
 			name:IT.Utils.id(),
-			class:"it-form"
+			class:"it-form",
+			action: me.settings.url,
+			target: me.settings.target
 		});
 		me.content.append(wrapper);
 	}
@@ -2343,5 +2377,25 @@ IT.Utils = class extends IT.BaseClass{
 	 */
 	static emptyFn(){
 		//console.info("Empty function");
+	}
+
+
+	static findData(value,fromStore,opt=null){
+		let v = value,
+			dta = fromStore.getData ? fromStore.getData() : fromStore;
+		opt = $.extend(true,{
+			field:"key",
+			look:"value"
+		},opt||{}) ;
+		if(dta.length){
+			for (let i =0;i<dta.length;i++) {
+				let el = dta[i];
+				if(el[opt.field]==value){
+					v = el[opt.look];
+					break;
+				}
+			}
+		}
+		return v;
 	}
 }

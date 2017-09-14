@@ -21,8 +21,10 @@ IT.Button = class extends IT.Component {
 		}, params);
 		me.id = me.settings.id || IT.Utils.id();
 		me.enable = me.settings.enable;
-		me.listener = new IT.Listener(me, me.settings, ["onClick"]);
-		
+		//me.listener = new IT.Listener(me, me.settings, ["onClick"]);
+		me.addEvents(me.settings, ["onClick"]);
+
+
 		let btn = $('<a/>', {
 			id: me.id,
 			html: me.settings.text,
@@ -34,7 +36,8 @@ IT.Button = class extends IT.Component {
 			if(me.enable){
 				if (typeof me.settings.handler === 'function')
 					me.settings.handler.call();
-				me.listener.fire("onClick",[me, me.id]);
+				//me.listener.fire("onClick",[me, me.id]);
+				me.doEvent("onClick",[me, me.id]);
 				e.stopPropagation();
 			}
 		});
