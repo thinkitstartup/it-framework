@@ -358,7 +358,7 @@ IT.CheckBox = class extends IT.FormItem {
 		me.id = s.id||IT.Utils.id();
 		me.input = $(`<input id="${me.id}-item" `+
 			`type='checkbox' `+
-			//`class='it-edit-input' `+
+			`class='it-edit-input' `+
 			//`name='${s.name || IT.Utils.id()}[${s.value || IT.Utils.id()}]' `+
 			`name='${s.name || IT.Utils.id()}' `+
 			`${s.allowBlank==false?`required`:""} `+
@@ -374,7 +374,7 @@ IT.CheckBox = class extends IT.FormItem {
 		me.content= $("<div class='it-edit for-option' />")
 			.append(me.input)
 			.append(`<label for="${me.id}-item" `+
-			//`class='it-input-label it-input-label-${s.labelAlign||'left'}'`+
+			`class='it-input-label it-input-label-${s.labelAlign||'left'}'`+
 			`>${s.label}</label>`);
 		me.readyState = true;
 	}
