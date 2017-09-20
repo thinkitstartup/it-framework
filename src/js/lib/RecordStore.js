@@ -14,6 +14,7 @@ IT.RecordStore = class extends IT.BaseClass {
 		me.rawData 		= record,
 		me.changed		= {},
 		me.field		= Object.keys(record);
+		me.locked		= [];
 	}
 	/**
 	 * is this record has been updated
@@ -29,17 +30,19 @@ IT.RecordStore = class extends IT.BaseClass {
 
 	/**
 	 * Update the record, but it's appended to changed data. Raw data still untouched
-	 * @param  {String} key   [description]
-	 * @param  {String} value [description]
+	 * @param  {String} key   field key to update
+	 * @param  {String} value changed value to commit
 	 * @return {true}       true if updating succes. (append to changed data)
 	 */
 	update(key,value){
 		let me = this;
 		if (me.rawData.hasOwnProperty(key)){
-			if(me.rawData[key] === value){
-				if (me.changed[key])delete me.changed[key];
-			}
-			else {
+			if(me.rawData[key] == value){
+				if (me.changed.hasOwnProperty(key)){
+					delete me.changed[key];
+					return true;
+				}
+			}else {
 				me.changed[key] = value;
 				return true;
 			}
@@ -59,11 +62,29 @@ IT.RecordStore = class extends IT.BaseClass {
 	}
 
 	/**
+	 * Get Raw data
+	 * @return {Object} raw data, before data changeds
+	 */
+	getRawData(){
+		return this.rawData;
+	}
+
+
+	/**
 	 * Get record data property
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
 	get(key,from){
 		return this.rawData[key];
+	}
+
+	/**
+	 * check certain field is locked
+	 * @param  {string} key field to be checked
+	 * @return {boolean}     wether the field is locked. true if locked
+	 */
+	isLocked(key){
+		return $.inArray(key,this.locked)>-1;
 	}
 }

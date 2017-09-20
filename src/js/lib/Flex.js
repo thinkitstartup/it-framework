@@ -38,7 +38,7 @@ IT.Flex = class extends IT.Component {
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
-					el = createObject(el);
+					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);

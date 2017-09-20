@@ -12,7 +12,7 @@
 		"".chr($i++)=>"Hindu",
 		"".chr($i++)=>"Budha",
 	);
-	sleep(5);
+	//sleep(2);
 	$result->rows = array();
 	foreach ($Data as $key=>$value) {
 		$result->rows[] = array(

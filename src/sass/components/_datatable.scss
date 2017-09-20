@@ -135,7 +135,7 @@
 
 						// Perubahan Value Grid
 						&.it-datatable-changed {
-							div {
+							> div {
 								&:before {
 									content: "";
 									border-width: 5px;

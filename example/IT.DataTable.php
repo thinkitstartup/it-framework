@@ -34,16 +34,17 @@
 	>
 	</div>
 	<center>
+		<button id='AddNew'>AddNew</button>
 		<button id='GetChanged'>GetChanged</button>
-		<button id='Test'>Test Render</button>
 	</center>
 	<script type="text/javascript" defer>
 		$(function(){
-			var config = {
+			var DataTable = new IT.DataTable({
 				x:"datatable",
 				paging:true,
 				height:450,
 				wrap:true,
+				flex:true,
 				columns:[{
 					header: "Cek", 
 					dataIndex:"cek", 
@@ -51,108 +52,86 @@
 					editor:{
 						xtype: "checkbox",
 						editable:false,
-						onChange:function(a,b,c,d){
-							console.info(obj.getSelectedRecords());
-							console.info(obj.selectedRow);
-							console.info(obj.selectedColumn);
-							console.info(obj.store.data[obj.selectedRow]);
-							
-						}
 					}
 				},{
-					header: "Nama Lengkap", 
-					dataIndex:"nm_pes", 
-					width: 200,
+					header:'Kode',
+					dataIndex:'kd_agama',
+					width:120,
 					editor:{
 						x:'text',
-						editable:true,
-						allowBlank:false
+						editable:true
 					}
 				},{
-					header: "Agama", 
-					dataIndex:"kd_agama", 
+					header:'Isi',
+					dataIndex:'nama',
+					width:180,
+					editor:{
+						x:'text',
+						editable:true
+					}
+				},{
+					header:'Mapping',
+					dataIndex:'map',
+					width:80,
+					editor:{
+						x:'text',
+						editable:true
+					}
+				},{
+					header: "Aktif", 
+					dataIndex:"aktif", 
 					width: 100,
 					editor:{
 						x:'select',
 						editable:true,
 						store: {
-							type: 'ajax',
-							url:"datajson/ref_agama.php",
-							autoLoad:true,
-							// type:"array",
-							// data:[
-							// 	{key:"A",value:"A. Islam"},
-							// 	{key:"B",value:"B. Kristen"},
-							// 	{key:"C",value:"C. Protestan"},
-							// 	{key:"D",value:"D. Hindu"},
-							// 	{key:"E",value:"E. Buda"},
-							// ]
+							type:"array",
+							data:[
+								{key:"1",value:"Ya"},
+								{key:"0",value:"Tidak"},
+							]
 						}
 					}
-				},{	
-					header: "Jenis Kelamin", 
-					dataIndex:"sex",
-					width:100,
-					data:[ // data added to column, not editor
-						{key:"L",value:"Laki - laki"},
-						{key:"P",value:"Perempuan"},
-					]
-				},{	
-					header: "", 
+				},{
+					header:"",
 					dataIndex:""
 				}],
 				store: {
 					type: 'json',
-					url: "datajson/biodata_dynamis.php",
+					//url: "datajson/biodata_dynamis.php",
+					url: "/simpeg/referensi-data/data-umum/agama/data",
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:3
+						limit:2
+					},
+					afterLoad:function(){
+						DataTable.store.data[0].locked.push("nama");
 					}
 				},
-			};
-
-
-			//render to html
-			var obj = new IT.DataTable(config);
-			obj.renderTo($("#mainRender"));
+			});
+			DataTable.renderTo($("#mainRender"));
 			
 			setTimeout(function(){
-				obj.store.load({kola:"ss"});
+				DataTable.store.load({kola:"ss"});
 			},2000);
 
 
 			$("#GetChanged").click(function(){
-				console.info(obj.getDataChanged());
+				console.info(DataTable.getDataChanged());
 			})
-
-			$("#Test").click(function(){
-				var el = $(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)");
-				el.find("div").html("");
-				el.addClass("it-datatable-editing");
-				var select = new IT.Select({
-					width:95,
-					emptyText:'- Pilih Data -',
-					autoLoad:true,
-					datasource: { 
-						type: 'array',
-						autoLoad:true,
-						data:[
-							{key:"L",value:"Laki-Laki"},
-							{key:"P",value:"Perempuan"},
-						],
-					},
-					onChange(e,a,val){
-						if(val!=""){
-							console.info(a.getDisplayValue());
-						}
-					}
+			$("#AddNew").click(function(){
+				var newRec = new IT.RecordStore({
+					cek:"",
+					nm_pes:"",
+					kd_agama:"",
+					sex:""
 				});
-				select.renderTo(el.find("div"));
+				DataTable.addRow(newRec);
+				DataTable.store.data.push(newRec);
+				console.info(DataTable.store);
 			});
 			
-			//console.info($(".it-datatable-wrapper table tbody tr:eq(1) td:eq(2)"));
-
 		});
 	</script>
 </body>

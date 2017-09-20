@@ -403,6 +403,7 @@ IT.RecordStore = class extends IT.BaseClass {
 		me.rawData 		= record,
 		me.changed		= {},
 		me.field		= Object.keys(record);
+		me.locked		= [];
 	}
 	/**
 	 * is this record has been updated
@@ -418,17 +419,19 @@ IT.RecordStore = class extends IT.BaseClass {
 
 	/**
 	 * Update the record, but it's appended to changed data. Raw data still untouched
-	 * @param  {String} key   [description]
-	 * @param  {String} value [description]
+	 * @param  {String} key   field key to update
+	 * @param  {String} value changed value to commit
 	 * @return {true}       true if updating succes. (append to changed data)
 	 */
 	update(key,value){
 		let me = this;
 		if (me.rawData.hasOwnProperty(key)){
-			if(me.rawData[key] === value){
-				if (me.changed[key])delete me.changed[key];
-			}
-			else {
+			if(me.rawData[key] == value){
+				if (me.changed.hasOwnProperty(key)){
+					delete me.changed[key];
+					return true;
+				}
+			}else {
 				me.changed[key] = value;
 				return true;
 			}
@@ -448,12 +451,30 @@ IT.RecordStore = class extends IT.BaseClass {
 	}
 
 	/**
+	 * Get Raw data
+	 * @return {Object} raw data, before data changeds
+	 */
+	getRawData(){
+		return this.rawData;
+	}
+
+
+	/**
 	 * Get record data property
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
 	get(key,from){
 		return this.rawData[key];
+	}
+
+	/**
+	 * check certain field is locked
+	 * @param  {string} key field to be checked
+	 * @return {boolean}     wether the field is locked. true if locked
+	 */
+	isLocked(key){
+		return $.inArray(key,this.locked)>-1;
 	}
 }
 /**
@@ -739,7 +760,8 @@ IT.DataTable = class extends IT.Component {
 					else super.load(opt);
 				}
 			}
-			me.store = new cstmStore($.extend(true, {
+			me.store = new cstmStore(me.settings.store);
+			me.store.addEvents({
 				beforeLoad:function(){
 					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
 					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
@@ -754,7 +776,7 @@ IT.DataTable = class extends IT.Component {
 					me.doEvent("onLoad",[me,store]);
 					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
 				}
-			}, me.settings.store));
+			});
 			cstmStore = null;
 			me.params = me.store.params;
 		}
@@ -840,7 +862,7 @@ IT.DataTable = class extends IT.Component {
 						type:'question',
 						title:'Konfirmasi',
 						width: 400,
-						message:'Yakin akan menghapus data tersebut ?',
+						message:'Perubahan data belum di simpan. Yakin akan berpindah halaman ?',
 						buttons:[{
 							text:'Ya',
 							handler:function(){
@@ -900,72 +922,11 @@ IT.DataTable = class extends IT.Component {
 		}
 		if (storeData.length) {
 			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
-				let curRecord = storeData[indexRow];
-				let row_element = $("<tr>");
-				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
-					let current_col = me.settings.columns[indexCol],
-						field 		= me.settings.columns[indexCol].dataIndex,
-						value 		= curRecord.get(field),
-						render 		= 	
-						current_col.data 		|| 
-						current_col.renderer 	|| 
-						(me.editors[indexCol]	&& me.editors[indexCol].store
-							?me.editors[indexCol].store.getRawData()
-							:null) 				|| 
-						[],
-						html		= IT.Utils.findData(value,render),
-						td = $("<td />",{
-							html:$("<div />",{html:(html==""?value:html)}),
-							valign:current_col.valign ||"top",
-							align:current_col.align ||"left",
-							class:"" + (me.settings.wrap?"wrap":""),
-						});
-
-					let editor = me.editors[indexCol];
-					if (editor) {
-						editor = editor.isClass ? editor : IT.Utils.createObject(
-							$.extend(true,{},current_col.editor,{
-								width:current_col.width
-							})
-						);
-						td.on('click',function(){
-							me.selectedRow 		= indexRow;
-							me.selectedColumn 	= indexCol;
-							me.content.find("tbody tr").removeClass('it-datatable-selected');
-							td.parent().addClass('it-datatable-selected');
-							if(current_col.editor.editable && !$(this).hasClass("it-datatable-editing")){
-								td.find("div").empty();
-						 		td.addClass("it-datatable-editing");
-								editor.val(curRecord.getChanged(field)||curRecord.get(field));
-								editor.input.on("blur",function(){
-									if(editor.validate()){
-										curRecord.update(field,editor.val());
-										editor.input.off();
-								 		editor.content.detach();	
-										td.removeClass("it-datatable-editing");
-										td.find("div").html(IT.Utils.findData(
-											curRecord.getChanged(field)||
-											curRecord.get(field),
-										render));
-										td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
-									}
-								});
-								editor.renderTo(td.find("div"));
-								editor.input.focus();
-						 	}
-						});
-						if(editor.className=="checkbox"){
-							editor.renderTo(td.find("div"));
-							editor.input.focus();
-						}
-					}
-					row_element.append(td);
-				}
-				me.content.find("tbody").append(row_element);
+				//let curRecord = storeData[indexRow];
+				me.addRow(storeData[indexRow]);
 			}
 		}
 	}
-
 	/**
 	 * Overide renderTo
 	 * @override
@@ -978,7 +939,6 @@ IT.DataTable = class extends IT.Component {
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
 	}
-
 	/**
 	 * [getDataChanged description]
 	 * @return {array} array of object
@@ -992,7 +952,6 @@ IT.DataTable = class extends IT.Component {
 		}
 		return r;
 	}
-
 	setPage(to=1){
 		let me=this;
 		if (me.store.getData().length){
@@ -1045,6 +1004,78 @@ IT.DataTable = class extends IT.Component {
 	getSelectedRecords(){
 		let me =this;
 		return !me.selectedRow?null:me.store.data[me.selectedRow];
+	}
+	addRow(curRecord={}){
+		let me=this;
+		let row_element = $("<tr>");
+		for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+			let editor 		= me.editors[indexCol],
+				current_col = me.settings.columns[indexCol],
+				field 		= current_col.dataIndex,
+				value 		= curRecord.get(field);
+
+			if(editor){
+				editor = editor.isClass ? editor : IT.Utils.createObject(
+					$.extend(true,{},current_col.editor,{
+						width:current_col.width
+					})
+				);
+			}
+
+			let render 		= 	
+				current_col.data 		|| 
+				current_col.renderer 	|| 
+				(editor	&& editor.store ?editor.store.getRawData():null) || [],
+				html		= IT.Utils.findData(value,render),
+				td = $("<td />",{
+					html:$("<div />",{html:(html==""?value:html)}),
+					valign:current_col.valign ||"top",
+					align:current_col.align ||"left",
+					class:"" + (me.settings.wrap?"wrap":""),
+				});
+			if(editor && editor.className=="checkbox"){
+				td.find("div").empty();
+				editor.addEvents({
+					onChange:function(){
+						curRecord.update(field,editor.checked);
+						td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed"); 
+					}
+				});
+				editor.checked = !!value;
+				editor.renderTo(td.find("div"));
+			}
+			td.on('click',function(){
+				me.selectedRow 		= td.parent().index();
+				me.selectedColumn 	= td.index();
+				me.content.find("tbody tr").removeClass('it-datatable-selected');
+				td.parent().addClass('it-datatable-selected');
+				if(	editor && editor.className!=="checkbox" && 
+					current_col.editor.editable && !td.hasClass("it-datatable-editing") &&
+					!curRecord.isLocked(field) )
+				{
+					td.find("div").empty();
+					td.addClass("it-datatable-editing");
+					editor.val(curRecord.getChanged(field)||curRecord.get(field));
+					editor.input.on("blur",function(){
+						if(editor.validate()){
+							curRecord.update(field,editor.val());
+							editor.input.off();
+					 		editor.content.detach();	
+							td.removeClass("it-datatable-editing");
+							td.find("div").html(IT.Utils.findData(
+								curRecord.getChanged(field)||
+								curRecord.get(field),
+							render));
+							td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
+						}
+					});
+					editor.renderTo(td.find("div"));
+					editor.input.focus();
+				}
+			});
+			row_element.append(td);
+		}
+		me.content.find("tbody").append(row_element);
 	}
 }
 /**
@@ -1299,7 +1330,7 @@ IT.Flex = class extends IT.Component {
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
-					el = createObject(el);
+					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);

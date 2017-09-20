@@ -1376,7 +1376,7 @@ html, body {
           overflow: visible; }
           .it-datatable table tbody tr td.it-datatable-editing div select {
             padding: 2px 1px; }
-        .it-datatable table tbody tr td.it-datatable-changed div:before {
+        .it-datatable table tbody tr td.it-datatable-changed > div:before {
           content: "";
           border-width: 5px;
           border-style: solid;

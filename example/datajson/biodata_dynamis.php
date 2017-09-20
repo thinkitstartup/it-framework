@@ -23,7 +23,8 @@
 
 				$rowBio["kd_agama"] = array_keys($listagama)[rand(0,4)];
 				//$rowBio["sex"] = array("L","P",null)[rand(0,2)];
-				//$rowBio["sex"] = null;
+				
+				$rowBio["cek"] = false;
 
 				$DtaFilter[]=$rowBio;
 				$arIdUn[]=$rowBio["kd_prop"].$rowBio["kd_rayon"].$rowBio["kd_sek"]."_".$rowBio["paralel"]."_".$rowBio["absen"];
