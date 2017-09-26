@@ -103,9 +103,10 @@
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:2
+						limit:0
 					},
 					afterLoad:function(){
+						if(DataTable.store.data.length>0)
 						DataTable.store.data[0].locked.push("nama");
 					}
 				},

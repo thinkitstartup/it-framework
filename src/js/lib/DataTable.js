@@ -90,6 +90,8 @@ IT.DataTable = class extends IT.Component {
 					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
 					me.assignData(store);
 					me.doEvent("onLoad",[me,store]);
+					me.selectedRow 		= null;
+					me.selectedColumn 	= null;
 				},
 				onEmpty:function(event,store,storeData,params){
 					me.assignData(store);
@@ -396,5 +398,12 @@ IT.DataTable = class extends IT.Component {
 			row_element.append(td);
 		}
 		me.content.find("tbody").append(row_element);
+	}
+	removeRow(indexRow=-1){
+		let me=this;
+		indexRow = indexRow <0 ? me.selectedRow: indexRow;
+		me.content.find("tbody>tr").eq(indexRow).remove();
+		me.selectedRow 		= null;
+		me.selectedColumn 	= null;
 	}
 }

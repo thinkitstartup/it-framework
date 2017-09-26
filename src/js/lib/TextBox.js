@@ -134,7 +134,7 @@ IT.TextBox = class extends IT.FormItem {
 					`${s.placeholder?`placeholder='${s.placeholder}'`:""} `+
 					`${s.value?`value='${s.value}'`:""} `+
 				`>`);
-				if (s.type =="mask") //input type mask
+				if (s.type == "mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
 			break;
 			default:

@@ -11,6 +11,7 @@ IT.RecordStore = class extends IT.BaseClass {
 		super();
 		
 		let me 			= this;
+		me.commited		= false;
 		me.rawData 		= record,
 		me.changed		= {},
 		me.field		= Object.keys(record);

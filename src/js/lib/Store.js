@@ -79,7 +79,9 @@ IT.Store = class extends IT.BaseClass {
 					success:function(data){
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
 							$.each(data.rows ,(idx, item)=>{
-								me.data.push(new IT.RecordStore(item));
+								let rec = new IT.RecordStore(item);
+								rec.commited = true;
+								me.data.push(rec);
 							});
 							me.total_rows = data.total_rows;
 							me.doEvent("onLoad",[me, me.getData(), me.params]);
@@ -102,8 +104,10 @@ IT.Store = class extends IT.BaseClass {
 				let bl_return 	= me.doEvent("beforeLoad",[me, me.data||[], null]);
 				if(typeof bl_return == 'undefined'?true:bl_return){
 					if (typeof me.settings.data != 'undefined' ){
-						$.each(me.settings.data ,(idx, item)=>{
-							me.data.push(new IT.RecordStore(item));
+						$.each(me.settings.data ,(idx, item)=>{							
+							let rec = new IT.RecordStore(item);
+							rec.commited = true;
+							me.data.push(rec);
 							me.total_rows++;
 						});
 						me.doEvent("onLoad",[me, me.getData(), null]);
@@ -175,7 +179,9 @@ IT.Store = class extends IT.BaseClass {
 		data = me.type=="json"?data.rows:data;
 		me.empty();
 		$.each(data ,(idx, item)=>{
-			me.data.push(new IT.RecordStore(item));
+			let rec = new IT.RecordStore(item);
+			rec.commited = true;
+			me.data.push(rec);
 			me.total_rows++;
 		});
 		me.doEvent("onLoad",[me, me.data, me.params]);
