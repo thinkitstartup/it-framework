@@ -18,6 +18,10 @@ IT.Select = class extends IT.FormItem {
 				type	: 'array',
 				data	: null,
 			},
+			size:{
+				field:"col-sm-8",
+				label:"col-sm-4"
+			},
 		}, settings);
 		
 		me.id = me.settings.id || IT.Utils.id();
@@ -31,8 +35,13 @@ IT.Select = class extends IT.FormItem {
 			},
 			val: me.settings.defaultValue,
 		});
-		me.content = $('<div />', { class: 'it-edit' });
-		me.content.append(me.input);
+		
+		//me.content = $('<div />', { class: 'it-edit' });
+		//me.content.append(me.input);
+		me.content=$(((me.settings.label) ? `<div class="${me.settings.size.label}">`+
+			`<label for="${me.id}-item" class='it-input-label it-input-label-${me.settings.labelAlign||'left'}'>${me.settings.label}</label>`+
+		`</div>`:"") + `<div class="${me.settings.size.field}"></div>`);
+		me.content.last().append(me.input);
 
 		if(me.settings.width) {
 			me.content.css({

@@ -255,6 +255,11 @@ IT.Button = class extends IT.Component {
 		this.enable = set;
 		this.content[this.enable ?'removeClass':'addClass']('btn-disabled');
 	}
+
+	setText(text){
+		let me=this;
+		me.content.html(text);
+	}
 }
 /**
  * base class for form item
@@ -1158,9 +1163,8 @@ IT.Dialog = class extends IT.Component {
 		// 	"onClose"
 		// ]);
 
-		me.createElement();
-		if(me.settings.autoShow) 
-			me.show();
+		if(me.settings.autoShow) me.show();
+		else me.createElement();
 	}
 
 	/**
@@ -1168,6 +1172,7 @@ IT.Dialog = class extends IT.Component {
 	 */
 	createElement(){
 		let me = this;
+		if(me.elExist)return;
 		me.content = $(`
 			<div class="it-dialog">
 				<div class="it-dialog-container">
@@ -1220,7 +1225,7 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
-		}
+		}else me.createElement();
 
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
@@ -1236,7 +1241,7 @@ IT.Dialog = class extends IT.Component {
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
-		if(!me.elExist) me.createElement();
+		me.createElement();
 		me.content.show(0, function(){
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
@@ -1244,10 +1249,10 @@ IT.Dialog = class extends IT.Component {
 		});
 		//me.doEvent("onShow",[me, me.id]);
 
-		$(window).resize(function() {
-			me._autoScrollContainer();
-		});
-		me._autoScrollContainer();
+		// $(window).resize(function() {
+		// 	me._autoScrollContainer();
+		// });
+		// me._autoScrollContainer();
 	}
 	
 	/** hide the dialog, adding class display : none */
@@ -1767,6 +1772,10 @@ IT.Select = class extends IT.FormItem {
 				type	: 'array',
 				data	: null,
 			},
+			size:{
+				field:"col-sm-8",
+				label:"col-sm-4"
+			},
 		}, settings);
 		
 		me.id = me.settings.id || IT.Utils.id();
@@ -1780,8 +1789,13 @@ IT.Select = class extends IT.FormItem {
 			},
 			val: me.settings.defaultValue,
 		});
-		me.content = $('<div />', { class: 'it-edit' });
-		me.content.append(me.input);
+		
+		//me.content = $('<div />', { class: 'it-edit' });
+		//me.content.append(me.input);
+		me.content=$(((me.settings.label) ? `<div class="${me.settings.size.label}">`+
+			`<label for="${me.id}-item" class='it-input-label it-input-label-${me.settings.labelAlign||'left'}'>${me.settings.label}</label>`+
+		`</div>`:"") + `<div class="${me.settings.size.field}"></div>`);
+		me.content.last().append(me.input);
 
 		if(me.settings.width) {
 			me.content.css({
@@ -1914,6 +1928,11 @@ IT.Selectize = class extends IT.FormItem {
 			me.content.css({
 				'width': me.settings.width
 			})
+		}
+
+
+		if(me.settings.style) {
+			me.content.css(me.settings.style);
 		}
 
 		me.addEvents(me.settings,[

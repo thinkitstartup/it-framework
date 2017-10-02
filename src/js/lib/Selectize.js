@@ -43,6 +43,11 @@ IT.Selectize = class extends IT.FormItem {
 			})
 		}
 
+
+		if(me.settings.style) {
+			me.content.css(me.settings.style);
+		}
+
 		me.addEvents(me.settings,[
 			"onLoad",
 			"onChange"

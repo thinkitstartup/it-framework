@@ -115,4 +115,9 @@ IT.Button = class extends IT.Component {
 		this.enable = set;
 		this.content[this.enable ?'removeClass':'addClass']('btn-disabled');
 	}
+
+	setText(text){
+		let me=this;
+		me.content.html(text);
+	}
 }

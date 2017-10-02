@@ -62,9 +62,8 @@ IT.Dialog = class extends IT.Component {
 		// 	"onClose"
 		// ]);
 
-		me.createElement();
-		if(me.settings.autoShow) 
-			me.show();
+		if(me.settings.autoShow) me.show();
+		else me.createElement();
 	}
 
 	/**
@@ -72,6 +71,7 @@ IT.Dialog = class extends IT.Component {
 	 */
 	createElement(){
 		let me = this;
+		if(me.elExist)return;
 		me.content = $(`
 			<div class="it-dialog">
 				<div class="it-dialog-container">
@@ -124,7 +124,7 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
-		}
+		}else me.createElement();
 
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
@@ -140,7 +140,7 @@ IT.Dialog = class extends IT.Component {
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
-		if(!me.elExist) me.createElement();
+		me.createElement();
 		me.content.show(0, function(){
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
@@ -148,10 +148,10 @@ IT.Dialog = class extends IT.Component {
 		});
 		//me.doEvent("onShow",[me, me.id]);
 
-		$(window).resize(function() {
-			me._autoScrollContainer();
-		});
-		me._autoScrollContainer();
+		// $(window).resize(function() {
+		// 	me._autoScrollContainer();
+		// });
+		// me._autoScrollContainer();
 	}
 	
 	/** hide the dialog, adding class display : none */
