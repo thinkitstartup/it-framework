@@ -97,54 +97,5 @@ html,body{
 	"components/grid", 
 	"components/flexcontainer", 
 	"components/messagebox", 
-	"components/dialog";
-
-/**
-**************************************************************** IMAGEBOX
-**/
-.it-imagebox  {
-	position:relative;
-	display:inline-block;
-}
-.it-imagebox img {
-	width:140px;
-	height:140px;
-	border:1px solid #999;
-	padding:3px;
-	background:#FFFFFF;
-	margin-top:10px;
-	margin-bottom:15px;
-	position:relative;
-	border:1px solid #CCC;
-	position:relative;
-	z-index:1;
-	border-radius:4px;
-}
-.it-imagebox a{
-	display:none;
-	position:absolute;
-	bottom:18px;
-	left:1px; right:1px;
-	background:rgba(255,255,255,0.6);
-	color:#666;
-	font-size:11px;
-	padding:8px 0;
-	text-decoration:none;
-	cursor:pointer;
-	text-align:center;
-	z-index:1;
-}
-.it-imagebox:hover a{
-	display:block;
-}
-.it-imagebox input{
-	position:absolute;
-	bottom:5px;
-	left:0;
-	opacity:0;
-	z-index:1;	
-}
-.it-imagebox.it-fotobox img{
-	width:100px;
-	height:120px;
-}
+	"components/dialog",
+	"components/imagebox";

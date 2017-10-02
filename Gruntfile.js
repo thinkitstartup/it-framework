@@ -28,9 +28,10 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				compress: {
+				compress:false,
+				/*compress: {
 					drop_console: !true
-				},
+				},*/
 				beautify: true
 			},
 			dist: {

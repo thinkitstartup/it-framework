@@ -12,6 +12,7 @@
     "font-awesome": "Font-Awesome#^4.7.0",
     "jQuery": "^3.2.1",
     "inputmask": "^3.3.7",
-    "selectize": "^0.12.4"
+    "selectize": "^0.12.4",
+    "cropit":"git://github.com/teguhzundi/cropit.git"
   }
 }
