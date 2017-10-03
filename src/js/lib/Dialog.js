@@ -148,10 +148,10 @@ IT.Dialog = class extends IT.Component {
 		});
 		//me.doEvent("onShow",[me, me.id]);
 
-		// $(window).resize(function() {
-		// 	me._autoScrollContainer();
-		// });
-		// me._autoScrollContainer();
+		$(window).resize(function() {
+			me._autoScrollContainer();
+		});
+		me._autoScrollContainer();
 	}
 	
 	/** hide the dialog, adding class display : none */
@@ -194,7 +194,7 @@ IT.Dialog = class extends IT.Component {
 		let container = this.content.find('.it-dialog-container');
 		let windowHeight = $(window).height();
 		let calculate = windowHeight - (container.offset().top + container.outerHeight());
-		
+
 		if(calculate <= 20) {
 			container.css({
 				'overflow-y': 'scroll',
