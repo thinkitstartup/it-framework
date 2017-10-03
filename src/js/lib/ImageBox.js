@@ -26,7 +26,9 @@ IT.ImageBox = class extends IT.Component {
 		me.id = me.settings.id || IT.Utils.id();
 		me.imagebox = `
 			<div class="it-imagebox">
-				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">Pilih Sumber Gambar</a>
+				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
+					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
+				</a>
 				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
