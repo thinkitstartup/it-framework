@@ -19,14 +19,14 @@ IT.ImageBox = class extends IT.Component {
 			},
 			cropper: false,
 			cropperSettings: {
-				// Find all setting oh cropit website
+				// Find all setting on cropit website
 				smallImage: 'allow'
 			},
 		}, params);
 		me.id = me.settings.id || IT.Utils.id();
 		me.imagebox = `
 			<div class="it-imagebox">
-				<a href="javascript:void(0);" class="it-imagebox-chooser hide-this it-btn btn-primary">Pilih Sumber Gambar</a>
+				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">Pilih Sumber Gambar</a>
 				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
@@ -54,6 +54,7 @@ IT.ImageBox = class extends IT.Component {
 			if(me.settings.src != "")
 				me.content.cropit('imageSrc', me.settings.src);
 		} else {
+			me.content.find('.it-imagebox-chooser').hide();
 			me.content.find('.hide-this').addClass('it-hide');
 			me.content.find('.cropit-preview').append($('<img/>', {
 				class: "it-imagebox-picture",
