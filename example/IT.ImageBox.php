@@ -24,26 +24,34 @@
 	
 	<button id="enableCropper"> Enable Cropper </button>
 	<button id="disableCropper"> Disable Cropper </button>
+	<button id="changePicture"> Change Picture </button>
 	<button id="export"> Export </button>
 
 	<script type="text/javascript" defer>
 		$(function(){
-			let imageBox1 = new IT.ImageBox({
-				src: 'picture.png',
-				cropper: true,
+			let imageBox = new IT.ImageBox({
+				cropper: false,
+				size: {
+					width: 200,
+					height: 200,
+				}
 			});
-			imageBox1.renderTo($('#mainRender'));
+			imageBox.renderTo($('#mainRender'));
 
 			$('#enableCropper').on('click', () => {
-				imageBox1.setIsCropper(true);
+				imageBox.setIsCropper(true);
 			});
 
 			$('#disableCropper').on('click', () => {
-				imageBox1.setIsCropper(false);
+				imageBox.setIsCropper(false);
+			});
+
+			$('#changePicture').on('click', () => {
+				imageBox.setImageSrc('picture.jpg');
 			});
 
 			$('#export').on('click', () => {
-				console.info(imageBox1.getExport());
+				console.info(imageBox.getExport());
 			});
 
 		});

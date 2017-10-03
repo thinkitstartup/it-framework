@@ -1700,21 +1700,25 @@ IT.ImageBox = class extends IT.Component {
 	reloadObject() {
 		var me = this;	
 		me.content = $(me.imagebox);	
+		me.content.find('.cropit-preview')
+			.width(me.settings.size.width)
+			.height(me.settings.size.height);
 
 		if(me.isCropper()) {
 			me.content.find('.hide-this').removeClass('it-hide');
 			me.content.cropit($.extend(true, me.settings.cropperSettings));
-			me.content.cropit('imageSrc', me.settings.src);
+			if(me.settings.src != "")
+				me.content.cropit('imageSrc', me.settings.src);
 		} else {
 			me.content.find('.hide-this').addClass('it-hide');
 			me.content.find('.cropit-preview').append($('<img/>', {
 				class: "it-imagebox-picture",
-				src: me.settings.src
+				src: me.settings.src 
 			}));
 		}
 	}
 
-	renderTo(obj, rerender = false) {
+	renderTo(obj) {
 		super.renderTo(obj);
 		this._render = obj;	
 	}
@@ -1732,6 +1736,15 @@ IT.ImageBox = class extends IT.Component {
 			me.content.remove();
 			me.reloadObject();
 			me.renderTo(me._render);
+		}
+	}
+
+	setImageSrc(picture) {
+		let me = this;
+		if(me.isCropper()) {
+			me.content.cropit('imageSrc', picture);
+		} else {
+			me.content.find('img').attr('src', picture);
 		}
 	}
 

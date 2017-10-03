@@ -2,17 +2,21 @@
 	&-imagebox {
 		
 		&-picture {
-			width: 100%;
-			max-width: 100%;
+			max-height: 100%;
+			margin: 0 auto;
+			display: inline-block;
+
+			&[src=""] {
+				display: none;
+			}
 		}
 
 		.cropit-preview {
-			background-color: #f8f8f8;
-			border: 1px solid #ccc;
-			border-radius: 3px;
-			margin-top: 7px;
-			width: 250px;
-			height: 250px;
+			background: #fff url("images/state-empty.png") center center no-repeat;
+			border: 1px solid #ddd;
+			padding: 2px;
+			border-radius: 4px;
+			@include size(100px, 100px);
 			@include flexbox();
 			@include align-items(center);
 		}
@@ -21,8 +25,6 @@
 			cursor: move;
 		}
 
-		.image-size-label {
-			margin-top: 10px;
-		}
+		.image-size-label {}
 	}
 }
