@@ -2,13 +2,6 @@
 	&-form {
 		padding: $form_space_padding; 
 
-		> .container-fluid,
-		> .container {	
-			.row {
-				margin-bottom: $form_space_items;
-			}
-		}
-
 		& .it-input {
 			&-label {
 				display: block;
@@ -24,4 +17,11 @@
 			font-family: Aller;
 		}
 	}
+}
+
+.form-row {
+	@include flexbox();
+	margin-right: -5px;
+	margin-left: -5px;
+	margin-bottom: $form_space_items;
 }

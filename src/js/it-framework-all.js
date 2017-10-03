@@ -1393,13 +1393,18 @@ IT.Form = class extends IT.Component{
 			class: 'container-fluid'
 		});
 
-		let count = 0,div;
+		let count = 0, div;
 		$.each(me.settings.items, function(k, el) {
-			if(el){
-				div = $("<div>",{class:'row'});
-				if(!el.isClass)el = IT.Utils.createObject(el);
-				el.renderTo(div);
-				wrapper.append(div);
+			if(el) {
+				if(!el.isClass) 
+					el = IT.Utils.createObject(el);				
+				if(!el.noRow) { 
+					div = $("<div/>", { class:'row form-row' });
+					el.renderTo(div);
+					wrapper.append(div);
+				} else {
+					el.renderTo(wrapper);
+				}
 				count++;
 			}
 		});
@@ -1560,7 +1565,6 @@ IT.Grid = class extends IT.Component {
 		 */
 		me.settings = $.extend(true,{
 			id: '',
-			type: 'row',
 			columnRule: '',
 			rowContainer: '',
 			css: {},
@@ -1570,20 +1574,16 @@ IT.Grid = class extends IT.Component {
 		// set id
 		me.id = me.settings.id || IT.Utils.id();
 
-		if(me.settings.type == 'row') {
-			me.content = $('<div/>', { 
-				id: me.id, 
-				class: 'row' 
-			});
-		} else if(me.settings.type == 'column') {
+		if(me.settings.columnRule) {
 			me.content = $('<div />', { 
 				id: me.id, 
 				class: me.settings.columnRule 
 			});
 		} else {
-			console.info('Grid hanya mempunyai 2 type : row atau column');
-			me.content = '';
-			return;
+			me.content = $('<div/>', { 
+				id: me.id, 
+				class: 'row' 
+			});
 		}
 		
 		// Set CSS ke objek
@@ -1599,9 +1599,9 @@ IT.Grid = class extends IT.Component {
 		});
 
 		// Berikan Container
-		if(me.settings.type == 'row' && me.settings.rowContainer == 'fluid') {
+		if(me.settings.columnRule == '' && me.settings.rowContainer == 'fluid') {
 			me.content = $('<div/>', { class:'container-fluid' }).append(me.content);
-		} else if(me.settings.type == 'row' &&  me.settings.rowContainer == 'standar') {
+		} else if(me.settings.columnRule == '' &&  me.settings.rowContainer == 'standar') {
 			me.content = $('<div/>', { class:'container' }).append(me.content);
 		}
 	}
@@ -1686,11 +1686,12 @@ IT.ImageBox = class extends IT.Component {
 		me.id = me.settings.id || IT.Utils.id();
 		me.imagebox = `
 			<div class="it-imagebox">
-				<input type="file" class="cropit-image-input hide-this">
+				<a href="javascript:void(0);" class="it-imagebox-chooser hide-this it-btn btn-primary">Pilih Sumber Gambar</a>
+				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>
-					<input type="range" class="cropit-image-zoom-input">
+					<input type="range" class="cropit-image-zoom-input" value="0">
 				</div>
 			</div>
 		`;
@@ -1706,6 +1707,9 @@ IT.ImageBox = class extends IT.Component {
 
 		if(me.isCropper()) {
 			me.content.find('.hide-this').removeClass('it-hide');
+			me.content.find('.it-imagebox-chooser').click(function(){
+				me.content.find('.cropit-image-input').click();
+			});
 			me.content.cropit($.extend(true, me.settings.cropperSettings));
 			if(me.settings.src != "")
 				me.content.cropit('imageSrc', me.settings.src);
@@ -1865,6 +1869,7 @@ IT.Select = class extends IT.FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
+			withRowContainer: false, 
 			width: 200,
 			store: {
 				url		: '',
@@ -1872,8 +1877,8 @@ IT.Select = class extends IT.FormItem {
 				data	: null,
 			},
 			size:{
-				field:"col-sm-8",
-				label:"col-sm-4"
+				field:"col-md-8",
+				label:"col-md-4"
 			},
 		}, settings);
 		
@@ -1900,6 +1905,10 @@ IT.Select = class extends IT.FormItem {
 			me.content.css({
 				'width': me.settings.width
 			})
+		}
+
+		if(me.settings.withRowContainer) {
+			me.content = $('<div/>', { class:'row'}).append(me.content);
 		}
 
 		me.addEvents(me.settings,[
@@ -2266,6 +2275,7 @@ IT.TextBox = class extends IT.FormItem {
 		 * @property {String} id id the classs
 		 * @property {String} label set label description
 		 * @property {String} name name for the input, < input type='type' > name="xxx">
+		 * @property {boolean} withRowContainer wrap component with row
 		 * @property {boolean} allowBlank set the input weather can be leave blank or not
 		 * @property {String} value value for input
 		 * @property {String} placeholder placeholder for input
@@ -2321,17 +2331,18 @@ IT.TextBox = class extends IT.FormItem {
 			maskSettings:{}, 
 			id:"", 
 			label:"", 
-			name:"", 
+			name:"",
+			withRowContainer: false, 
 			allowBlank: true, 
 			value:"", 
 			placeholder: '', 
 			readonly:false, 
 			enabled:true, 
-			length:{
+			length: {
 				min:0, 
 				max:-1,
 			},
-			size:{
+			size: {
 				field:"col-sm-8",
 				label:"col-sm-4"
 			},
@@ -2347,7 +2358,7 @@ IT.TextBox = class extends IT.FormItem {
 
 		//if label empty, field size is 12
 		if(s.label=="")
-			s.size.field = "col-sm-12";
+			s.size.field = "col";
 
 		//create input
 		switch(s.type){
@@ -2408,10 +2419,15 @@ IT.TextBox = class extends IT.FormItem {
 		}));
 
 		//content
-		me.content=$(((s.label) ? `<div class="${s.size.label}">`+
-			`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`+
-		`</div>`:"") + `<div class="${s.size.field}"></div>`);
+		me.content = $(((s.label) ? 
+		`<div class="${s.size.label}">
+			<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'> ${s.label} </label>
+		</div>`: '') + `<div class="${s.size.field}"></div>`);
 		me.content.last().append(wraper);
+
+		if(s.withRowContainer) {
+			me.content = $('<div/>', { class:'row'}).append(me.content);
+		}
 
 		me.readyState = true;
 	}
@@ -2485,6 +2501,7 @@ IT.Utils = class extends IT.BaseClass{
 			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
+			imagebox	: "ImageBox",
 
 			grid		: "Grid",
 			datatable	: "DataTable",

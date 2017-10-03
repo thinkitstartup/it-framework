@@ -27,6 +27,18 @@
 			}
 		}
 
+		&#{&}-ai {
+			&.ai-center {
+				@include align-items(center);
+			}
+		}
+
+		&#{&}-jc {
+			&.jc-center {
+				@include justify-content(center);
+			}
+		}
+
 		&-item {
 			@include flex(1);
 		}

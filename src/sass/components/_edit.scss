@@ -67,6 +67,11 @@
 				height: auto;
 			}
 
+			// For Selectbox
+			@at-root select#{&}  {
+				width: 100%;
+			}
+
 			// For Radio, Checkbox 
 			&[type="checkbox"], 
 			&[type="radio"] {
@@ -90,7 +95,7 @@
 					opacity: 1;
 			    }  
 			}
-
+			
 			&[readonly] {
 				background: $input_readonly_bg_color;
 				border-color: $input_readonly_border_color;

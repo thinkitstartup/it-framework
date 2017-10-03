@@ -44,6 +44,11 @@
 			position: relative;
 			// @include flexbox();
 			// @include flex-direction(column);
+
+			.it-toolbar {
+				background: #f4f4f4;
+				border-top: 1px solid #eee;
+			}
 		}
 	}
 }

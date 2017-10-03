@@ -12,6 +12,7 @@ IT.Select = class extends IT.FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
+			withRowContainer: false, 
 			width: 200,
 			store: {
 				url		: '',
@@ -19,8 +20,8 @@ IT.Select = class extends IT.FormItem {
 				data	: null,
 			},
 			size:{
-				field:"col-sm-8",
-				label:"col-sm-4"
+				field:"col-md-8",
+				label:"col-md-4"
 			},
 		}, settings);
 		
@@ -47,6 +48,10 @@ IT.Select = class extends IT.FormItem {
 			me.content.css({
 				'width': me.settings.width
 			})
+		}
+
+		if(me.settings.withRowContainer) {
+			me.content = $('<div/>', { class:'row'}).append(me.content);
 		}
 
 		me.addEvents(me.settings,[

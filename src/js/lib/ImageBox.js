@@ -26,11 +26,12 @@ IT.ImageBox = class extends IT.Component {
 		me.id = me.settings.id || IT.Utils.id();
 		me.imagebox = `
 			<div class="it-imagebox">
-				<input type="file" class="cropit-image-input hide-this">
+				<a href="javascript:void(0);" class="it-imagebox-chooser hide-this it-btn btn-primary">Pilih Sumber Gambar</a>
+				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>
-					<input type="range" class="cropit-image-zoom-input">
+					<input type="range" class="cropit-image-zoom-input" value="0">
 				</div>
 			</div>
 		`;
@@ -46,6 +47,9 @@ IT.ImageBox = class extends IT.Component {
 
 		if(me.isCropper()) {
 			me.content.find('.hide-this').removeClass('it-hide');
+			me.content.find('.it-imagebox-chooser').click(function(){
+				me.content.find('.cropit-image-input').click();
+			});
 			me.content.cropit($.extend(true, me.settings.cropperSettings));
 			if(me.settings.src != "")
 				me.content.cropit('imageSrc', me.settings.src);

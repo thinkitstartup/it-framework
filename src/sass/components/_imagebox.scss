@@ -1,6 +1,11 @@
 .it {
 	&-imagebox {
-		
+		@include flexbox();
+		@include flex-direction(column);
+		@include justify-content(center);
+		@include align-items(center);
+		margin-bottom: 10px;
+
 		&-picture {
 			max-height: 100%;
 			margin: 0 auto;
@@ -12,10 +17,11 @@
 		}
 
 		.cropit-preview {
-			background: #fff url("images/state-empty.png") center center no-repeat;
+			background: #fafafa url("images/state-empty.png") center center no-repeat;
 			border: 1px solid #ddd;
 			padding: 2px;
 			border-radius: 4px;
+			margin: 10px 0;
 			@include size(100px, 100px);
 			@include flexbox();
 			@include align-items(center);
@@ -24,7 +30,14 @@
 		.cropit-preview-image-container {
 			cursor: move;
 		}
+		
+		.cropit-image-input {
+			display: none;
+		}
 
-		.image-size-label {}
+		.image-size-label {
+			text-align: center;
+			padding: 5px;
+		}
 	}
 }

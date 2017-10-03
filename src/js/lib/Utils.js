@@ -24,6 +24,7 @@ IT.Utils = class extends IT.BaseClass{
 			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
+			imagebox	: "ImageBox",
 
 			grid		: "Grid",
 			datatable	: "DataTable",
