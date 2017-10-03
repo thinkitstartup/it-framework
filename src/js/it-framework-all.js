@@ -1252,7 +1252,10 @@ IT.Dialog = class extends IT.Component {
 		$(window).resize(function() {
 			me._autoScrollContainer();
 		});
-		me._autoScrollContainer();
+
+		setTimeout(function(){ 
+			me._autoScrollContainer();
+		}, 50);
 	}
 	
 	/** hide the dialog, adding class display : none */
