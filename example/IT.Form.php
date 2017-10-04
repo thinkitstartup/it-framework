@@ -280,7 +280,7 @@
 						},
 
 					] // *** End :: Form
-				}, {
+				},{
 					x:"toolbar",
 					position:'bottom',
 					items:[{
@@ -297,7 +297,13 @@
 							dialog.hide();
 						}
 					}]
-				}]
+				}],
+				onShow: function() {
+					
+				}
+			});
+			dialog.onShow(function(){
+				alert("a");
 			});
 		});
 	</script>
