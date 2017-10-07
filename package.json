@@ -1,6 +1,6 @@
 {
   "name": "it-framework",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Javascript ES6 Admin Page Framework",
   "devDependencies": {
     "docdash": "git://github.com/thinkitstartup/docdash.git#fixconstructor",
