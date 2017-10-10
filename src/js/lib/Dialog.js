@@ -40,6 +40,7 @@ IT.Dialog = class extends IT.Component {
 			title: '',
 			iconCls: '',
 			items: [],
+			footers:[],
 			overlay: true,
 			autoShow: true,
 			width: 300,
@@ -71,11 +72,13 @@ IT.Dialog = class extends IT.Component {
 	 */
 	createElement(){
 		let me = this;
-		if(me.elExist)return;
+		if(me.elExist) return;
 		me.content = $(`
 			<div class="it-dialog">
 				<div class="it-dialog-container">
+					<div class="it-dialog-header"></div>
 					<div class="it-dialog-content"></div>
+					<div class="it-dialog-footer"></div>
 				</div>
 			</div>
 		`);
@@ -90,9 +93,10 @@ IT.Dialog = class extends IT.Component {
 				let iconTitle = $('<span/>', { class:'fa fa-'+me.settings.iconCls });
 				iconTitle.prependTo(dialogTitle);
 			}
+			
 			me.content
-				.find('.it-dialog-container')
-				.prepend(dialogTitle);
+				.find('.it-dialog-header')
+				.append(dialogTitle);
 		}
 
 		if(!me.settings.overlay) {
@@ -101,12 +105,19 @@ IT.Dialog = class extends IT.Component {
 		
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass)el = IT.Utils.createObject(el);
-				//console.info(el.isClass);
+				if(!el.isClass) el = IT.Utils.createObject(el);
 				if(el)el.renderTo(me.content.find('.it-dialog-content'));
 				else console.warn("Xtype: undefined",obj);
 			}
 		});
+
+		$.each(me.settings.footers, function(k, el) {
+			if(el) {
+				if(!el.isClass) el = IT.Utils.createObject(el);
+				if(el)el.renderTo(me.content.find('.it-dialog-footer'));
+				else console.warn("Xtype: undefined",obj);
+			}
+		});		
 
 		me.content
 			.find('.it-dialog-container')
@@ -194,19 +205,9 @@ IT.Dialog = class extends IT.Component {
 	 * @private
 	 */
 	_autoScrollContainer() {
-		let me =this,
-			container 	= me.content.find('.it-dialog-container');
-		if($(window).height() <= me.content.find('.it-dialog-content').height()) {
-			container.css({
-				'overflow-y': 'scroll',
-				height: $(window).height()-50
-			});
-		} else {
-			container.css({
-				'overflow-y': 'initial',
-				height: 'auto'
-			});
-		}
+		let me = this,
+		container = me.content.find('.it-dialog-container');
+		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');
 	}
 
 }

@@ -3004,7 +3004,18 @@ html {
     -webkit-transition: trans-prefix(all, 0.3s, webkit);
     -moz-transition: trans-prefix(all, 0.3s, moz);
     -o-transition: trans-prefix(all, 0.3s, o);
-    transition: all 0.3s; }
+    transition: all 0.3s;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -moz-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column; }
     .it-dialog-container.dialog-show {
       visibility: visible;
       -webkit-transform: scale(1);
@@ -3026,11 +3037,34 @@ html {
       -o-box-shadow: none;
       -ms-box-shadow: none;
       box-shadow: none; }
-  .it-dialog-content {
-    position: relative; }
-    .it-dialog-content .it-toolbar {
-      background: #f4f4f4;
+  .it-dialog-header {
+    -webkit-align-self: flex-start;
+    -moz-align-self: flex-start;
+    -ms-flex-item-align: start;
+    align-self: flex-start;
+    width: 100%;
+    background: #f4f4f4; }
+    .it-dialog-header .it-title, .it-dialog-header .it-messagebox-title {
+      background: transparent;
       border-top: 1px solid #eee; }
+  .it-dialog-content {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -moz-box-flex: 1;
+    -moz-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    position: relative;
+    overflow: auto; }
+  .it-dialog-footer {
+    background: #f4f4f4;
+    width: 100%;
+    -webkit-align-self: flex-end;
+    -moz-align-self: flex-end;
+    -ms-flex-item-align: end;
+    align-self: flex-end; }
+    .it-dialog-footer .it-toolbar {
+      background: transparent; }
 
 .it-imagebox {
   display: -webkit-box;

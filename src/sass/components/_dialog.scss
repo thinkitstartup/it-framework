@@ -25,7 +25,9 @@
 			@include prefix(box-shadow, 0 0 5px rgba(0, 0, 0, .3));
 			@include prefix(transform, scale(.7));
 			@include transition(all .3s);
-			
+			@include flexbox();	
+			@include flex-direction(column);
+
 			&.dialog-show {
 				visibility: visible;
 				@include prefix(transform, scale(1));
@@ -39,15 +41,31 @@
 				@include prefix(box-shadow, none);
 			}
 		}	
+		
+		&-header {
+			@include align-self(flex-start);
+			@include size(100%, '');
+			background: #f4f4f4;
+			
+			.it-title {
+				background: transparent;
+				border-top: 1px solid #eee;
+			}
+		}
 
 		&-content {
+			@include flex(1);
 			position: relative;
-			// @include flexbox();
-			// @include flex-direction(column);
+			overflow: auto;
+		}
+
+		&-footer {
+			background: #f4f4f4;
+			@include size(100%, '');
+			@include align-self(flex-end);
 
 			.it-toolbar {
-				background: #f4f4f4;
-				border-top: 1px solid #eee;
+				background: transparent;
 			}
 		}
 	}
