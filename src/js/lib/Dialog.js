@@ -160,12 +160,12 @@ IT.Dialog = class extends IT.Component {
 		me.doEvent("onShow",[me, me.id]);
 
 		$(window).resize(function() {
-			me._autoScrollContainer();
+			clearTimeout(window.resizedFinished);
+			window.resizedFinished = setTimeout(function(){
+				me.setScroll();
+			}, 500);
 		});
-
-		setTimeout(function(){ 
-			me._autoScrollContainer();
-		}, 50);
+		$(window).trigger("resize");
 	}
 	
 	/** hide the dialog, adding class display : none */
@@ -194,7 +194,7 @@ IT.Dialog = class extends IT.Component {
 							me.elExist = false;
 							me.content.remove();
 							me.doEvent("onClose",[me, me.id]);
-						}, 500);
+						}, 700);
 					})
 			});
 	}
@@ -204,10 +204,9 @@ IT.Dialog = class extends IT.Component {
 	 * then automatically make the container dialog has a scroll
 	 * @private
 	 */
-	_autoScrollContainer() {
+	setScroll() {
 		let me = this,
 		container = me.content.find('.it-dialog-container');
-		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');
+		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');\
 	}
-
 }
