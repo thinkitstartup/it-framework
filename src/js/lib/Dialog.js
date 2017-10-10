@@ -183,7 +183,7 @@ IT.Dialog = class extends IT.Component {
 							me.elExist = false;
 							me.content.remove();
 							me.doEvent("onClose",[me, me.id]);
-						}, 300);
+						}, 500);
 					})
 			});
 	}
@@ -194,14 +194,12 @@ IT.Dialog = class extends IT.Component {
 	 * @private
 	 */
 	_autoScrollContainer() {
-		let container = this.content.find('.it-dialog-container');
-		let windowHeight = $(window).height();
-		let calculate = windowHeight - (container.offset().top + container.outerHeight());
-
-		if(calculate <= 20) {
+		let me =this,
+			container 	= me.content.find('.it-dialog-container');
+		if($(window).height() <= me.content.find('.it-dialog-content').height()) {
 			container.css({
 				'overflow-y': 'scroll',
-				height: (windowHeight - 30)
+				height: $(window).height()-50
 			});
 		} else {
 			container.css({
