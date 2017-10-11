@@ -1,9 +1,11 @@
 .it {
 	&-title {
 		@include gradient($base_color, $base_color_dark);
-		padding: 7px;
+		border-bottom: 1px solid #eee;
 		color: #333;
 		font-family: Aller;
+		font-size: 14px;
+		padding: 8px;
 
 		.fa {
 			margin-right: 8px;

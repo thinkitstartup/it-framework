@@ -1,11 +1,12 @@
 .it {
 	&-toolbar {
-		background: $base_color;
 		white-space: nowrap;
 		position: relative;
 		min-height: $toolbar_height_default;
+		@include gradient($base_color, $base_color_dark);
 		@include flexbox();
-		@include align-items(center);
+		@include align-items(center);	
+		border-bottom: 1px solid #eee;
 
 		&-left, 
 		&-right {
