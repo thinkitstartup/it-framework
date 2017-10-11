@@ -33,12 +33,20 @@
 			opacity: 0.5;
 		}
 
+		&.text-light {
+			color: #000;
+		}
+
+		&.text-dark {
+			color: #fff;
+		}
+
 		&.btn-primary,
 		&.btn-success,
 		&.btn-alert,
 		&.btn-warning {
 			color: #fff; 
-			border: none;
+			border: transparent;
 		}
 
 		&.btn-primary {
@@ -66,6 +74,14 @@
 			@include gradient($state_warning_color, $state_warning_dark_color);
 			&:hover {
 				@include gradient(darken($state_warning_color, 8%), darken($state_warning_dark_color, 8%));
+			}
+		}
+
+		&.btn-transparent {
+			background: transparent;
+			border: transparent;
+			&:hover {
+				background: rgba(0, 0, 0, .2);
 			}
 		}
 

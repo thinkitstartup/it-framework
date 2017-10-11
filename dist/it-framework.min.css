@@ -743,9 +743,13 @@ html, body {
   .it-btn.btn-disabled {
     pointer-events: none;
     opacity: 0.5; }
+  .it-btn.text-light {
+    color: #000; }
+  .it-btn.text-dark {
+    color: #fff; }
   .it-btn.btn-primary, .it-btn.btn-success, .it-btn.btn-alert, .it-btn.btn-warning {
     color: #fff;
-    border: none; }
+    border: transparent; }
   .it-btn.btn-primary {
     background-color: #4BC0F9;
     background-image: -moz-linear-gradient(#4BC0F9, #3584EB);
@@ -794,6 +798,11 @@ html, body {
       background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#d5af26), to(#a07f01));
       background-image: -webkit-linear-gradient(#d5af26, #a07f01);
       background-image: -o-linear-gradient(#d5af26, #a07f01); }
+  .it-btn.btn-transparent {
+    background: transparent;
+    border: transparent; }
+    .it-btn.btn-transparent:hover {
+      background: rgba(0, 0, 0, 0.2); }
   .it-btn-group {
     display: table;
     position: relative;
@@ -1411,22 +1420,25 @@ html, body {
     cursor: pointer;
     width: 30px;
     height: 25px;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    -o-border-radius: 50%;
-    -ms-border-radius: 50%;
-    border-radius: 50%;
     -webkit-transition: trans-prefix(background, 0.2s, webkit);
     -moz-transition: trans-prefix(background, 0.2s, moz);
     -o-transition: trans-prefix(background, 0.2s, o);
-    transition: background 0.2s; }
+    transition: background 0.2s;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -o-border-radius: 2px;
+    -ms-border-radius: 2px;
+    border-radius: 2px; }
     .it-datatable-icon:hover {
-      background: #f4f4f4;
-      border: 1px solid #f4f4f4; }
+      background: #ddd; }
   .it-datatable-pagination {
-    background: #ddd;
     padding: 0 5px;
-    height: 30px;
+    height: 35px;
+    background-color: #ffffff;
+    background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
+    background-image: -webkit-linear-gradient(#ffffff, #f4f4f4);
+    background-image: -o-linear-gradient(#ffffff, #f4f4f4);
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-flex;
@@ -1463,16 +1475,11 @@ html, body {
         display: inline-table; }
     .it-datatable-pagination-current {
       line-height: 25px;
-      border: 1px solid #ffffff;
+      border: 1px solid #ccc;
       text-align: center;
       margin-right: 5px;
       width: 30px;
-      height: 25px;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      -o-border-radius: 5px;
-      -ms-border-radius: 5px;
-      border-radius: 5px; }
+      height: 25px; }
     .it-datatable-pagination-info {
       text-align: right;
       -webkit-box-flex: 1;
@@ -1480,7 +1487,11 @@ html, body {
       -moz-box-flex: 1;
       -moz-flex: 1;
       -ms-flex: 1;
-      flex: 1; }
+      flex: 1;
+      display: none; }
+    @media all and (min-width: 768px) {
+      .it-datatable-pagination-info {
+        display: block; } }
   .it-datatable-loading-overlay {
     display: -webkit-box;
     display: -webkit-flex;

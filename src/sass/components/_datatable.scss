@@ -157,20 +157,18 @@
 			border: 1px solid transparent;
 			cursor: pointer;
 			@include size($grid_paging_item_width, $grid_paging_item_height);
-			@include prefix(border-radius, 50%);
 			@include transition(background .2s);
+			@include prefix(border-radius, 2px);
 
 			&:hover {
-				background: $base_color_dark;
-				border:1px solid $base_color_dark;
+				background: #ddd;
 			}
 		}
 
 		&-pagination {
-			background: #ddd;
 			padding: 0 5px;
 			height: $grid_paging_height;
-
+			@include gradient($base_color, $base_color_dark);
 			@include flexbox();
 			@include align-items(center);
 
@@ -189,17 +187,23 @@
 
 			&-current {
 				line-height: $grid_paging_item_height;
-				border: 1px solid $base_color;
+				border: 1px solid #ccc;
 				text-align: center;
 				margin-right: 5px; 
 
 				@include size($grid_paging_item_width, $grid_paging_item_height);
-				@include prefix(border-radius, 5px);
 			}
 
 			&-info {
 				text-align: right;
 				@include flex(1);
+				display: none;
+			}
+
+			@media all and (min-width: $view_sm) {
+				&-info {
+					display: block;
+				}
 			}
 		}
 

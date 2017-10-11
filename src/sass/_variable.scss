@@ -1,15 +1,13 @@
-
 // Color
 $base_color: #ffffff;
 $base_color_dark: #f4f4f4;
 
-
 // Dimens
 $z-index-default: 999;
+$view_xs: 576px;
 $view_sm: 768px;
 $view_md: 992px;
 $view_lg: 1200px;
-
 
 // Form 
 $form_space_padding: 15px 0;
@@ -32,7 +30,6 @@ $label_width_default: 100px;
 	$checkbox_width_default: 21px;
 	$checkbox_height_default: 21px;
 	$checkbox_label_fontsize: 15px;
-
 
 // Toolbar
 $toolbar_height_default : 35px;
@@ -76,6 +73,6 @@ $grid_row_hover_color: #ccc;
 $grid_row_selected_color: #a1c4fd;
 $grid_column_editing_border_color: #66AFE9;
 $grid_column_height: 25px;
-$grid_paging_height: 30px;
+$grid_paging_height: 35px;
 $grid_paging_item_height: 25px;
 $grid_paging_item_width: 30px;
