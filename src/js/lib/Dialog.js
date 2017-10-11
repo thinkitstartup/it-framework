@@ -207,6 +207,6 @@ IT.Dialog = class extends IT.Component {
 	setScroll() {
 		let me = this,
 		container = me.content.find('.it-dialog-container');
-		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');\
+		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');
 	}
 }
