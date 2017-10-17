@@ -1,3 +1,4 @@
 node_modules
 docs
 example/bower_components
+dist/external

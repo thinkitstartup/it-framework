@@ -63,6 +63,8 @@ IT.Dialog = class extends IT.Component {
 		 	"onClose"
 		]);
 
+		me.ids=[];
+		me.items={};
 		if(me.settings.autoShow) me.show();
 		else me.createElement();
 	}
@@ -103,19 +105,22 @@ IT.Dialog = class extends IT.Component {
 			me.content.addClass("no-overlay");
 		}
 		
+
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
-				if(el)el.renderTo(me.content.find('.it-dialog-content'));
-				else console.warn("Xtype: undefined",obj);
+				el.renderTo(me.content.find('.it-dialog-content'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 
 		$.each(me.settings.footers, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
-				if(el)el.renderTo(me.content.find('.it-dialog-footer'));
-				else console.warn("Xtype: undefined",obj);
+				el.renderTo(me.content.find('.it-dialog-footer'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});		
 
@@ -135,19 +140,28 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
-		} else me.createElement();
+		} //else me.createElement();
 
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
-
 			me.content.click(function(){
 				me.close();
 			});
 		}
 	}
 	
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;

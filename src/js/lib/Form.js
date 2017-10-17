@@ -32,7 +32,9 @@ IT.Form = class extends IT.Component{
 			class: 'container-fluid'
 		});
 
-		let count = 0, div;
+		let div;
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) 
@@ -44,7 +46,8 @@ IT.Form = class extends IT.Component{
 				} else {
 					el.renderTo(wrapper);
 				}
-				count++;
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 		me.content= $("<form />",{
@@ -54,6 +57,18 @@ IT.Form = class extends IT.Component{
 			target: me.settings.target
 		});
 		me.content.append(wrapper);
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+	getData(){
+		console.info(this.content.serializeObject());
 	}
 }
 

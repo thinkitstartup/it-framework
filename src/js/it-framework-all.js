@@ -4,9 +4,6 @@ var base_url = base_url || '';
 var base_events = ["blur", "change", "click", "dblclick", "focus", "hover", "keydown", "keypress", "keyup", "show", "hide"];
 var transitionEnd = 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 var animationEnd = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
-
-
-
 (function($){
 	$.fn.serializeObject = function () {
 		var result = {};
@@ -1164,6 +1161,8 @@ IT.Dialog = class extends IT.Component {
 		 	"onClose"
 		]);
 
+		me.ids=[];
+		me.items={};
 		if(me.settings.autoShow) me.show();
 		else me.createElement();
 	}
@@ -1204,19 +1203,22 @@ IT.Dialog = class extends IT.Component {
 			me.content.addClass("no-overlay");
 		}
 		
+
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
-				if(el)el.renderTo(me.content.find('.it-dialog-content'));
-				else console.warn("Xtype: undefined",obj);
+				el.renderTo(me.content.find('.it-dialog-content'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 
 		$.each(me.settings.footers, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
-				if(el)el.renderTo(me.content.find('.it-dialog-footer'));
-				else console.warn("Xtype: undefined",obj);
+				el.renderTo(me.content.find('.it-dialog-footer'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});		
 
@@ -1236,19 +1238,28 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
-		} else me.createElement();
+		} //else me.createElement();
 
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
-
 			me.content.click(function(){
 				me.close();
 			});
 		}
 	}
 	
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
@@ -1393,7 +1404,9 @@ IT.Form = class extends IT.Component{
 			class: 'container-fluid'
 		});
 
-		let count = 0, div;
+		let div;
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) 
@@ -1405,7 +1418,8 @@ IT.Form = class extends IT.Component{
 				} else {
 					el.renderTo(wrapper);
 				}
-				count++;
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 		me.content= $("<form />",{
@@ -1415,6 +1429,18 @@ IT.Form = class extends IT.Component{
 			target: me.settings.target
 		});
 		me.content.append(wrapper);
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+	getData(){
+		console.info(this.content.serializeObject());
 	}
 }
 
@@ -2499,6 +2525,7 @@ IT.Toolbar = class extends IT.Component {
 		return this.ids.length;
 	}
 	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
