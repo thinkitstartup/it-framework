@@ -167,7 +167,6 @@
 
 		&-pagination {
 			padding: 0 5px;
-			height: $grid_paging_height;
 			@include gradient($base_color, $base_color_dark);
 			@include flexbox();
 			@include align-items(center);

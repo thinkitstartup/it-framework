@@ -75,6 +75,8 @@ IT.DataTable = class extends IT.Component {
 			me.store = new cstmStore(me.settings.store);
 			me.store.addEvents({
 				beforeLoad:function(){
+					me.store.params.limit=me.getAvailableRows();
+					console.info(me.store.params.limit);
 					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
 					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
 				},
@@ -251,6 +253,20 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
+		// setTimeout(function(){
+			
+
+			$(window).resize(function() {
+				clearTimeout(window.resizedFinished);
+				window.resizedFinished = setTimeout(function(){
+					//me.setPage();
+					window.location.reload()
+				}, 500);
+			});
+			//$(window).trigger("resize");
+
+
+		// },500);
 	}
 	/**
 	 * [getDataChanged description]
@@ -308,10 +324,10 @@ IT.DataTable = class extends IT.Component {
 	}
 	loadPage(page){
 		let me=this;
-		let start = (page - 1) * me.paging.limit;
+		let start = (page - 1) * me.paging.limit;//me.getAvailableRows();
 		me.content.find(".it-datatable-pagination .it-datatable-pagination-current").val(page);
 		me.store.load({
-			params:{start:start,limit:me.paging.limit}
+			params:{start:start,limit:/*me.getAvailableRows()||*/ me.paging.limit}
 		});
 	}
 	getSelectedRecords(){
@@ -396,5 +412,16 @@ IT.DataTable = class extends IT.Component {
 		me.content.find("tbody>tr").eq(indexRow).remove();
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
+	}
+	getAvailableRows(){
+		let me=this,
+		wrapper=me.content.find("div.it-datatable-wrapper").outerHeight(),
+		header=me.content.find("div.it-datatable-fixed-header").outerHeight();
+		var max = 25;    
+		me.content.find(".it-datatable-wrapper tbody tr").each(function() {
+			max = Math.max($(this).outerHeight(), max);
+		}).height(max);
+		max+=4;
+		return  Math.floor((wrapper-header)/max) || 30;
 	}
 }

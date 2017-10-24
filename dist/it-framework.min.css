@@ -1433,7 +1433,6 @@ html, body {
       background: #ddd; }
   .it-datatable-pagination {
     padding: 0 5px;
-    height: 35px;
     background-color: #ffffff;
     background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
