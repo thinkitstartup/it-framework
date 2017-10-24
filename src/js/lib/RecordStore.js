@@ -76,7 +76,7 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
-	get(key,from){
+	get(key){
 		return this.rawData[key];
 	}
 

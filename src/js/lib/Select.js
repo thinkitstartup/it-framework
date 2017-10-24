@@ -12,6 +12,7 @@ IT.Select = class extends IT.FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
+			name:"select",
 			withRowContainer: false, 
 			width: 200,
 			store: {
@@ -29,9 +30,9 @@ IT.Select = class extends IT.FormItem {
 
 		me.input = $('<select />', {
 			id: me.id,
-			name: me.id,
 			class: 'it-edit-input',
 			attr: {
+				name: me.settings.name || me.id,
 				disabled: me.settings.disabled,
 			},
 			val: me.settings.defaultValue,

@@ -18,6 +18,7 @@ IT.ImageBox = class extends IT.Component {
 				height: 100
 			},
 			cropper: false,
+			name:"file",
 			cropperSettings: {
 				// Find all setting on cropit website
 				smallImage: 'allow'
@@ -29,7 +30,7 @@ IT.ImageBox = class extends IT.Component {
 				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
 					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
 				</a>
-				<input type="file" class="cropit-image-input">
+				<input type="file" class="cropit-image-input" name=`+me.settings.name+`>
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>

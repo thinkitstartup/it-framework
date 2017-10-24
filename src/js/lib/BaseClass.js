@@ -58,7 +58,8 @@ IT.BaseClass = class {
 	 * @param  {params} array array of argument to be passed
 	 */
 	doEvent(event,params){
-		$(this).trigger(event,params);
+		//Just beware that triggerHandler doesn't do the exact same thing as trigger
+		return $(this).triggerHandler(event,params);
 	}
 	/**
 	 * Clear all available events.

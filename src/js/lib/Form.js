@@ -6,8 +6,7 @@
 IT.Form = class extends IT.Component{
 	constructor(opt){
 		super(opt);
-		let me=this;
-
+		let me=this,div,wrapper;
 		/** 
 		 * Setting for class
 		 * @member {Object}
@@ -20,6 +19,12 @@ IT.Form = class extends IT.Component{
 			url:'',
 			items:[]
 		}, opt);
+		me.addEvents(me.settings, [
+			"beforeSerialize",
+			"beforeSubmit",
+			"success",
+			"error",
+		]);
 
 		/** 
 		 * ID of class or element
@@ -27,12 +32,11 @@ IT.Form = class extends IT.Component{
 		 * @name IT.Form#id
 		 */
 		me.id = me.settings.id || IT.Utils.id();
-		let wrapper = $('<div />', { 
+		wrapper = $('<div />', { 
 			id: me.id, 
 			class: 'container-fluid'
 		});
 
-		let div;
 		me.ids=[];
 		me.items={};
 		$.each(me.settings.items, function(k, el) {
@@ -54,9 +58,34 @@ IT.Form = class extends IT.Component{
 			name:IT.Utils.id(),
 			class:"it-form",
 			action: me.settings.url,
-			target: me.settings.target
+			target: me.settings.target|"",
+			enctype:"multipart/form-data"
 		});
 		me.content.append(wrapper);
+		me.ajaxForm = me.content.ajaxForm($.extend({},{ 
+			url:me.content.prop("action"),
+			type:"POST",
+			dataType:"json",
+			delegation: true,
+			beforeSerialize: function($form, options) {
+				 // return false to cancel submit
+				let ret = me.doEvent("beforeSerialize",[me, $form, options]);
+				return (typeof ret == 'undefined'?true:ret);
+			},
+			beforeSubmit: function(arr, $form, options) {
+				// form data array is an array of objects with name and value properties
+				// [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
+				// return false to cancel submit
+				let ret = me.doEvent("beforeSubmit",[me, arr, $form, options]);
+				return (typeof ret == 'undefined'?true:ret);
+			},
+			success:function(data,textStatus,jqXHR){
+				me.doEvent("success",[data,me, jqXHR,textStatus]);
+			},
+			error:function(jqXHR,textStatus,errorThrown){
+				me.doEvent("error",[me,jqXHR,textStatus,errorThrown]);
+			}
+		}));
 	}
 	getItemCount(){
 		return this.ids.length;
@@ -66,9 +95,52 @@ IT.Form = class extends IT.Component{
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
-
 	getData(){
-		console.info(this.content.serializeObject());
+		return this.content.serializeObject();
+	}
+	setData(data){
+		let me = this;
+		let setsDeep = function(arr){
+			$.each(arr,function(i,l){
+				if(typeof l.val == "function" && l.className !="checkbox" && l.className !="radio"){
+					let v = data.getChanged(l.settings.name)||data.get(l.settings.name);
+					l.val(v);
+				}else if(l.items)setsDeep(l.items);
+			});
+		}
+		setsDeep(me.items);
+	}
+	submit(options=null){
+		let me=this;
+		if(options==null)me.content.submit();
+		else {
+			me.content.ajaxSubmit($.extend({
+				url:me.content.prop("action"),
+				type:"POST",
+				dataType:"json",
+				delegation: true,
+				beforeSerialize: function($form, options) {
+					let ret = me.doEvent("beforeSerialize",[me, $form, options]);
+					return (typeof ret == 'undefined'?true:ret);
+				},
+				beforeSubmit: function(arr, $form, options) {
+					let ret = me.doEvent("beforeSubmit",[me, arr, $form, options]);
+					return (typeof ret == 'undefined'?true:ret);
+				},
+				success:function(data,textStatus,jqXHR){
+					me.doEvent("success",[data,me, jqXHR,textStatus]);
+				},
+				error:function(jqXHR,textStatus,errorThrown){
+					me.doEvent("error",[me,jqXHR,textStatus,errorThrown]);
+				}
+			},options));
+		}
+	}
+	clear(){
+		this.ajaxForm.clearForm();
+	}
+	reset(){
+		this.ajaxForm.resetForm();
 	}
 }
 

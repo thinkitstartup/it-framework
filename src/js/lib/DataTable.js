@@ -25,20 +25,14 @@ IT.DataTable = class extends IT.Component {
 			enableFixedHeader: true,
 			wrap: false,
 			paging: true,
-			store: {
-				type: 'json',
-				params:{
-					start: 0,
-					limit: 20
-				}
-			},
+			store: {},
 			columns: [{}],
 			customHeader:""
 		}, settings);
 
 
 		me.id 				= me.settings.id || IT.Utils.id();
-		me.params 			= {}
+		//me.params 			= {}
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
 		me.editors			= [];
@@ -55,8 +49,6 @@ IT.DataTable = class extends IT.Component {
 			"onChangePage"
 		]);
 		me.createComponent();
-
-
 
 		/**
 		 * store data
@@ -100,7 +92,7 @@ IT.DataTable = class extends IT.Component {
 				}
 			});
 			cstmStore = null;
-			me.params = me.store.params;
+			//me.params = me.store.params;
 		}
 	}
 
@@ -163,7 +155,7 @@ IT.DataTable = class extends IT.Component {
 						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
-						 	<span class="it-datatable-pagination-page">0</span>
+							<span class="it-datatable-pagination-page">0</span>
 						</li>
 						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
 						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
@@ -226,8 +218,8 @@ IT.DataTable = class extends IT.Component {
 			me.content.find("table").animate({ scrollTop: 0 }, "slow");
 		}
 		me.content.find("tbody").empty();
-		let start		= me.params.start;
-		let limit		= me.params.limit;
+		let start		= me.store.getParams().start;
+		let limit		= me.store.getParams().limit;
 		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
 		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
 		let page_count	= Math.ceil(store.total_rows / limit);
@@ -243,8 +235,7 @@ IT.DataTable = class extends IT.Component {
 			me.content.find('.it-datatable-pagination-current').val(1);
 		}
 		if (storeData.length) {
-			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
-				//let curRecord = storeData[indexRow];
+			for (let indexRow=0;indexRow<storeData.length;indexRow++){
 				me.addRow(storeData[indexRow]);
 			}
 		}
@@ -324,8 +315,8 @@ IT.DataTable = class extends IT.Component {
 		});
 	}
 	getSelectedRecords(){
-		let me =this;
-		return !me.selectedRow?null:me.store.data[me.selectedRow];
+		let me =this;		
+		return me.selectedRow==null?null:me.store.data[me.selectedRow];
 	}
 	addRow(curRecord={}){
 		let me=this;
@@ -382,7 +373,7 @@ IT.DataTable = class extends IT.Component {
 						if(editor.validate()){
 							curRecord.update(field,editor.val());
 							editor.input.off();
-					 		editor.content.detach();	
+							editor.content.detach();	
 							td.removeClass("it-datatable-editing");
 							td.find("div").html(IT.Utils.findData(
 								curRecord.getChanged(field)||

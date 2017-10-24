@@ -78,7 +78,8 @@ IT.BaseClass = class {
 	 * @param  {params} array array of argument to be passed
 	 */
 	doEvent(event,params){
-		$(this).trigger(event,params);
+		//Just beware that triggerHandler doesn't do the exact same thing as trigger
+		return $(this).triggerHandler(event,params);
 	}
 	/**
 	 * Clear all available events.
@@ -467,7 +468,7 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
-	get(key,from){
+	get(key){
 		return this.rawData[key];
 	}
 
@@ -714,20 +715,14 @@ IT.DataTable = class extends IT.Component {
 			enableFixedHeader: true,
 			wrap: false,
 			paging: true,
-			store: {
-				type: 'json',
-				params:{
-					start: 0,
-					limit: 20
-				}
-			},
+			store: {},
 			columns: [{}],
 			customHeader:""
 		}, settings);
 
 
 		me.id 				= me.settings.id || IT.Utils.id();
-		me.params 			= {}
+		//me.params 			= {}
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
 		me.editors			= [];
@@ -744,8 +739,6 @@ IT.DataTable = class extends IT.Component {
 			"onChangePage"
 		]);
 		me.createComponent();
-
-
 
 		/**
 		 * store data
@@ -789,7 +782,7 @@ IT.DataTable = class extends IT.Component {
 				}
 			});
 			cstmStore = null;
-			me.params = me.store.params;
+			//me.params = me.store.params;
 		}
 	}
 
@@ -852,7 +845,7 @@ IT.DataTable = class extends IT.Component {
 						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
-						 	<span class="it-datatable-pagination-page">0</span>
+							<span class="it-datatable-pagination-page">0</span>
 						</li>
 						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
 						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
@@ -915,8 +908,8 @@ IT.DataTable = class extends IT.Component {
 			me.content.find("table").animate({ scrollTop: 0 }, "slow");
 		}
 		me.content.find("tbody").empty();
-		let start		= me.params.start;
-		let limit		= me.params.limit;
+		let start		= me.store.getParams().start;
+		let limit		= me.store.getParams().limit;
 		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
 		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
 		let page_count	= Math.ceil(store.total_rows / limit);
@@ -932,8 +925,7 @@ IT.DataTable = class extends IT.Component {
 			me.content.find('.it-datatable-pagination-current').val(1);
 		}
 		if (storeData.length) {
-			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
-				//let curRecord = storeData[indexRow];
+			for (let indexRow=0;indexRow<storeData.length;indexRow++){
 				me.addRow(storeData[indexRow]);
 			}
 		}
@@ -1013,8 +1005,8 @@ IT.DataTable = class extends IT.Component {
 		});
 	}
 	getSelectedRecords(){
-		let me =this;
-		return !me.selectedRow?null:me.store.data[me.selectedRow];
+		let me =this;		
+		return me.selectedRow==null?null:me.store.data[me.selectedRow];
 	}
 	addRow(curRecord={}){
 		let me=this;
@@ -1071,7 +1063,7 @@ IT.DataTable = class extends IT.Component {
 						if(editor.validate()){
 							curRecord.update(field,editor.val());
 							editor.input.off();
-					 		editor.content.detach();	
+							editor.content.detach();	
 							td.removeClass("it-datatable-editing");
 							td.find("div").html(IT.Utils.findData(
 								curRecord.getChanged(field)||
@@ -1378,8 +1370,7 @@ IT.Flex = class extends IT.Component {
 IT.Form = class extends IT.Component{
 	constructor(opt){
 		super(opt);
-		let me=this;
-
+		let me=this,div,wrapper;
 		/** 
 		 * Setting for class
 		 * @member {Object}
@@ -1392,6 +1383,12 @@ IT.Form = class extends IT.Component{
 			url:'',
 			items:[]
 		}, opt);
+		me.addEvents(me.settings, [
+			"beforeSerialize",
+			"beforeSubmit",
+			"success",
+			"error",
+		]);
 
 		/** 
 		 * ID of class or element
@@ -1399,12 +1396,11 @@ IT.Form = class extends IT.Component{
 		 * @name IT.Form#id
 		 */
 		me.id = me.settings.id || IT.Utils.id();
-		let wrapper = $('<div />', { 
+		wrapper = $('<div />', { 
 			id: me.id, 
 			class: 'container-fluid'
 		});
 
-		let div;
 		me.ids=[];
 		me.items={};
 		$.each(me.settings.items, function(k, el) {
@@ -1426,9 +1422,34 @@ IT.Form = class extends IT.Component{
 			name:IT.Utils.id(),
 			class:"it-form",
 			action: me.settings.url,
-			target: me.settings.target
+			target: me.settings.target|"",
+			enctype:"multipart/form-data"
 		});
 		me.content.append(wrapper);
+		me.ajaxForm = me.content.ajaxForm($.extend({},{ 
+			url:me.content.prop("action"),
+			type:"POST",
+			dataType:"json",
+			delegation: true,
+			beforeSerialize: function($form, options) {
+				 // return false to cancel submit
+				let ret = me.doEvent("beforeSerialize",[me, $form, options]);
+				return (typeof ret == 'undefined'?true:ret);
+			},
+			beforeSubmit: function(arr, $form, options) {
+				// form data array is an array of objects with name and value properties
+				// [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
+				// return false to cancel submit
+				let ret = me.doEvent("beforeSubmit",[me, arr, $form, options]);
+				return (typeof ret == 'undefined'?true:ret);
+			},
+			success:function(data,textStatus,jqXHR){
+				me.doEvent("success",[data,me, jqXHR,textStatus]);
+			},
+			error:function(jqXHR,textStatus,errorThrown){
+				me.doEvent("error",[me,jqXHR,textStatus,errorThrown]);
+			}
+		}));
 	}
 	getItemCount(){
 		return this.ids.length;
@@ -1438,9 +1459,52 @@ IT.Form = class extends IT.Component{
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
-
 	getData(){
-		console.info(this.content.serializeObject());
+		return this.content.serializeObject();
+	}
+	setData(data){
+		let me = this;
+		let setsDeep = function(arr){
+			$.each(arr,function(i,l){
+				if(typeof l.val == "function" && l.className !="checkbox" && l.className !="radio"){
+					let v = data.getChanged(l.settings.name)||data.get(l.settings.name);
+					l.val(v);
+				}else if(l.items)setsDeep(l.items);
+			});
+		}
+		setsDeep(me.items);
+	}
+	submit(options=null){
+		let me=this;
+		if(options==null)me.content.submit();
+		else {
+			me.content.ajaxSubmit($.extend({
+				url:me.content.prop("action"),
+				type:"POST",
+				dataType:"json",
+				delegation: true,
+				beforeSerialize: function($form, options) {
+					let ret = me.doEvent("beforeSerialize",[me, $form, options]);
+					return (typeof ret == 'undefined'?true:ret);
+				},
+				beforeSubmit: function(arr, $form, options) {
+					let ret = me.doEvent("beforeSubmit",[me, arr, $form, options]);
+					return (typeof ret == 'undefined'?true:ret);
+				},
+				success:function(data,textStatus,jqXHR){
+					me.doEvent("success",[data,me, jqXHR,textStatus]);
+				},
+				error:function(jqXHR,textStatus,errorThrown){
+					me.doEvent("error",[me,jqXHR,textStatus,errorThrown]);
+				}
+			},options));
+		}
+	}
+	clear(){
+		this.ajaxForm.clearForm();
+	}
+	reset(){
+		this.ajaxForm.resetForm();
 	}
 }
 
@@ -1612,15 +1676,16 @@ IT.Grid = class extends IT.Component {
 			});
 		}
 		
-		// Set CSS ke objek
 		me.content.css(me.settings.css); 
-
-		// Looping semua yang ada di items
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
 					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 
@@ -1630,6 +1695,14 @@ IT.Grid = class extends IT.Component {
 		} else if(me.settings.columnRule == '' &&  me.settings.rowContainer == 'standar') {
 			me.content = $('<div/>', { class:'container' }).append(me.content);
 		}
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
 	}
 }
 /**
@@ -1729,6 +1802,7 @@ IT.ImageBox = class extends IT.Component {
 				height: 100
 			},
 			cropper: false,
+			name:"file",
 			cropperSettings: {
 				// Find all setting on cropit website
 				smallImage: 'allow'
@@ -1740,7 +1814,7 @@ IT.ImageBox = class extends IT.Component {
 				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
 					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
 				</a>
-				<input type="file" class="cropit-image-input">
+				<input type="file" class="cropit-image-input" name=`+me.settings.name+`>
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>
@@ -1923,6 +1997,7 @@ IT.Select = class extends IT.FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
+			name:"select",
 			withRowContainer: false, 
 			width: 200,
 			store: {
@@ -1940,9 +2015,9 @@ IT.Select = class extends IT.FormItem {
 
 		me.input = $('<select />', {
 			id: me.id,
-			name: me.id,
 			class: 'it-edit-input',
 			attr: {
+				name: me.settings.name || me.id,
 				disabled: me.settings.disabled,
 			},
 			val: me.settings.defaultValue,
@@ -2445,6 +2520,13 @@ IT.TextBox = class extends IT.FormItem {
 				`>`);
 				if (s.type == "mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
+			break;
+			case "hidden":
+				me.input = $(`<input id="${me.id}-item" `+
+					`type='hidden' `+
+					`name='${me.settings.name||IT.Utils.id()}' `+
+					`${s.value?`value='${s.value}'`:""} `+
+				`>`);
 			break;
 			default:
 				throw "input type unknown";
