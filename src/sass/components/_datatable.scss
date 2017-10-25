@@ -1,6 +1,7 @@
 .it {
 	&-datatable {	
 		position: relative;
+		top: -1px; // hack for better looking
 		@include flexbox();
 		@include flex-direction(column);
 

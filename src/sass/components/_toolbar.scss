@@ -2,7 +2,7 @@
 	&-toolbar {
 		white-space: nowrap;
 		position: relative;
-		min-height: $toolbar_height_default;
+		padding: 3px;
 		@include gradient($base_color, $base_color_dark);
 		@include flexbox();
 		@include align-items(center);	
@@ -16,20 +16,16 @@
 			@include align-items(center);
 
 			> li {
-				float: left;
+				display: inline;
 				margin-right: 4px;
 			}
 		}
 
 		&-left {
 			@include flex(1);
-			padding-left: 5px;
 		}
 
-		&-right {
-			padding-right: 5px;
-			float: right;
-		}
+		&-right {}
 		
 		// Textbox, Select Component
 		.it-edit {

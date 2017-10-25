@@ -498,7 +498,7 @@ html, body {
 .it-toolbar {
   white-space: nowrap;
   position: relative;
-  min-height: 35px;
+  padding: 3px;
   background-color: #ffffff;
   background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
@@ -530,7 +530,7 @@ html, body {
     -moz-align-items: center;
     align-items: center; }
     .it-toolbar-left > li, .it-toolbar-right > li {
-      float: left;
+      display: inline;
       margin-right: 4px; }
   .it-toolbar-left {
     -webkit-box-flex: 1;
@@ -538,11 +538,7 @@ html, body {
     -moz-box-flex: 1;
     -moz-flex: 1;
     -ms-flex: 1;
-    flex: 1;
-    padding-left: 5px; }
-  .it-toolbar-right {
-    padding-right: 5px;
-    float: right; }
+    flex: 1; }
   .it-toolbar .it-edit {
     margin-left: -15px;
     margin-right: -15px; }
@@ -744,16 +740,16 @@ html, body {
     color: #000;
     text-decoration: none; }
   .it-btn:active {
-    -webkit-box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.5);
-    -moz-box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.5);
-    -o-box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.5);
-    -ms-box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.5);
-    box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.5);
-    -webkit-transform: scale(0.95);
-    -moz-transform: scale(0.95);
-    -o-transform: scale(0.95);
-    -ms-transform: scale(0.95);
-    transform: scale(0.95); }
+    -webkit-box-shadow: inset 0px 0px 38px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: inset 0px 0px 38px rgba(0, 0, 0, 0.2);
+    -o-box-shadow: inset 0px 0px 38px rgba(0, 0, 0, 0.2);
+    -ms-box-shadow: inset 0px 0px 38px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0px 0px 38px rgba(0, 0, 0, 0.2);
+    -webkit-transform: scale(0.99);
+    -moz-transform: scale(0.99);
+    -o-transform: scale(0.99);
+    -ms-transform: scale(0.99);
+    transform: scale(0.99); }
   .it-btn.btn-disabled {
     pointer-events: none;
     opacity: 0.5; }
@@ -763,7 +759,8 @@ html, body {
     color: #fff; }
   .it-btn.btn-primary, .it-btn.btn-success, .it-btn.btn-alert, .it-btn.btn-warning {
     color: #fff;
-    border: transparent; }
+    border: transparent;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); }
   .it-btn.btn-primary {
     background-color: #4BC0F9;
     background-image: -moz-linear-gradient(#4BC0F9, #3584EB);
@@ -1325,6 +1322,7 @@ html, body {
 
 .it-datatable {
   position: relative;
+  top: -1px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
