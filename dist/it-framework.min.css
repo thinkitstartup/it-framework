@@ -556,6 +556,20 @@ html, body {
   .it-toolbar .it-btn {
     height: 25px;
     line-height: 25px; }
+    .it-toolbar .it-btn:not([class*="btn-"]) {
+      border-color: transparent;
+      background: transparent;
+      -webkit-transition: trans-prefix(transform, 0.2s, webkit);
+      -moz-transition: trans-prefix(transform, 0.2s, moz);
+      -o-transition: trans-prefix(transform, 0.2s, o);
+      transition: transform 0.2s; }
+      .it-toolbar .it-btn:not([class*="btn-"]):hover {
+        background-color: #ffffff;
+        background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
+        background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
+        background-image: -webkit-linear-gradient(#ffffff, #f4f4f4);
+        background-image: -o-linear-gradient(#ffffff, #f4f4f4);
+        border-color: #ddd; }
 
 .it-form {
   padding: 15px 0; }
@@ -1331,7 +1345,11 @@ html, body {
     flex: 1;
     overflow: scroll; }
   .it-datatable-fixed-header {
-    background: #e3e4e6;
+    background-color: #ffffff;
+    background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
+    background-image: -webkit-linear-gradient(#ffffff, #f4f4f4);
+    background-image: -o-linear-gradient(#ffffff, #f4f4f4);
     display: block;
     position: absolute;
     overflow: hidden;
@@ -1342,7 +1360,11 @@ html, body {
     table-layout: fixed;
     border-collapse: collapse; }
     .it-datatable table thead tr th {
-      background: #eee;
+      background-color: #ffffff;
+      background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
+      background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
+      background-image: -webkit-linear-gradient(#ffffff, #f4f4f4);
+      background-image: -o-linear-gradient(#ffffff, #f4f4f4);
       border: 1px solid #ddd;
       color: #333;
       padding: 6px 12px;
@@ -1357,6 +1379,8 @@ html, body {
       .it-datatable table thead tr th img {
         display: auto;
         float: right; }
+      .it-datatable table thead tr th:first-child {
+        border-left-color: transparent; }
     .it-datatable table tbody tr {
       height: 25px; }
       .it-datatable table tbody tr:nth-child(even) {
@@ -1432,7 +1456,7 @@ html, body {
     .it-datatable-icon:hover {
       background: #ddd; }
   .it-datatable-pagination {
-    padding: 0 5px;
+    padding: 3px;
     background-color: #ffffff;
     background-image: -moz-linear-gradient(#ffffff, #f4f4f4);
     background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#f4f4f4));
@@ -1469,9 +1493,8 @@ html, body {
       -moz-align-items: center;
       align-items: center; }
       .it-datatable-pagination ul li {
-        float: left;
         margin-right: 5px;
-        display: inline-table; }
+        display: inline; }
     .it-datatable-pagination-current {
       line-height: 25px;
       border: 1px solid #ccc;

@@ -10,7 +10,7 @@
 		}
 
 		&-fixed-header{
-			background: #e3e4e6;
+			@include gradient($base_color, $base_color_dark);
 			display: block;
 			position: absolute;
 			overflow: hidden;
@@ -24,7 +24,7 @@
 			thead {
 				tr {
 					th {
-						background: $grid_header_color;
+						@include gradient($base_color, $base_color_dark);
 						border: 1px solid $grid_header_border_color;
 						color: #333;
 						padding: 6px 12px;
@@ -42,6 +42,10 @@
 						img {
 							display: auto;
 							float: right;
+						}
+
+						&:first-child {
+							border-left-color: transparent;
 						}
 					}
 				}
@@ -166,7 +170,7 @@
 		}
 
 		&-pagination {
-			padding: 0 5px;
+			padding: 3px;
 			@include gradient($base_color, $base_color_dark);
 			@include flexbox();
 			@include align-items(center);
@@ -178,9 +182,8 @@
 				@include flex(1);
 				@include align-items(center);
 				li {
-					float: left;
 					margin-right: 5px;
-					display: inline-table;
+					display: inline;
 				}
 			}
 
