@@ -66,6 +66,17 @@ IT.BaseClass = class {
 	 * @param  {option} object of functions 
 	 */
 	clearEvents(option={}){
-		let sel = option.selector || $(this).off();
+		//let sel = option.selector || $(this).off();
+		$(this).off();
 	}
+
+	/**
+	 * shorthand for settings
+	 * @param  {option} object of functions 
+	 */
+	get s(){
+		return this.settings || {};
+	}
+
+	
 }

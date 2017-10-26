@@ -18,7 +18,7 @@ IT.ImageBox = class extends IT.Component {
 				height: 100
 			},
 			cropper: false,
-			name:"file",
+			//name:"file", //we don't need input type, use getExport instead
 			cropperSettings: {
 				// Find all setting on cropit website
 				smallImage: 'allow'
@@ -30,7 +30,7 @@ IT.ImageBox = class extends IT.Component {
 				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
 					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
 				</a>
-				<input type="file" class="cropit-image-input" name=`+me.settings.name+`>
+				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>
@@ -89,13 +89,19 @@ IT.ImageBox = class extends IT.Component {
 
 	setImageSrc(picture) {
 		let me = this;
-		if(me.isCropper()) {
-			me.content.cropit('imageSrc', picture);
-		} else {
-			me.content.find('img').attr('src', picture);
-		}
+		if(me.isCropper()) me.content.cropit('imageSrc', picture);
+		else me.content.find('img').attr('src', picture);
+	}
+	clearImageSrc(){
+		let me = this;
+		me.content.find(".cropit-image-input").val();
+		me.content.find('.cropit-preview-image').attr('src','');
 	}
 
+	/**
+	 * Get cropped image
+	 * @return {String} data:image/png;base64 string
+	 */
 	getExport() {
 		let result = "This is not cropper.";
 		if(this.isCropper()) {

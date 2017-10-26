@@ -40,9 +40,8 @@ IT.Store = class extends IT.BaseClass {
 			"onError",
 			"onEmpty"
 		]);
-		if (me.settings.autoLoad) me.load();
+		if (me.settings.autoLoad)me.load();
 	}
-
 	/**
 	 * empty store data
 	 */
@@ -121,7 +120,6 @@ IT.Store = class extends IT.BaseClass {
 			break;
 		}
 	}
-
 	/**
 	 * sort data
 	 * @param  {string} field Sort by this field
@@ -136,7 +134,6 @@ IT.Store = class extends IT.BaseClass {
 	 * @return {object} paramters
 	 */
 	getParams(){ return this.params; }
-
 	/**
 	 * Get Stored Data
 	 * @return {array} expected data
@@ -144,7 +141,6 @@ IT.Store = class extends IT.BaseClass {
 	getData(){
 		return this.data;
 	}
-
 	/**
 	 * Get Stored Raw Datas
 	 * @return {array} expected data
@@ -156,7 +152,6 @@ IT.Store = class extends IT.BaseClass {
 		});
 		return ret;
 	}
-
 	/**
 	 * Get only changed data from raw
 	 * @return {array}  array of record
@@ -169,7 +164,6 @@ IT.Store = class extends IT.BaseClass {
 		}
 		return r;
 	}
-
 	/**
 	 * Set stored Data
 	 * @param {object} data replacement for data
@@ -186,13 +180,11 @@ IT.Store = class extends IT.BaseClass {
 		});
 		me.doEvent("onLoad",[me, me.data, me.params]);
 	} 
-
 	/**
 	 * get generated settings
 	 * @return {object}
 	 */
 	getSetting(){ return this.settings; }
-
 	/**
 	 * Change data
 	 * @param  {Object} data     Updated data
@@ -203,5 +195,15 @@ IT.Store = class extends IT.BaseClass {
 		for (let key in data) {
 			me.data[indexRow].update(key,data[key]);
 		}
+	}
+	get detail(){
+		let me =this,
+			start		= me.params.start,
+			limit		= me.params.limit,
+			pageCount	= Math.ceil(me.total_rows / limit),
+			currentPage	= Math.ceil(start / limit)+1,
+			from 		= me.total_rows>0?(start+1):0,
+			to			= currentPage==pageCount?me.total_rows:start+limit;
+		return {start,limit,pageCount,currentPage,from,to}
 	}
 }

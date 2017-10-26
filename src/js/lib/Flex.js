@@ -35,14 +35,26 @@ IT.Flex = class extends IT.Component {
 			me.content.append(title);
 		}
 
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(typeof el.renderTo !== 'function')
+				if(!el.isClass) 
 					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
 	}
 }

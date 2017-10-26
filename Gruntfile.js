@@ -27,14 +27,14 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				sourceMap: true,
+				//sourceMap: true,
 				compress:!true,
 				/*compress: {
 					drop_console: !true
 				},*/
 				beautify:!true,
 				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-        			'<%= grunt.template.today("yyyy-mm-dd") %> */'
+					'<%= grunt.template.today("yyyy-mm-dd") %> */'
 			},
 			// report:"gzip",
 			dist: {

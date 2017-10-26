@@ -55,9 +55,9 @@ IT.Dialog = class extends IT.Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.settings.id || IT.Utils.id();
+		me.id = me.s.id || IT.Utils.id();
 
-		me.addEvents(me.settings, [
+		me.addEvents(me.s, [
 		 	"onShow", 
 		 	"onHide", 
 		 	"onClose"
@@ -65,10 +65,9 @@ IT.Dialog = class extends IT.Component {
 
 		me.ids=[];
 		me.items={};
-		if(me.settings.autoShow) me.show();
+		if(me.s.autoShow) me.show();
 		else me.createElement();
 	}
-
 	/**
 	 * Create HTML Element
 	 */
@@ -85,14 +84,14 @@ IT.Dialog = class extends IT.Component {
 			</div>
 		`);
 
-		if(me.settings.title) {
+		if(me.s.title) {
 			let dialogTitle = $('<div/>', {
 				class: 'it-title',
-				html: me.settings.title
+				html: me.s.title
 			});
 
-			if(me.settings.iconCls) {
-				let iconTitle = $('<span/>', { class:'fa fa-'+me.settings.iconCls });
+			if(me.s.iconCls) {
+				let iconTitle = $('<span/>', { class:'fa fa-'+me.s.iconCls });
 				iconTitle.prependTo(dialogTitle);
 			}
 			
@@ -101,12 +100,12 @@ IT.Dialog = class extends IT.Component {
 				.append(dialogTitle);
 		}
 
-		if(!me.settings.overlay) {
+		if(!me.s.overlay) {
 			me.content.addClass("no-overlay");
 		}
 		
 
-		$.each(me.settings.items, function(k, el) {
+		$.each(me.s.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-content'));
@@ -115,7 +114,7 @@ IT.Dialog = class extends IT.Component {
 			}
 		});
 
-		$.each(me.settings.footers, function(k, el) {
+		$.each(me.s.footers, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-footer'));
@@ -126,23 +125,23 @@ IT.Dialog = class extends IT.Component {
 
 		me.content
 			.find('.it-dialog-container')
-			.css({'max-width': me.settings.width});
+			.css({'max-width': me.s.width});
 
 		me.content
 			.find('.it-dialog-content')
 			.css($.extend(true, 
-				me.settings.css, 
-				me.settings.autoHeight ? { 'min-height' : me.settings.height } : { height: me.settings.height }
+				me.s.css, 
+				me.s.autoHeight ? { 'min-height' : me.s.height } : { height: me.s.height }
 			));
 
 		me.content.appendTo('body').hide();
 		me.elExist = true;
 
-		if(me.settings.autoShow) {
+		if(me.s.autoShow) {
 			me.show();
 		} //else me.createElement();
 
-		if(me.settings.cancelable) {
+		if(me.s.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
@@ -150,8 +149,7 @@ IT.Dialog = class extends IT.Component {
 				me.close();
 			});
 		}
-	}
-	
+	}	
 	getItemCount(){
 		return this.ids.length;
 	}
@@ -160,8 +158,6 @@ IT.Dialog = class extends IT.Component {
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
-
-
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
@@ -170,6 +166,7 @@ IT.Dialog = class extends IT.Component {
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
+			me.setScroll();
 		});
 		me.doEvent("onShow",[me, me.id]);
 
@@ -179,9 +176,8 @@ IT.Dialog = class extends IT.Component {
 				me.setScroll();
 			}, 500);
 		});
-		$(window).trigger("resize");
+		me.setScroll();
 	}
-	
 	/** hide the dialog, adding class display : none */
 	hide() {
 		let me = this;
@@ -193,7 +189,6 @@ IT.Dialog = class extends IT.Component {
 				me.doEvent("onHide",[me, me.id]);
 			});
 	}
-
 	/** close the dialog, and remove the DOMelement */
 	close() {
 		let me = this;
@@ -212,7 +207,6 @@ IT.Dialog = class extends IT.Component {
 					})
 			});
 	}
-
 	/** 
 	 * Detection if the dialog height is wider than height of the window 
 	 * then automatically make the container dialog has a scroll

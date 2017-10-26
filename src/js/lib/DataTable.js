@@ -27,22 +27,14 @@ IT.DataTable = class extends IT.Component {
 			paging: true,
 			store: {},
 			columns: [{}],
-			customHeader:""
+			customHeader:"",
+			autoRowCount:true,
 		}, settings);
-
-
-		me.id 				= me.settings.id || IT.Utils.id();
-		//me.params 			= {}
+		me.id 				= me.s.id || IT.Utils.id();
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
 		me.editors			= [];
-		me.paging 			= { 
-			page 		: 1,
-			page_count	: 0,
-			total_rows 	: 0
-		}
-
-		me.addEvents(me.settings, [
+		me.addEvents(me.s, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
@@ -50,65 +42,66 @@ IT.DataTable = class extends IT.Component {
 		]);
 		me.createComponent();
 
+
 		/**
 		 * store data
 		 * @member {boolean}
 		 * @name IT.DataTable#store
 		 * @see IT.Store
 		 */
-		if(!me.settings.store.isClass){
-			class cstmStore extends IT.Store {
-				load(opt){
-					let readyState = true;
-					let thse = this;
-					thse.doEvent("beforeLoad");
+		if(!me.s.store.isClass){
+			me.store = new class extends IT.Store {
+				load(opt){					
+					let readyState = true, those = this;
+					those.doEvent("beforeLoad");
 					me.editors.forEach((e)=>{
 						if(e && e.isClass) readyState = readyState && !!e.readyState;
 					});
 					if (!readyState)
+						//looping every second to check 
+						//every header's editor is in readyState
 						setTimeout(()=>{
-							thse.load.call(thse, opt)
+							those.load.call(those, opt)
 						},1000);
 					else super.load(opt);
 				}
+			}($.extend(true,{},me.s.store,{
+				// when DataTable's autoRowCount is true, force Store's autoLoad to false. 
+				// since store need to load AFTER DataTable's DOM rendered, so it can 
+				// count the number of rows can be loaded
+				autoLoad:me.s.autoRowCount ? false : me.s.store.autoLoad 
+			}));
+		}else me.store = me.s.store;
+		me.store.addEvents({
+			beforeLoad:function(){
+				me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
+				me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
+			},
+			afterLoad:function(event,store,storeData,params){
+				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
+				me.assignData(store);
+				me.doEvent("onLoad",[me,store]);
+				me.selectedRow 		= null;
+				me.selectedColumn 	= null;
+			},
+			onEmpty:function(event,store,storeData,params){
+				me.assignData(store);
+				me.doEvent("onLoad",[me,store]);
+				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
 			}
-			me.store = new cstmStore(me.settings.store);
-			me.store.addEvents({
-				beforeLoad:function(){
-					me.store.params.limit=me.getAvailableRows();
-					console.info(me.store.params.limit);
-					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
-					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
-				},
-				afterLoad:function(event,store,storeData,params){
-					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-					me.assignData(store);
-					me.doEvent("onLoad",[me,store]);
-					me.selectedRow 		= null;
-					me.selectedColumn 	= null;
-				},
-				onEmpty:function(event,store,storeData,params){
-					me.assignData(store);
-					me.doEvent("onLoad",[me,store]);
-					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-				}
-			});
-			cstmStore = null;
-			//me.params = me.store.params;
-		}
+		});
 	}
-
 	/**
 	 * Create element content
 	 */
 	createComponent(){
-		let me =this,s = me.settings;
+		let me =this;
 
 		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
-			class: s.cls 
-		}).width(s.width).height(s.height);
+			class: me.s.cls 
+		}).width(me.s.width).height(me.s.height);
 
 		// wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
@@ -119,11 +112,11 @@ IT.DataTable = class extends IT.Component {
 		me.content.append(wrapper.append(table.append(thead)));
 
 		//create header
-		if (s.customHeader) thead.append($(s.customHeader));
+		if (me.s.customHeader) thead.append($(me.s.customHeader));
 		else {
 			let col, tr=$(`<tr/>`);
-			for (let i = 0; i < s.columns.length; i++){
-				col =s.columns[i];
+			for (let i = 0; i < me.s.columns.length; i++){
+				col =me.s.columns[i];
 				tr.append($(`<th />`,{
 					css:{
 						// to precise width
@@ -131,7 +124,8 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				
+
+				// add editors
 				if(col.editor && col.editor.store && 
 					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
 				){	
@@ -145,11 +139,11 @@ IT.DataTable = class extends IT.Component {
 			}
 			thead.append(tr);
 		}
-		if(s.enableFixedHeader) {
+		if(me.s.enableFixedHeader) {
 			me.content.append(fixHeader.append(table.clone()));
 		}
 		table.append(tbody);
-		if(s.paging){
+		if(me.s.paging){
 			me.content.append(`
 				<div class="it-datatable-pagination" >
 					<ul>
@@ -204,41 +198,28 @@ IT.DataTable = class extends IT.Component {
 					<div class="it-loading-rolling"></div>
 				</div>
 			`);
-
 			me.content.append(loadingInline);
 		}
 	}
-
 	/**
 	 * Assign Data from store
 	 * @param  {IT.Store} store 
 	 */
 	assignData(store){
-		let me =this,
-			storeData = store.getData();
-		if(storeData.length){
-			me.content.find("table").animate({ scrollTop: 0 }, "slow");
-		}
+		let me =this,sd = store.getData();
+			
+		//update paging info
 		me.content.find("tbody").empty();
-		let start		= me.store.getParams().start;
-		let limit		= me.store.getParams().limit;
-		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
-		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
-		let page_count	= Math.ceil(store.total_rows / limit);
-		me.paging		= Object.assign({},me.paging,{
-			start, limit, page_count,
-			total_rows 	: store.total_rows
-		});
-		me.content.find('.it-datatable-pagination-show').html(data_show);
+		me.content.find('.it-datatable-pagination-show').html(store.detail.from+"/"+store.detail.to);
 		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
-		me.content.find('.it-datatable-pagination-page').html(page_count);
-
-		if (start == 0) {
-			me.content.find('.it-datatable-pagination-current').val(1);
-		}
-		if (storeData.length) {
-			for (let indexRow=0;indexRow<storeData.length;indexRow++){
-				me.addRow(storeData[indexRow]);
+		me.content.find('.it-datatable-pagination-current').val(store.detail.currentPage);
+		me.content.find('.it-datatable-pagination-page').html(store.detail.pageCount);
+		
+		//everyload scroll to top
+		if(sd.length){
+			me.content.find("table").animate({ scrollTop: 0 }, "slow");
+			for (let indexRow=0;indexRow<sd.length;indexRow++){
+				me.addRow(sd[indexRow]);
 			}
 		}
 	}
@@ -253,20 +234,14 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
-		// setTimeout(function(){
-			
-
-			$(window).resize(function() {
-				clearTimeout(window.resizedFinished);
-				window.resizedFinished = setTimeout(function(){
-					//me.setPage();
-					window.location.reload()
-				}, 500);
-			});
-			//$(window).trigger("resize");
-
-
-		// },500);
+		setTimeout(function(){
+			if(me.s.autoRowCount)
+				me.store.params.limit = me.getAvailableRows();
+			if(me.s.store.autoLoad)
+				me.loadPage(1);
+		},0);
+		//use 0 timeout. https://stackoverflow.com/a/41893544
+		//https://www.manning.com/books/secrets-of-the-javascript-ninja
 	}
 	/**
 	 * [getDataChanged description]
@@ -282,53 +257,37 @@ IT.DataTable = class extends IT.Component {
 		return r;
 	}
 	setPage(to=1){
-		let me=this;
+		let me=this,detail=me.store.detail;
 		if (me.store.getData().length){
 			switch(to){
 				case 'first':
-					if (me.paging.page != 1) {
-						me.paging.page = 1;
+					if (detail.currentPage != 1)
 						me.loadPage(1);
-					}
 				break;
 				case 'last':
-					if (me.paging.page != me.paging.page_count) {
-						me.paging.page = me.paging.page_count;
-						me.loadPage(me.paging.page_count);
-					}
+					if (detail.currentPage != detail.pageCount)
+						me.loadPage(detail.pageCount);
 				break;
 				case 'next':
-					if (me.paging.page < me.paging.page_count) {
-						me.paging.page++;
-						me.loadPage(me.paging.page);
-					}
+					if (detail.currentPage < detail.pageCount)
+						me.loadPage(detail.currentPage+1);
 				break;
 				case 'back':
-					if (me.paging.page >1) {
-						me.paging.page--;
-						me.loadPage(me.paging.page);
-					}
+					if (detail.currentPage >1)
+						me.loadPage(detail.currentPage-1);
 				break;
 				default:
-					if(to>=1 && to<=me.paging.page_count){
-						me.paging.page = to;
+					if(to>=1 && to<=detail.pageCount)
 						me.loadPage(to);
-					}else {
-						alert("Invalid page");
-						me.content.find(".it-datatable-pagination-current").val(me.paging.page);
-						throw "Invalid page";
-					}
+					else {throw "Invalid page";}
 				break;
 			}
 		}
-	}
+	} 
 	loadPage(page){
 		let me=this;
-		let start = (page - 1) * me.paging.limit;//me.getAvailableRows();
-		me.content.find(".it-datatable-pagination .it-datatable-pagination-current").val(page);
-		me.store.load({
-			params:{start:start,limit:/*me.getAvailableRows()||*/ me.paging.limit}
-		});
+		page=page<=0?1:page;
+		me.store.load({	params:{start:((page - 1) * me.store.params.limit)}});
 	}
 	getSelectedRecords(){
 		let me =this;		
@@ -337,9 +296,9 @@ IT.DataTable = class extends IT.Component {
 	addRow(curRecord={}){
 		let me=this;
 		let row_element = $("<tr>");
-		for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+		for (let indexCol = 0; indexCol < me.s.columns.length; indexCol++){
 			let editor 		= me.editors[indexCol],
-				current_col = me.settings.columns[indexCol],
+				current_col = me.s.columns[indexCol],
 				field 		= current_col.dataIndex,
 				value 		= curRecord.get(field);
 
@@ -360,7 +319,7 @@ IT.DataTable = class extends IT.Component {
 					html:$("<div />",{html:(html==""?value:html)}),
 					valign:current_col.valign ||"top",
 					align:current_col.align ||"left",
-					class:"" + (me.settings.wrap?"wrap":""),
+					class:"" + (me.s.wrap?"wrap":""),
 				});
 			if(editor && editor.className=="checkbox"){
 				td.find("div").empty();
@@ -404,6 +363,9 @@ IT.DataTable = class extends IT.Component {
 			});
 			row_element.append(td);
 		}
+		row_element.on('dblclick', function(e) {
+			me.doEvent("onItemDblClick");
+		})
 		me.content.find("tbody").append(row_element);
 	}
 	removeRow(indexRow=-1){
@@ -414,14 +376,16 @@ IT.DataTable = class extends IT.Component {
 		me.selectedColumn 	= null;
 	}
 	getAvailableRows(){
-		let me=this,
-		wrapper=me.content.find("div.it-datatable-wrapper").outerHeight(),
-		header=me.content.find("div.it-datatable-fixed-header").outerHeight();
-		var max = 25;    
-		me.content.find(".it-datatable-wrapper tbody tr").each(function() {
+		let me=this, max = 27;//default row hight
+		me.content.find(".it-datatable-wrapper tbody tr").each(()=>{
 			max = Math.max($(this).outerHeight(), max);
-		}).height(max);
-		max+=4;
-		return  Math.floor((wrapper-header)/max) || 30;
+		});
+		return Math.abs(Math.floor(
+			(
+				me.content.find("div.it-datatable-wrapper").outerHeight()-
+				me.content.find("div.it-datatable-fixed-header").outerHeight()-
+				30//default browser scroll height
+			)/max)
+		);
 	}
 }

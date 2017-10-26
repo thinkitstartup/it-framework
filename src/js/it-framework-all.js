@@ -86,8 +86,19 @@ IT.BaseClass = class {
 	 * @param  {option} object of functions 
 	 */
 	clearEvents(option={}){
-		let sel = option.selector || $(this).off();
+		//let sel = option.selector || $(this).off();
+		$(this).off();
 	}
+
+	/**
+	 * shorthand for settings
+	 * @param  {option} object of functions 
+	 */
+	get s(){
+		return this.settings || {};
+	}
+
+	
 }
 /**
  * Default Component CLass
@@ -523,9 +534,8 @@ IT.Store = class extends IT.BaseClass {
 			"onError",
 			"onEmpty"
 		]);
-		if (me.settings.autoLoad) me.load();
+		if (me.settings.autoLoad)me.load();
 	}
-
 	/**
 	 * empty store data
 	 */
@@ -604,7 +614,6 @@ IT.Store = class extends IT.BaseClass {
 			break;
 		}
 	}
-
 	/**
 	 * sort data
 	 * @param  {string} field Sort by this field
@@ -619,7 +628,6 @@ IT.Store = class extends IT.BaseClass {
 	 * @return {object} paramters
 	 */
 	getParams(){ return this.params; }
-
 	/**
 	 * Get Stored Data
 	 * @return {array} expected data
@@ -627,7 +635,6 @@ IT.Store = class extends IT.BaseClass {
 	getData(){
 		return this.data;
 	}
-
 	/**
 	 * Get Stored Raw Datas
 	 * @return {array} expected data
@@ -639,7 +646,6 @@ IT.Store = class extends IT.BaseClass {
 		});
 		return ret;
 	}
-
 	/**
 	 * Get only changed data from raw
 	 * @return {array}  array of record
@@ -652,7 +658,6 @@ IT.Store = class extends IT.BaseClass {
 		}
 		return r;
 	}
-
 	/**
 	 * Set stored Data
 	 * @param {object} data replacement for data
@@ -669,13 +674,11 @@ IT.Store = class extends IT.BaseClass {
 		});
 		me.doEvent("onLoad",[me, me.data, me.params]);
 	} 
-
 	/**
 	 * get generated settings
 	 * @return {object}
 	 */
 	getSetting(){ return this.settings; }
-
 	/**
 	 * Change data
 	 * @param  {Object} data     Updated data
@@ -686,6 +689,16 @@ IT.Store = class extends IT.BaseClass {
 		for (let key in data) {
 			me.data[indexRow].update(key,data[key]);
 		}
+	}
+	get detail(){
+		let me =this,
+			start		= me.params.start,
+			limit		= me.params.limit,
+			pageCount	= Math.ceil(me.total_rows / limit),
+			currentPage	= Math.ceil(start / limit)+1,
+			from 		= me.total_rows>0?(start+1):0,
+			to			= currentPage==pageCount?me.total_rows:start+limit;
+		return {start,limit,pageCount,currentPage,from,to}
 	}
 }
 /**
@@ -717,22 +730,14 @@ IT.DataTable = class extends IT.Component {
 			paging: true,
 			store: {},
 			columns: [{}],
-			customHeader:""
+			customHeader:"",
+			autoRowCount:true,
 		}, settings);
-
-
-		me.id 				= me.settings.id || IT.Utils.id();
-		//me.params 			= {}
+		me.id 				= me.s.id || IT.Utils.id();
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
 		me.editors			= [];
-		me.paging 			= { 
-			page 		: 1,
-			page_count	: 0,
-			total_rows 	: 0
-		}
-
-		me.addEvents(me.settings, [
+		me.addEvents(me.s, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
@@ -740,65 +745,66 @@ IT.DataTable = class extends IT.Component {
 		]);
 		me.createComponent();
 
+
 		/**
 		 * store data
 		 * @member {boolean}
 		 * @name IT.DataTable#store
 		 * @see IT.Store
 		 */
-		if(!me.settings.store.isClass){
-			class cstmStore extends IT.Store {
-				load(opt){
-					let readyState = true;
-					let thse = this;
-					thse.doEvent("beforeLoad");
+		if(!me.s.store.isClass){
+			me.store = new class extends IT.Store {
+				load(opt){					
+					let readyState = true, those = this;
+					those.doEvent("beforeLoad");
 					me.editors.forEach((e)=>{
 						if(e && e.isClass) readyState = readyState && !!e.readyState;
 					});
 					if (!readyState)
+						//looping every second to check 
+						//every header's editor is in readyState
 						setTimeout(()=>{
-							thse.load.call(thse, opt)
+							those.load.call(those, opt)
 						},1000);
 					else super.load(opt);
 				}
+			}($.extend(true,{},me.s.store,{
+				// when DataTable's autoRowCount is true, force Store's autoLoad to false. 
+				// since store need to load AFTER DataTable's DOM rendered, so it can 
+				// count the number of rows can be loaded
+				autoLoad:me.s.autoRowCount ? false : me.s.store.autoLoad 
+			}));
+		}else me.store = me.s.store;
+		me.store.addEvents({
+			beforeLoad:function(){
+				me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
+				me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
+			},
+			afterLoad:function(event,store,storeData,params){
+				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
+				me.assignData(store);
+				me.doEvent("onLoad",[me,store]);
+				me.selectedRow 		= null;
+				me.selectedColumn 	= null;
+			},
+			onEmpty:function(event,store,storeData,params){
+				me.assignData(store);
+				me.doEvent("onLoad",[me,store]);
+				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
 			}
-			me.store = new cstmStore(me.settings.store);
-			me.store.addEvents({
-				beforeLoad:function(){
-					me.store.params.limit=me.getAvailableRows();
-					console.info(me.store.params.limit);
-					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
-					me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
-				},
-				afterLoad:function(event,store,storeData,params){
-					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-					me.assignData(store);
-					me.doEvent("onLoad",[me,store]);
-					me.selectedRow 		= null;
-					me.selectedColumn 	= null;
-				},
-				onEmpty:function(event,store,storeData,params){
-					me.assignData(store);
-					me.doEvent("onLoad",[me,store]);
-					me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-				}
-			});
-			cstmStore = null;
-			//me.params = me.store.params;
-		}
+		});
 	}
-
 	/**
 	 * Create element content
 	 */
 	createComponent(){
-		let me =this,s = me.settings;
+		let me =this;
 
 		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
-			class: s.cls 
-		}).width(s.width).height(s.height);
+			class: me.s.cls 
+		}).width(me.s.width).height(me.s.height);
 
 		// wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
@@ -809,11 +815,11 @@ IT.DataTable = class extends IT.Component {
 		me.content.append(wrapper.append(table.append(thead)));
 
 		//create header
-		if (s.customHeader) thead.append($(s.customHeader));
+		if (me.s.customHeader) thead.append($(me.s.customHeader));
 		else {
 			let col, tr=$(`<tr/>`);
-			for (let i = 0; i < s.columns.length; i++){
-				col =s.columns[i];
+			for (let i = 0; i < me.s.columns.length; i++){
+				col =me.s.columns[i];
 				tr.append($(`<th />`,{
 					css:{
 						// to precise width
@@ -821,7 +827,8 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				
+
+				// add editors
 				if(col.editor && col.editor.store && 
 					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
 				){	
@@ -835,11 +842,11 @@ IT.DataTable = class extends IT.Component {
 			}
 			thead.append(tr);
 		}
-		if(s.enableFixedHeader) {
+		if(me.s.enableFixedHeader) {
 			me.content.append(fixHeader.append(table.clone()));
 		}
 		table.append(tbody);
-		if(s.paging){
+		if(me.s.paging){
 			me.content.append(`
 				<div class="it-datatable-pagination" >
 					<ul>
@@ -894,41 +901,28 @@ IT.DataTable = class extends IT.Component {
 					<div class="it-loading-rolling"></div>
 				</div>
 			`);
-
 			me.content.append(loadingInline);
 		}
 	}
-
 	/**
 	 * Assign Data from store
 	 * @param  {IT.Store} store 
 	 */
 	assignData(store){
-		let me =this,
-			storeData = store.getData();
-		if(storeData.length){
-			me.content.find("table").animate({ scrollTop: 0 }, "slow");
-		}
+		let me =this,sd = store.getData();
+			
+		//update paging info
 		me.content.find("tbody").empty();
-		let start		= me.store.getParams().start;
-		let limit		= me.store.getParams().limit;
-		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
-		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
-		let page_count	= Math.ceil(store.total_rows / limit);
-		me.paging		= Object.assign({},me.paging,{
-			start, limit, page_count,
-			total_rows 	: store.total_rows
-		});
-		me.content.find('.it-datatable-pagination-show').html(data_show);
+		me.content.find('.it-datatable-pagination-show').html(store.detail.from+"/"+store.detail.to);
 		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
-		me.content.find('.it-datatable-pagination-page').html(page_count);
-
-		if (start == 0) {
-			me.content.find('.it-datatable-pagination-current').val(1);
-		}
-		if (storeData.length) {
-			for (let indexRow=0;indexRow<storeData.length;indexRow++){
-				me.addRow(storeData[indexRow]);
+		me.content.find('.it-datatable-pagination-current').val(store.detail.currentPage);
+		me.content.find('.it-datatable-pagination-page').html(store.detail.pageCount);
+		
+		//everyload scroll to top
+		if(sd.length){
+			me.content.find("table").animate({ scrollTop: 0 }, "slow");
+			for (let indexRow=0;indexRow<sd.length;indexRow++){
+				me.addRow(sd[indexRow]);
 			}
 		}
 	}
@@ -943,20 +937,14 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
-		// setTimeout(function(){
-			
-
-			$(window).resize(function() {
-				clearTimeout(window.resizedFinished);
-				window.resizedFinished = setTimeout(function(){
-					//me.setPage();
-					window.location.reload()
-				}, 500);
-			});
-			//$(window).trigger("resize");
-
-
-		// },500);
+		setTimeout(function(){
+			if(me.s.autoRowCount)
+				me.store.params.limit = me.getAvailableRows();
+			if(me.s.store.autoLoad)
+				me.loadPage(1);
+		},0);
+		//use 0 timeout. https://stackoverflow.com/a/41893544
+		//https://www.manning.com/books/secrets-of-the-javascript-ninja
 	}
 	/**
 	 * [getDataChanged description]
@@ -972,53 +960,37 @@ IT.DataTable = class extends IT.Component {
 		return r;
 	}
 	setPage(to=1){
-		let me=this;
+		let me=this,detail=me.store.detail;
 		if (me.store.getData().length){
 			switch(to){
 				case 'first':
-					if (me.paging.page != 1) {
-						me.paging.page = 1;
+					if (detail.currentPage != 1)
 						me.loadPage(1);
-					}
 				break;
 				case 'last':
-					if (me.paging.page != me.paging.page_count) {
-						me.paging.page = me.paging.page_count;
-						me.loadPage(me.paging.page_count);
-					}
+					if (detail.currentPage != detail.pageCount)
+						me.loadPage(detail.pageCount);
 				break;
 				case 'next':
-					if (me.paging.page < me.paging.page_count) {
-						me.paging.page++;
-						me.loadPage(me.paging.page);
-					}
+					if (detail.currentPage < detail.pageCount)
+						me.loadPage(detail.currentPage+1);
 				break;
 				case 'back':
-					if (me.paging.page >1) {
-						me.paging.page--;
-						me.loadPage(me.paging.page);
-					}
+					if (detail.currentPage >1)
+						me.loadPage(detail.currentPage-1);
 				break;
 				default:
-					if(to>=1 && to<=me.paging.page_count){
-						me.paging.page = to;
+					if(to>=1 && to<=detail.pageCount)
 						me.loadPage(to);
-					}else {
-						alert("Invalid page");
-						me.content.find(".it-datatable-pagination-current").val(me.paging.page);
-						throw "Invalid page";
-					}
+					else {throw "Invalid page";}
 				break;
 			}
 		}
-	}
+	} 
 	loadPage(page){
 		let me=this;
-		let start = (page - 1) * me.paging.limit;//me.getAvailableRows();
-		me.content.find(".it-datatable-pagination .it-datatable-pagination-current").val(page);
-		me.store.load({
-			params:{start:start,limit:/*me.getAvailableRows()||*/ me.paging.limit}
-		});
+		page=page<=0?1:page;
+		me.store.load({	params:{start:((page - 1) * me.store.params.limit)}});
 	}
 	getSelectedRecords(){
 		let me =this;		
@@ -1027,9 +999,9 @@ IT.DataTable = class extends IT.Component {
 	addRow(curRecord={}){
 		let me=this;
 		let row_element = $("<tr>");
-		for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+		for (let indexCol = 0; indexCol < me.s.columns.length; indexCol++){
 			let editor 		= me.editors[indexCol],
-				current_col = me.settings.columns[indexCol],
+				current_col = me.s.columns[indexCol],
 				field 		= current_col.dataIndex,
 				value 		= curRecord.get(field);
 
@@ -1050,7 +1022,7 @@ IT.DataTable = class extends IT.Component {
 					html:$("<div />",{html:(html==""?value:html)}),
 					valign:current_col.valign ||"top",
 					align:current_col.align ||"left",
-					class:"" + (me.settings.wrap?"wrap":""),
+					class:"" + (me.s.wrap?"wrap":""),
 				});
 			if(editor && editor.className=="checkbox"){
 				td.find("div").empty();
@@ -1094,6 +1066,9 @@ IT.DataTable = class extends IT.Component {
 			});
 			row_element.append(td);
 		}
+		row_element.on('dblclick', function(e) {
+			me.doEvent("onItemDblClick");
+		})
 		me.content.find("tbody").append(row_element);
 	}
 	removeRow(indexRow=-1){
@@ -1104,15 +1079,17 @@ IT.DataTable = class extends IT.Component {
 		me.selectedColumn 	= null;
 	}
 	getAvailableRows(){
-		let me=this,
-		wrapper=me.content.find("div.it-datatable-wrapper").outerHeight(),
-		header=me.content.find("div.it-datatable-fixed-header").outerHeight();
-		var max = 25;    
-		me.content.find(".it-datatable-wrapper tbody tr").each(function() {
+		let me=this, max = 27;//default row hight
+		me.content.find(".it-datatable-wrapper tbody tr").each(()=>{
 			max = Math.max($(this).outerHeight(), max);
-		}).height(max);
-		max+=4;
-		return  Math.floor((wrapper-header)/max) || 30;
+		});
+		return Math.abs(Math.floor(
+			(
+				me.content.find("div.it-datatable-wrapper").outerHeight()-
+				me.content.find("div.it-datatable-fixed-header").outerHeight()-
+				30//default browser scroll height
+			)/max)
+		);
 	}
 }
 /**
@@ -1172,9 +1149,9 @@ IT.Dialog = class extends IT.Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.settings.id || IT.Utils.id();
+		me.id = me.s.id || IT.Utils.id();
 
-		me.addEvents(me.settings, [
+		me.addEvents(me.s, [
 		 	"onShow", 
 		 	"onHide", 
 		 	"onClose"
@@ -1182,10 +1159,9 @@ IT.Dialog = class extends IT.Component {
 
 		me.ids=[];
 		me.items={};
-		if(me.settings.autoShow) me.show();
+		if(me.s.autoShow) me.show();
 		else me.createElement();
 	}
-
 	/**
 	 * Create HTML Element
 	 */
@@ -1202,14 +1178,14 @@ IT.Dialog = class extends IT.Component {
 			</div>
 		`);
 
-		if(me.settings.title) {
+		if(me.s.title) {
 			let dialogTitle = $('<div/>', {
 				class: 'it-title',
-				html: me.settings.title
+				html: me.s.title
 			});
 
-			if(me.settings.iconCls) {
-				let iconTitle = $('<span/>', { class:'fa fa-'+me.settings.iconCls });
+			if(me.s.iconCls) {
+				let iconTitle = $('<span/>', { class:'fa fa-'+me.s.iconCls });
 				iconTitle.prependTo(dialogTitle);
 			}
 			
@@ -1218,12 +1194,12 @@ IT.Dialog = class extends IT.Component {
 				.append(dialogTitle);
 		}
 
-		if(!me.settings.overlay) {
+		if(!me.s.overlay) {
 			me.content.addClass("no-overlay");
 		}
 		
 
-		$.each(me.settings.items, function(k, el) {
+		$.each(me.s.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-content'));
@@ -1232,7 +1208,7 @@ IT.Dialog = class extends IT.Component {
 			}
 		});
 
-		$.each(me.settings.footers, function(k, el) {
+		$.each(me.s.footers, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-footer'));
@@ -1243,23 +1219,23 @@ IT.Dialog = class extends IT.Component {
 
 		me.content
 			.find('.it-dialog-container')
-			.css({'max-width': me.settings.width});
+			.css({'max-width': me.s.width});
 
 		me.content
 			.find('.it-dialog-content')
 			.css($.extend(true, 
-				me.settings.css, 
-				me.settings.autoHeight ? { 'min-height' : me.settings.height } : { height: me.settings.height }
+				me.s.css, 
+				me.s.autoHeight ? { 'min-height' : me.s.height } : { height: me.s.height }
 			));
 
 		me.content.appendTo('body').hide();
 		me.elExist = true;
 
-		if(me.settings.autoShow) {
+		if(me.s.autoShow) {
 			me.show();
 		} //else me.createElement();
 
-		if(me.settings.cancelable) {
+		if(me.s.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
@@ -1267,8 +1243,7 @@ IT.Dialog = class extends IT.Component {
 				me.close();
 			});
 		}
-	}
-	
+	}	
 	getItemCount(){
 		return this.ids.length;
 	}
@@ -1277,8 +1252,6 @@ IT.Dialog = class extends IT.Component {
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
-
-
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
@@ -1287,6 +1260,7 @@ IT.Dialog = class extends IT.Component {
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
+			me.setScroll();
 		});
 		me.doEvent("onShow",[me, me.id]);
 
@@ -1296,9 +1270,8 @@ IT.Dialog = class extends IT.Component {
 				me.setScroll();
 			}, 500);
 		});
-		$(window).trigger("resize");
+		me.setScroll();
 	}
-	
 	/** hide the dialog, adding class display : none */
 	hide() {
 		let me = this;
@@ -1310,7 +1283,6 @@ IT.Dialog = class extends IT.Component {
 				me.doEvent("onHide",[me, me.id]);
 			});
 	}
-
 	/** close the dialog, and remove the DOMelement */
 	close() {
 		let me = this;
@@ -1329,7 +1301,6 @@ IT.Dialog = class extends IT.Component {
 					})
 			});
 	}
-
 	/** 
 	 * Detection if the dialog height is wider than height of the window 
 	 * then automatically make the container dialog has a scroll
@@ -1378,15 +1349,27 @@ IT.Flex = class extends IT.Component {
 			me.content.append(title);
 		}
 
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(typeof el.renderTo !== 'function')
+				if(!el.isClass) 
 					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
 	}
 }
 /**
@@ -1433,7 +1416,7 @@ IT.Form = class extends IT.Component{
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) 
-					el = IT.Utils.createObject(el);				
+					el = IT.Utils.createObject(el);
 				if(!el.noRow) { 
 					div = $("<div/>", { class:'row form-row' });
 					el.renderTo(div);
@@ -1534,132 +1517,6 @@ IT.Form = class extends IT.Component{
 		this.ajaxForm.resetForm();
 	}
 }
-
-/*
-function Form(params){
-	var settings=$.extend({
-		method:'POST',
-		id:'Fm',
-		url:'',
-		width: 'auto',
-		fieldDefaults:{
-			labelWidth:100,
-			fieldType:'text'
-		},
-		items:[]
-	},params);
-	
-	var me=this;
-	var parrent=null;
-	var konten='<form method="'+settings.method+'" action="'+settings.url+'" name="'+settings.id+'" id="'+settings.id+'" '+getStyle(settings)+' enctype="multipart/form-data"></form>';
-	var $konten=$(konten);
-
-	var nItems = {};
-	if (settings.items.length > 0){
-		var width = settings.width != 'auto' ? "width='"+settings.width+"'" : "";
-		var itemsContainer = "<table class='it-table-form' "+width+"></table>";
-		var $itemsContainer = $(itemsContainer);
-		for (var i = 0; i < settings.items.length; i++){
-			if (settings.items[i] === null)continue;
-			var items = settings.items;
-			var item = null;
-			var tr = "<tr><td width='"+settings.fieldDefaults.labelWidth+"'>" + items[i].fieldLabel + "</td><td class='form-field' "+getStyle(settings.items[i])+"></td></tr>";
-			$tr = $(tr);
-			
-			if (typeof items[i].renderTo == 'function'){
-				items[i].renderTo($tr.find('.form-field'));
-				item = items[i];
-				nItems[item.getId()] = item;
-			}else if (typeof items[i] == 'object' && items[i].xtype == 'container'){
-				for (var x = 0; x < items[i].items.length; x++){
-					item=createObject(items[i].items[x]);
-					var opt = item.getSetting();
-					
-					var $wrap = $('<div class="it-form-container"/>');
-					if (typeof opt.fieldLabel != 'undefined'){
-						if (typeof items[i].labelWidth != 'undefined') $wrap.css("width", items[i].labelWidth);
-						$wrap.css("padding", "0 10px");
-						$wrap.html(opt.fieldLabel);
-						$tr.find('.form-field').append($wrap);
-					}
-					if (typeof opt.itemWidth != 'undefined') { 
-						$wrap.css("width", opt.itemWidth);
-						item.renderTo($wrap);
-						$tr.find('.form-field').append($wrap);
-					}else{
-						item.renderTo($tr.find('.form-field'));
-					}
-
-					nItems[item.getId()] = item;
-				}
-			}else if(typeof items[i] == 'object' && items[i].xtype != 'container'){
-				item=createObject(items[i]);
-				item.renderTo($tr.find('.form-field'));
-				nItems[item.getId()] = item;
-			}
-			
-			$tr.appendTo($itemsContainer);
-		}
-		$itemsContainer.appendTo($konten);
-	}
-
-	me.setData=function(data){
-		$.each( data, function( key, value ) {
-			if ($konten.find("#" + key).attr("type") != "file"){
-				$konten.find("#" + key).val(value);
-				$konten.find("#" + key).find("option").filter('[value="' + value + '"]').prop("selected", true);
-				$konten.find("#" + key).prop("checked", (value == 1 ? true : false));
-			}
-		});
-	}
-	me.setInvalid=function(data){
-		$.each( data, function( key, value ) {
-			$konten.find("#" + key).wrap('<div class=\"it-infoBox\"/>');
-			$konten.find("#" + key).parent().append('<div class=\"it-infoBox-message\"> ' + value + ' </div>');
-			$konten.find("#" + key).parent().find(".it-infoBox-message").css('left', $konten.find("#" + key).outerWidth() + 10);
-			$konten.find("#" + key).addClass('invalid');
-		});
-	}
-	me.validasi=function(msg){
-		var msg = typeof msg == 'undefined'?true:msg;
-		var valid = true;
-		$.each( nItems, function( i, item ) {
-			var allowBlank = typeof item.getSetting().allowBlank != "undefined" ? item.getSetting().allowBlank : true;
-			var minlength = typeof item.getSetting().minlength != "undefined" ? item.getSetting().minlength : 0;
-			var id = item.getId();
-			var obj = $("#" + id);
-			var val = typeof obj.find("option:selected").val() != 'undefined' ? obj.find("option:selected").val() : obj.val();
-
-			if (val == null) val = '';
-
-			obj.removeClass("invalid");
-
-			if (!allowBlank && val == "") { obj.addClass("invalid"); valid = false; }
-			if (val != "" && val.length < minlength) { obj.addClass("invalid"); valid = false; }
-		});
-
-		if (valid == false && msg){
-			new MessageBox({type:'critical',width:'400',title:'Peringatan',message:"Silahkan Lengkapi Kolom Berwarna Merah"});
-		}
-
-		return valid;
-	}
-	me.getItem=function(idx){
-		return nItems[idx];
-	}
-	me.serializeObject=function(){
-		return $konten.serializeObject();
-	}
-	me.renderTo=function(obj){
-		$konten.appendTo(obj);
-		parrent=obj;
-	}
-
-	me.getSetting=function(){ return settings; }
-	me.getId=function(){ return id; }
-	return me;
-}
-*/
 /**
  * Grid system layout
  * @type {IT.Grid}
@@ -1829,7 +1686,7 @@ IT.ImageBox = class extends IT.Component {
 				height: 100
 			},
 			cropper: false,
-			name:"file",
+			//name:"file", //we don't need input type, use getExport instead
 			cropperSettings: {
 				// Find all setting on cropit website
 				smallImage: 'allow'
@@ -1841,7 +1698,7 @@ IT.ImageBox = class extends IT.Component {
 				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
 					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
 				</a>
-				<input type="file" class="cropit-image-input" name=`+me.settings.name+`>
+				<input type="file" class="cropit-image-input">
 				<div class="cropit-preview"></div>
 				<div class="hide-this">
 					<div class="image-size-label">Zoom</div>
@@ -1900,13 +1757,19 @@ IT.ImageBox = class extends IT.Component {
 
 	setImageSrc(picture) {
 		let me = this;
-		if(me.isCropper()) {
-			me.content.cropit('imageSrc', picture);
-		} else {
-			me.content.find('img').attr('src', picture);
-		}
+		if(me.isCropper()) me.content.cropit('imageSrc', picture);
+		else me.content.find('img').attr('src', picture);
+	}
+	clearImageSrc(){
+		let me = this;
+		me.content.find(".cropit-image-input").val();
+		me.content.find('.cropit-preview-image').attr('src','');
 	}
 
+	/**
+	 * Get cropped image
+	 * @return {String} data:image/png;base64 string
+	 */
 	getExport() {
 		let result = "This is not cropper.";
 		if(this.isCropper()) {
