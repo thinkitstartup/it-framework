@@ -1270,6 +1270,7 @@ IT.Dialog = class extends IT.Component {
 				me.setScroll();
 			}, 500);
 		});
+		
 		me.setScroll();
 	}
 	/** hide the dialog, adding class display : none */
