@@ -40,7 +40,6 @@ IT.Dialog = class extends IT.Component {
 			title: '',
 			iconCls: '',
 			items: [],
-			footers:[],
 			overlay: true,
 			autoShow: true,
 			width: 300,
@@ -55,130 +54,105 @@ IT.Dialog = class extends IT.Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.s.id || IT.Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 
-		me.addEvents(me.s, [
-		 	"onShow", 
-		 	"onHide", 
-		 	"onClose"
-		]);
-
-		me.ids=[];
-		me.items={};
-		if(me.s.autoShow) me.show();
-		else me.createElement();
+		/** 
+		 * Listeners
+		 * @member {IT.Listener}
+		 * @name IT.Dialog#listener
+		 */
+		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
+		me.createElement();
+		if(me.settings.autoShow) me.show();
 	}
+
 	/**
 	 * Create HTML Element
 	 */
 	createElement(){
 		let me = this;
-		if(me.elExist) return;
 		me.content = $(`
 			<div class="it-dialog">
 				<div class="it-dialog-container">
-					<div class="it-dialog-header"></div>
 					<div class="it-dialog-content"></div>
-					<div class="it-dialog-footer"></div>
 				</div>
 			</div>
 		`);
 
-		if(me.s.title) {
+		if(me.settings.title) {
 			let dialogTitle = $('<div/>', {
 				class: 'it-title',
-				html: me.s.title
+				html: me.settings.title
 			});
 
-			if(me.s.iconCls) {
-				let iconTitle = $('<span/>', { class:'fa fa-'+me.s.iconCls });
+			if(me.settings.iconCls) {
+				let iconTitle = $('<span/>', { class:'fa fa-'+me.settings.iconCls });
 				iconTitle.prependTo(dialogTitle);
 			}
-			
 			me.content
-				.find('.it-dialog-header')
-				.append(dialogTitle);
+				.find('.it-dialog-container')
+				.prepend(dialogTitle);
 		}
 
-		if(!me.s.overlay) {
+		if(!me.settings.overlay) {
 			me.content.addClass("no-overlay");
 		}
 		
-
-		$.each(me.s.items, function(k, el) {
+		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass) el = IT.Utils.createObject(el);
-				el.renderTo(me.content.find('.it-dialog-content'));
-				me.ids.push(el.getId());
-				me.items[el.getId()] = el;
+				if(!el.isClass)el = IT.Utils.createObject(el);
+				//console.info(el.isClass);
+				if(el)el.renderTo(me.content.find('.it-dialog-content'));
+				else console.warn("Xtype: undefined",obj);
 			}
 		});
 
-		$.each(me.s.footers, function(k, el) {
-			if(el) {
-				if(!el.isClass) el = IT.Utils.createObject(el);
-				el.renderTo(me.content.find('.it-dialog-footer'));
-				me.ids.push(el.getId());
-				me.items[el.getId()] = el;
-			}
-		});		
-
 		me.content
 			.find('.it-dialog-container')
-			.css({'max-width': me.s.width});
+			.css({'max-width': me.settings.width});
 
 		me.content
 			.find('.it-dialog-content')
 			.css($.extend(true, 
-				me.s.css, 
-				me.s.autoHeight ? { 'min-height' : me.s.height } : { height: me.s.height }
+				me.settings.css, 
+				me.settings.autoHeight ? { 'min-height' : me.settings.height } : { height: me.settings.height }
 			));
 
 		me.content.appendTo('body').hide();
 		me.elExist = true;
 
-		if(me.s.autoShow) {
+		if(me.settings.autoShow) {
 			me.show();
-		} //else me.createElement();
+		}
 
-		if(me.s.cancelable) {
+		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
+
 			me.content.click(function(){
 				me.close();
 			});
 		}
-	}	
-	getItemCount(){
-		return this.ids.length;
 	}
-	getItem(id){
-		if(typeof id==="number")id = this.ids[id];
-		if(id)return this.items[id]||null;
-		return this.items;
-	}
+	
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
-		me.createElement();
+		if(!me.elExist) me.createElement();
 		me.content.show(0, function(){
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
-			me.setScroll();
 		});
-		me.doEvent("onShow",[me, me.id]);
+		me.listener.fire("onShow", [me, me.id]);
 
 		$(window).resize(function() {
-			clearTimeout(window.resizedFinished);
-			window.resizedFinished = setTimeout(function(){
-				me.setScroll();
-			}, 500);
+			me._autoScrollContainer();
 		});
-		
-		me.setScroll();
+		me._autoScrollContainer();
 	}
+	
 	/** hide the dialog, adding class display : none */
 	hide() {
 		let me = this;
@@ -187,9 +161,10 @@ IT.Dialog = class extends IT.Component {
 			.removeClass('dialog-show')
 			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
-				me.doEvent("onHide",[me, me.id]);
+				me.listener.fire("onHide", [me, me.id]);
 			});
 	}
+
 	/** close the dialog, and remove the DOMelement */
 	close() {
 		let me = this;
@@ -203,19 +178,32 @@ IT.Dialog = class extends IT.Component {
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();
-							me.doEvent("onClose",[me, me.id]);
-						}, 700);
+							me.listener.fire("onClose", [me, me.id]);	
+						}, 300);
 					})
 			});
 	}
+
 	/** 
 	 * Detection if the dialog height is wider than height of the window 
 	 * then automatically make the container dialog has a scroll
 	 * @private
 	 */
-	setScroll() {
-		let me = this,
-		container = me.content.find('.it-dialog-container');
-		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');
+	_autoScrollContainer() {
+		let container = this.content.find('.it-dialog-container');
+		let windowHeight = $(window).height();
+		let calculate = windowHeight - (container.offset().top + container.outerHeight());
+		
+		if(calculate <= 20) {
+			container.css({
+				'overflow-y': 'scroll',
+				height: (windowHeight - 30)
+			});
+		} else {
+			container.css({
+				'overflow-y': 'initial',
+				height: 'auto'
+			});
+		}
 	}
 }

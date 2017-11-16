@@ -30,16 +30,18 @@
 				}
 
 				&:after {
-					font: normal normal normal 13px/1 FontAwesome;
 					opacity: 0;
 					visibility: hidden;
-					content: "\f00c";
+					content: '';
 					position: absolute;
-					color: #fff;
-					top: 1px;
-					left: 1px;
+					top: 6px;
+					left: 5px;
+					border: 3px solid #fff;
+					border-top: none;
+					border-right: none;
 					@include transition(all .2s);
 					@include size(13px, 8px);
+					@include prefix(transform, rotate(-45deg));
 				}
 			}
 		}	
@@ -67,11 +69,6 @@
 				height: auto;
 			}
 
-			// For Selectbox
-			@at-root select#{&}  {
-				width: 100%;
-			}
-
 			// For Radio, Checkbox 
 			&[type="checkbox"], 
 			&[type="radio"] {
@@ -95,7 +92,7 @@
 					opacity: 1;
 			    }  
 			}
-			
+
 			&[readonly] {
 				background: $input_readonly_bg_color;
 				border-color: $input_readonly_border_color;

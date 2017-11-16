@@ -22,7 +22,6 @@ IT.TextBox = class extends IT.FormItem {
 		 * @property {String} id id the classs
 		 * @property {String} label set label description
 		 * @property {String} name name for the input, < input type='type' > name="xxx">
-		 * @property {boolean} withRowContainer wrap component with row
 		 * @property {boolean} allowBlank set the input weather can be leave blank or not
 		 * @property {String} value value for input
 		 * @property {String} placeholder placeholder for input
@@ -78,18 +77,17 @@ IT.TextBox = class extends IT.FormItem {
 			maskSettings:{}, 
 			id:"", 
 			label:"", 
-			name:"",
-			withRowContainer: false, 
+			name:"", 
 			allowBlank: true, 
 			value:"", 
 			placeholder: '', 
 			readonly:false, 
 			enabled:true, 
-			length: {
+			length:{
 				min:0, 
 				max:-1,
 			},
-			size: {
+			size:{
 				field:"col-sm-8",
 				label:"col-sm-4"
 			},
@@ -105,7 +103,7 @@ IT.TextBox = class extends IT.FormItem {
 
 		//if label empty, field size is 12
 		if(s.label=="")
-			s.size.field = "col";
+			s.size.field = "col-sm-12";
 
 		//create input
 		switch(s.type){
@@ -136,15 +134,8 @@ IT.TextBox = class extends IT.FormItem {
 					`${s.placeholder?`placeholder='${s.placeholder}'`:""} `+
 					`${s.value?`value='${s.value}'`:""} `+
 				`>`);
-				if (s.type == "mask") //input type mask
+				if (s.type =="mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
-			break;
-			case "hidden":
-				me.input = $(`<input id="${me.id}-item" `+
-					`type='hidden' `+
-					`name='${me.settings.name||IT.Utils.id()}' `+
-					`${s.value?`value='${s.value}'`:""} `+
-				`>`);
 			break;
 			default:
 				throw "input type unknown";
@@ -173,16 +164,9 @@ IT.TextBox = class extends IT.FormItem {
 		}));
 
 		//content
-		me.content = $(((s.label) ? 
-		`<div class="${s.size.label}">
-			<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'> ${s.label} </label>
-		</div>`: '') + `<div class="${s.size.field}"></div>`);
+		me.content=$(((s.label) ? `<div class="${s.size.label}">`+
+			`<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign||'left'}'>${s.label}</label>`+
+		`</div>`:"") + `<div class="${s.size.field}"></div>`);
 		me.content.last().append(wraper);
-
-		if(s.withRowContainer) {
-			me.content = $('<div/>', { class:'row'}).append(me.content);
-		}
-
-		me.readyState = true;
 	}
 }

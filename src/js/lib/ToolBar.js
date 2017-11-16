@@ -37,7 +37,6 @@ IT.Toolbar = class extends IT.Component {
 		return this.ids.length;
 	}
 	getItem(id){
-		if(typeof id==="number")id = this.ids[id];
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
