@@ -2017,7 +2017,6 @@ IT.Selectize = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me = this,cls;
-		
 		me.settings = $.extend(true,{
 			id: '',
 			value: '',
@@ -2037,33 +2036,31 @@ IT.Selectize = class extends IT.FormItem {
 				allowEmptyOption: true
 			}
 		}, settings);
-		
-		me.id = me.settings.id || IT.Utils.id();
-
+		me.id = me.s.id || IT.Utils.id();
 		me.input = $('<select />', {
 			id: me.id,
 			name: me.id,
 			attr: {
-				disabled: me.settings.disabled,
+				disabled: me.s.disabled,
 			},
-			val: me.settings.defaultValue,
+			val: me.s.defaultValue,
 		});
 		me.content = $('<div />', { class: 'it-edit' });
 		me.content.append(me.input);
-		me.input.selectize(me.settings.selectize);
+		me.input.selectize(me.s.selectize);
 
-		if(me.settings.width) {
+		if(me.s.width) {
 			me.content.css({
-				'width': me.settings.width
+				'width': me.s.width
 			})
 		}
 
 
-		if(me.settings.style) {
-			me.content.css(me.settings.style);
+		if(me.s.style) {
+			me.content.css(me.s.style);
 		}
 
-		me.addEvents(me.settings,[
+		me.addEvents(me.s,[
 			"onLoad",
 			"onChange"
 		]);
@@ -2073,16 +2070,16 @@ IT.Selectize = class extends IT.FormItem {
 		});
 
 		// If has value of empty text
-		if(me.settings.emptyText && !me.settings.autoLoad) {
+		if(me.s.emptyText && !me.s.autoLoad) {
 			me.getSelect().addOption({
 				value: '',
-				text: me.settings.emptyText
+				text: me.s.emptyText
 			});
 			me.getSelect().setValue('');
 		}
 
 		//setting store
-		me.store = new IT.Store($.extend(true,{},me.settings.store,{
+		me.store = new IT.Store($.extend(true,{},me.s.store,{
 			// replace autoLoad with false, we need extra event 'afterload'
 			// wich is not created at the moment
 			autoLoad:false 
@@ -2104,7 +2101,7 @@ IT.Selectize = class extends IT.FormItem {
 		}); 
 		
 		// If Autuload
-		if(me.settings.autoLoad) {
+		if(me.s.autoLoad) {
 			me.getDataStore();
 		}else me.readyState = true;
 	}
@@ -2118,17 +2115,18 @@ IT.Selectize = class extends IT.FormItem {
 	}
 	getDataStore() {
 		let me = this;
-		let ds = me.settings.store; 
+		let ds = me.s.store; 
 		let selectize = me.getSelect();
 
 		//Empty Option
 		selectize.clearOptions();
+		
 
 		// If has value of empty text
-		if(me.settings.emptyText) {
+		if(me.s.emptyText) {
 			selectize.addOption({
 				value: '',
-				text: me.settings.emptyText
+				text: me.s.emptyText
 			});
 			selectize.setValue('');
 		}
