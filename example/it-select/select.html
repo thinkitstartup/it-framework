@@ -78,16 +78,12 @@
         .it-select-selected {
             background: #ddd;
         }
-
     </style>
     <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="node_modules/jquery.outside.js"></script>
     <script type="text/javascript">
         $(function(){
-            
-            var oriSelect = $('.select2');
-            oriSelect.hide();
-            
+
+            var oriSelect = $('.select');            
             var select = $(`
                 <div class="it-select">
                     <div class="it-select-wrap">
@@ -96,9 +92,12 @@
                     </div>
                     <ul class="it-select-dropdown"></ul>
                     <input type="hidden" class="it-select-value"/>
-                </div>`
-            );
+                </div>
+            `);
+            
             select.append(oriSelect);
+            
+            // Via Direct HTML 
             select.find('select option').each(function(){
                 var me = $(this);
                 var li = $('<li/>', {
@@ -119,65 +118,64 @@
 
                 select.find('.it-select-dropdown').append(li);
             });
-            
-            select.find('.it-select-search')
-                .focus(function(){
-                    select.find('.it-select-dropdown-button').click();
-                })
-                .blur(function(){
-                    select.find('.it-select-dropdown').hide();
-                });
-            
-            select.find('.it-select-dropdown-button').click(function(e){
+
+             // Via Ajax
+             $.ajax({
+                url: '../datajson/ref_agama.php',
+                dataType: 'json',
+                success: function(result) { 
+                    $.each(result.rows, function(k, item) {
+                        var li = $(`<li data-value="${item.key}">${item.value}</li>`);
+                        li.click(function(e) {
+                            select.find('.it-select-dropdown > li').removeClass('it-select-selected'); 
+                            $(this).addClass('it-select-selected');
+        
+                            select.find('.it-select-search').val($(this).text());
+                            select.find('.it-select-value').val($(this).data('value')); 
+                            select.find('.it-select-dropdown').hide(); 
+        
+                            e.stopPropagation();
+                            e.preventDefault();  
+                        }); 
+                        select.find('.it-select-dropdown').append(li);
+                    });
+                }
+            });
+
+            select.find('.it-select-wrap').click(function(e){
                 select.find('.it-select-dropdown').toggle();
                 e.stopPropagation();
                 e.preventDefault();
             });  
 
+            // Current Value
             var curVal = select.find('select option:selected');
             select.find('.it-select-search').val(curVal.text());
             select.find('.it-select-value').val(curVal.val());
-            select.on('clickoutside', function(){
+            
+            // Remove Original Select
+            oriSelect.remove();
+
+            // If outside clicked / document clicked hide drop down
+            $(document).click(function(){
                 select.find('.it-select-dropdown').hide();
             });
-            
+
+            // Show on the body
             select.appendTo('body');
         });
     </script>
 </head>
 <body>
     
-    <select class="select">
+    <select class="select"></select>
+    <!--
+        <option value="">- Pilih Bahasa Makan -</option>
         <option value="1">Manusia</option>
         <option value="2">Makan</option>
         <option value="3">Cinta</option>
         <option value="4" selected>Hati</option>
         <option value="5">Perasaan</option>
-    </select>
-
-    <select class="select2">
-        <option value="">- Pilih Bahasa Makan -</option>
-        <option value="1">Eat</option>
-        <option value="2">Makan</option>
-        <option value="3">Dahar</option>
-        <option value="4">Nyatu</option>
-        <option value="5">Tailo</option>
-    </select>
-
-    <!-- Markup Asli -->
-    <div class="it-select">
-        <div class="it-select-wrap">
-            <input type="text" class="it-select-search" value="">
-            <div class="it-select-dropdown-button"><i class="fa fa-chevron-down"></i></div>
-        </div>
-        <ul class="it-select-dropdown">
-            <li>Manusia</li>
-            <li>Makan</li>
-            <li>Cinta</li>
-            <li>Hati</li>
-            <li>Perasaan</li>
-        </ul>
-    </div>
-
+    -->
 </body>
 </html>
