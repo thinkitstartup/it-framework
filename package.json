@@ -11,8 +11,14 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jsdoc": "^2.1.0"
   },
+  "dependencies": {
+    "font-awesome": "Font-Awesome#^4.7.0",
+    "jQuery": "^3.2.1",
+    "inputmask": "^3.3.7"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install":"npm install"
   },
   "repository": {
     "type": "git",
@@ -22,7 +28,7 @@
     "ECMA6",
     "FrameWork"
   ],
-  "author": "Egy Mohammad Erdin",
+  "author": "Kami Technical <kamitechnical@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/thinkitstartup/it-framework/issues"
