@@ -20,6 +20,7 @@ IT.Grid = class extends IT.Component {
 		 */
 		me.settings = $.extend(true,{
 			id: '',
+			type: 'row',
 			columnRule: '',
 			rowContainer: '',
 			css: {},
@@ -29,44 +30,39 @@ IT.Grid = class extends IT.Component {
 		// set id
 		me.id = me.settings.id || IT.Utils.id();
 
-		if(me.settings.columnRule) {
+		if(me.settings.type == 'row') {
+			me.content = $('<div/>', { 
+				id: me.id, 
+				class: 'row' 
+			});
+		} else if(me.settings.type == 'column') {
 			me.content = $('<div />', { 
 				id: me.id, 
 				class: me.settings.columnRule 
 			});
 		} else {
-			me.content = $('<div/>', { 
-				id: me.id, 
-				class: 'row' 
-			});
+			console.info('Grid hanya mempunyai 2 type : row atau column');
+			me.content = '';
+			return;
 		}
 		
+		// Set CSS ke objek
 		me.content.css(me.settings.css); 
-		me.ids=[];
-		me.items={};
+
+		// Looping semua yang ada di items
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
 					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
-				me.ids.push(el.getId());
-				me.items[el.getId()] = el;
 			}
 		});
 
 		// Berikan Container
-		if(me.settings.columnRule == '' && me.settings.rowContainer == 'fluid') {
+		if(me.settings.type == 'row' && me.settings.rowContainer == 'fluid') {
 			me.content = $('<div/>', { class:'container-fluid' }).append(me.content);
-		} else if(me.settings.columnRule == '' &&  me.settings.rowContainer == 'standar') {
+		} else if(me.settings.type == 'row' &&  me.settings.rowContainer == 'standar') {
 			me.content = $('<div/>', { class:'container' }).append(me.content);
 		}
-	}
-	getItemCount(){
-		return this.ids.length;
-	}
-	getItem(id){
-		if(typeof id==="number")id = this.ids[id];
-		if(id)return this.items[id]||null;
-		return this.items;
 	}
 }

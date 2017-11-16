@@ -34,105 +34,84 @@
 	>
 	</div>
 	<center>
-		<button id='AddNew'>AddNew</button>
-		<button id='GetChanged'>GetChanged</button>
+		<button id='test'>GetSelected</button>
 	</center>
 	<script type="text/javascript" defer>
 		$(function(){
-			var DataTable = new IT.DataTable({
+			var config = {
 				x:"datatable",
 				paging:true,
 				height:450,
-				wrap:true,
-				flex:true,
+				//wrap:true,
 				columns:[{
-					header: "Cek", 
-					dataIndex:"cek", 
-					width: 50,
-					editor:{
-						xtype: "checkbox",
-						editable:false,
-					}
-				},{
-					header:'Kode',
-					dataIndex:'kd_agama',
-					width:120,
+					header: "Nama Lengkap", 
+					dataIndex:"nama", 
+					width: 399,
 					editor:{
 						x:'text',
-						editable:true
-					}
-				},{
-					header:'Isi',
-					dataIndex:'nama',
-					width:180,
-					editor:{
-						x:'text',
-						editable:true
-					}
-				},{
-					header:'Mapping',
-					dataIndex:'map',
-					width:80,
-					editor:{
-						x:'text',
-						editable:true
-					}
-				},{
-					header: "Aktif", 
-					dataIndex:"aktif", 
-					width: 100,
-					editor:{
-						x:'select',
 						editable:true,
-						store: {
-							type:"array",
-							data:[
-								{key:"1",value:"Ya"},
-								{key:"0",value:"Tidak"},
-							]
-						}
+						allowBlank:false
 					}
 				},{
-					header:"",
+					header: "b", 
+					dataIndex:"sex", 
+					width: 40,
+					align:"center"
+				},{	
+					header: "", 
 					dataIndex:""
 				}],
 				store: {
 					type: 'json',
-					//url: "datajson/biodata_dynamis.php",
-					url: "/simpeg/referensi-data/data-umum/agama/data",
+					url: "data.json",
 					autoLoad:false,
 					params:{
 						start:0,
-						limit:0
-					},
-					afterLoad:function(){
-						if(DataTable.store.data.length>0)
-						DataTable.store.data[0].locked.push("nama");
+						limit:20
 					}
 				},
-			});
-			DataTable.renderTo($("#mainRender"));
+				// onItemDblClick:function(){
+				// 	onedit()
+				// }
+			};
+
+
+			//render to html
+			var obj = new IT.DataTable(config);
+			obj.renderTo($("#mainRender"));
 			
 			setTimeout(function(){
-				DataTable.store.load({kola:"ss"});
-			},2000);
+				obj.store.load();
+				setTimeout(function(){
+					console.info(obj.getSelectedRecords());
+					setTimeout(function(){
+						//obj.store.empty();
+					},1000);
+				},3000);
+			},1000);
 
-
-			$("#GetChanged").click(function(){
-				console.info(DataTable.getDataChanged());
-			})
-			$("#AddNew").click(function(){
-				var newRec = new IT.RecordStore({
-					cek:"",
-					nm_pes:"",
-					kd_agama:"",
-					sex:""
-				});
-				DataTable.addRow(newRec);
-				DataTable.store.data.push(newRec);
-				console.info(DataTable.store);
-			});
 			
+
+			//as item of dialog
+			if(false)
+			var dialog = new IT.Dialog({
+				title: 'TEST',
+				width: 800,
+				autoHeight:true,
+				height: 200,
+				//css: {padding: 10},
+				items:[{
+					x:"toolbar",
+					items:[{
+						x:"button",
+						align:"right",
+						text:"Close",
+						handler:function(){
+							dialog.close();
+						}
+					}]
+				},config]
+			});
 		});
 	</script>
 </body>

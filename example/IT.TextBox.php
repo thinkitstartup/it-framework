@@ -17,21 +17,20 @@
     <script type="text/javascript" src="http://localhost:8080/livereload.js"></script>
 </head>
 <body>
-	<div 
-		id="mainRender" 
-		style="width: 500px;height: 200px;margin: 20px auto auto;padding: 20px;background: grey"
-	></div>
-	<div 
-		id="secondRender" 
-		style="width: 500px;height: 200px;margin: 20px auto auto;padding: 20px;background: blue"
-	></div>
 
-
+	<div 
+		id="mainRender"
+		style="border: solid 1px black;width: 500px;height: 200px;margin: 20px auto auto;padding: 20px"
+	></div>
+	<div>
+		<center>
+			<button id='render'>Render to HTML</button>
+			<button id='dialog'>As item of dialog</button>
+		</center>
+	</div>
 	<script type="text/javascript" defer>
 		$(function(){
-			
-			//IDR Currency
-			var a = IT.Utils.createObject({
+			var config = {
 				x:"textbox",
 				type:"mask",
 				label:"Please Input",
@@ -46,26 +45,27 @@
 					radixPoint: "",
 					alias: "numeric",
 					placeholder: "0",
-					autoGroup: !0
+					autoGroup: !0,
+					digits: 2
 				}
+			};
+
+
+			//render to html
+			$("#render").click(()=>{
+				var obj = IT.Utils.createObject(config);
+				obj.renderTo($("#mainRender"));
 			});
-			a.renderTo($("#mainRender"));
-			a.val(1000000);
-			a.addEvents({
-				selector:a.input,
-				blur:function(){
-					console.info(a.val())
-				}
-			})
-			
 
-
-			setTimeout(function(){
-				$('#mainRender').empty();
-				setTimeout(function(){
-					a.renderTo($('#secondRender'));
-				},3000);
-			},3000);
+			//as item of dialog
+			$("#dialog").click(()=>{
+				var dialog = new IT.Dialog({
+					title: 'TEST',
+					width: 500,
+					css: {padding: 10},
+					items:[config]
+				});
+			});
 		});
 	</script>
 </body>
