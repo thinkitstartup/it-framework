@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .it-select {
+            height: 35px;
+            line-height: 35px;
+            position: relative;
+            margin: 20px;
+        }
+
+        .it-select-wrap {
+            display: flex;
+            height: 35px;
+            position: relative;
+            border:1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+        }
+    
+        .it-select-search {
+            flex: 1;
+            border: none;
+            padding: 0 15px;
+            outline: none;
+        }
+
+        .it-select-search:focus {
+            background: #ffffff;
+        }
+
+        .it-select-dropdown-button {
+            width:35px;
+            height: 35px;
+            line-height: 35px;
+            background: #f4f4f4;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .it-select-dropdown-button:hover {
+            background: #eee;
+        }
+
+        .it-select-dropdown {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            background: #ffffff;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ccc;
+            position: absolute;
+            left: 0; right: 0;
+            top:101%;
+            display: none;
+        }
+
+        .it-select-dropdown li {
+            padding: 0 15px;
+        }
+
+        .it-select-dropdown li:hover {
+            background: #f4f4f4;
+            cursor: pointer;
+        }
+        
+        .it-select-selected {
+            background: #ddd;
+        }
+    </style>
+    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+
+            var oriSelect = $('.select');            
+            var select = $(`
+                <div class="it-select">
+                    <div class="it-select-wrap">
+                        <input type="text" class="it-select-search"/>
+                        <div class="it-select-dropdown-button"><i class="fa fa-chevron-down"></i></div>
+                    </div>
+                    <ul class="it-select-dropdown"></ul>
+                    <input type="hidden" class="it-select-value"/>
+                </div>
+            `);
+            
+            select.append(oriSelect);
+            
+            // Via Direct HTML 
+            select.find('select option').each(function(){
+                var me = $(this);
+                var li = $('<li/>', {
+                    text: me.text(),
+                    attr: { 'data-value' : me.val() },
+                    class: (me.is(':selected') ? "it-select-selected" : "")
+                }).click(function(e) {
+                    select.find('.it-select-dropdown > li').removeClass('it-select-selected'); 
+                    $(this).addClass('it-select-selected');
+
+                    select.find('.it-select-search').val($(this).text());
+                    select.find('.it-select-value').val($(this).data('value')); 
+                    select.find('.it-select-dropdown').hide(); 
+
+                    e.stopPropagation();
+                    e.preventDefault();  
+                });
+
+                select.find('.it-select-dropdown').append(li);
+            });
+
+             // Via Ajax
+             $.ajax({
+                url: '../datajson/ref_agama.php',
+                dataType: 'json',
+                success: function(result) { 
+                    $.each(result.rows, function(k, item) {
+                        var li = $(`<li data-value="${item.key}">${item.value}</li>`);
+                        li.click(function(e) {
+                            select.find('.it-select-dropdown > li').removeClass('it-select-selected'); 
+                            $(this).addClass('it-select-selected');
+        
+                            select.find('.it-select-search').val($(this).text());
+                            select.find('.it-select-value').val($(this).data('value')); 
+                            select.find('.it-select-dropdown').hide(); 
+        
+                            e.stopPropagation();
+                            e.preventDefault();  
+                        }); 
+                        select.find('.it-select-dropdown').append(li);
+                    });
+                }
+            });
+
+            select.find('.it-select-wrap').click(function(e){
+                select.find('.it-select-dropdown').toggle();
+                e.stopPropagation();
+                e.preventDefault();
+            });  
+
+            // Current Value
+            var curVal = select.find('select option:selected');
+            select.find('.it-select-search').val(curVal.text());
+            select.find('.it-select-value').val(curVal.val());
+            
+            // Remove Original Select
+            oriSelect.remove();
+
+            // If outside clicked / document clicked hide drop down
+            $(document).click(function(){
+                select.find('.it-select-dropdown').hide();
+            });
+
+            // Show on the body
+            select.appendTo('body');
+        });
+    </script>
+</head>
+<body>
+    
+    <select class="select"></select>
+    <!--
+        <option value="">- Pilih Bahasa Makan -</option>
+        <option value="1">Manusia</option>
+        <option value="2">Makan</option>
+        <option value="3">Cinta</option>
+        <option value="4" selected>Hati</option>
+        <option value="5">Perasaan</option>
+    -->
+</body>
+</html>

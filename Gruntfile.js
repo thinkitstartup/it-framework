@@ -20,19 +20,23 @@ module.exports = function(grunt) {
 				},
 				onlyConcatRequiredFiles: true
 			},
-			all:{
-				files: {
-					'src/js/it-framework-all.js':["src/js/namespace.js","src/js/lib/**/*.js"],
-				}
+			script:{
+				src:["src/js/namespace.js","src/js/lib/**/*.js"],
+				dest:'src/js/it-framework-all.js'
 			}
 		},
 		uglify: {
 			options: {
-				compress: {
+				//sourceMap: true,
+				compress:!true,
+				/*compress: {
 					drop_console: !true
-				},
-				beautify: true
+				},*/
+				beautify:!true,
+				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+					'<%= grunt.template.today("yyyy-mm-dd") %> */'
 			},
+			// report:"gzip",
 			dist: {
 				files: {
 					'dist/it-framework.min.js': "src/js/it-framework-all.js"
@@ -41,7 +45,7 @@ module.exports = function(grunt) {
 		},
 		jsdoc : {
 			dist : {
-				src: ['README.md',"src/js/namespace.js","src/js/lib/**/*.js"],
+				src: ['README.md','<%= concat_in_order.script.src %>'],
 				options: {
 					destination: 'docs',
 					recurse: true,
@@ -58,60 +62,42 @@ module.exports = function(grunt) {
 				noCache:true,
 			},
 			dist: {
-				files: {
-					'dist/it-framework.min.css': 'src/sass/it-framework.scss'
-				}
+				src:'src/sass/it-framework.scss',
+				dest:'dist/it-framework.min.css'
 			}
 		},
 		watch: {
 			configFiles: {
 				files: ['Gruntfile.js'],
+				tasks: ['sass','concat_in_order','uglify','jsdoc'],
 				options: {
 					reload: true
 				}
 			},
-			sass:{
-				files:['src/sass/it-framework.scss','src/sass/**/*.scss'],
-				tasks:['sass'],
-				options: {
-					livereload: 8080,
-					spawn: false,
-				}
-			},
-			docs:{
-				files: ['README.md'],
-				tasks: ['jsdoc'],
-				options: {
-					spawn: false,
-				}
-			},
 			script:{
-				files: ["src/js/namespace.js","src/js/lib/**/*.js"],
-				tasks: ['concat_in_order', 'uglify', 'jsdoc'],
-				options: {
-					livereload: 8080,
-					spawn: false
-				}
-			},
-
-			script_no_docs:{
-				files: ['<%= watch.script.files %>',"example/**/*"],
-				tasks: ['concat_in_order', 'uglify'],
-				options: {
-					livereload: 8080,
-					spawn: false
-				}
+				files: ['<%= concat_in_order.script.src %>'],
+				tasks: ['concat_in_order','uglify'/*,'jsdoc'*/]
 			},
 			all:{
 				files: ['<%= watch.configFiles.files %>'],
 				tasks: ['sass','concat_in_order','uglify','jsdoc']
 			},
-			example:{
-				files: ["example/**/*"],
+			reload:{				
+				files: [
+					'<%= watch.sass.files %>',
+					'<%= watch.script.files %>',
+					//'<%= watch.script_no_docs.files %>',
+					//'<%= watch.example.files %>',
+					//'src/sass/**/*.scss'
+				],
 				options: {
 					livereload: 8080,
-					reload: true
-				}	
+					spawn: false,
+				}
+			},
+			sass:{
+				files:['src/sass/**/*'],
+				tasks:['sass'],
 			}
 		}
 	});
@@ -121,5 +107,4 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.registerTask('default', ['sass','concat_in_order','uglify','jsdoc','watch']);
-	grunt.registerTask('onlyscript', ['concat_in_order','uglify','watch:script_no_docs']);
 };

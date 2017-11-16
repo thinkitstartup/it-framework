@@ -1,16 +1,10 @@
 /**
  * Class Utils, all the members should static
  * @type {function}
- * @extends {IT.BaseClass}
+ * @extends IT.BaseClass
+ * @depend IT.BaseClass
  */
 IT.Utils = class extends IT.BaseClass{
-	/**
-	 * @param  {object} settings aturan for class
-	 */
-	constructor(settings){
-		super(settings);
-	}
-
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -30,7 +24,10 @@ IT.Utils = class extends IT.BaseClass{
 			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
+			selectIT	: "SelectIT",
+			imagebox	: "ImageBox",
 
+			
 			grid		: "Grid",
 			datatable	: "DataTable",
 			tabs    	: "Tabs"
@@ -38,7 +35,6 @@ IT.Utils = class extends IT.BaseClass{
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
-
 	/**
 	 * create template literal
 	 * @param  {string}    strings base template
@@ -56,7 +52,6 @@ IT.Utils = class extends IT.BaseClass{
 			return result.join('');
 		});
 	}
-
 	/**
 	 * create random id with prefix "IT-"
 	 * @return {string} string random id 
@@ -68,8 +63,6 @@ IT.Utils = class extends IT.BaseClass{
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	}
-
-
 	/**
 	 * check if value's in money format
 	 * @param  {string}  value text to be checked
@@ -87,5 +80,31 @@ IT.Utils = class extends IT.BaseClass{
 	static isDate(value){
 		var d = new Date(value);
 		return ! isNaN(d);
+	}
+	/**
+	 * Empty Function
+	 */
+	static emptyFn(){
+		//console.info("Empty function");
+	}
+
+
+	static findData(value,fromStore,opt=null){
+		let v = value,
+			dta = fromStore.getData ? fromStore.getData() : fromStore;
+		opt = $.extend(true,{
+			field:"key",
+			look:"value"
+		},opt||{}) ;
+		if(dta.length){
+			for (let i =0;i<dta.length;i++) {
+				let el = dta[i];
+				if(el[opt.field]==value){
+					v = el[opt.look];
+					break;
+				}
+			}
+		}
+		return v;
 	}
 }
