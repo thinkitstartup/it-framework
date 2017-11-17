@@ -1,12 +1,22 @@
 /**
  * Default Component CLass
- * @extends IT.BaseClass
- * @depend IT.BaseClass
+ * @type {object}
  */
 IT.Component = class extends IT.BaseClass {
 	constructor(settings) {
 		super(settings);
-		let me=this;
+		let me = this;
+
+		me._id = "";
+
+		/** 
+		 * Setting for class
+		 * @member {Object}
+		 * @name IT.Component#settings
+		 */
+		me.settings = settings||{};
+
+
 		me.content = null;
 	}
 	/**
@@ -14,10 +24,11 @@ IT.Component = class extends IT.BaseClass {
 	 * @param  {selector} parentEl selector for parent
 	 */
 	renderTo(parentEl) {
-		if(this.content.appendTo){
+		if(this.content.appendTo)
 			this.content.appendTo(parentEl);
-		}
 	}
+
+
 	/**
 	 * ID of component
 	 * @name IT.Component#id
@@ -29,16 +40,19 @@ IT.Component = class extends IT.BaseClass {
 	set id(id) {
 		this._id = id;
 	}
+
 	/**
 	 * get ID
 	 * @return {string} Component ID
 	 */
 	getId() { return this.id; }
+
 	/**
 	 * get Content  selector 
 	 * @return {selector} content
 	 */
 	getContent() { return this.content; }
+
 	/**
 	 * get generated settings
 	 * @return {object}

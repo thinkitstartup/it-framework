@@ -28,20 +28,20 @@ IT.Store = class extends IT.BaseClass {
 				limit: 20
 			}
 		}, settings);
-		me.params 		= me.settings.params;
-		me.data 		= [];
-		me.total_rows 	= 0;
-		me.procces		= false;
-
-		me.addEvents(me.settings, [
+		me.params = me.settings.params;
+		me.data = [];
+		me.total_rows = 0;
+		me.listener = new IT.Listener(me, me.settings, [
 			"beforeLoad",
 			"afterLoad",
 			"onLoad",
 			"onError",
 			"onEmpty"
 		]);
-		if (me.settings.autoLoad)me.load();
+
+		if (me.settings.autoLoad) me.load();
 	}
+
 	/**
 	 * empty store data
 	 */
@@ -49,7 +49,7 @@ IT.Store = class extends IT.BaseClass {
 		let me=this;
 		me.total_rows = 0;
 		me.data = [];
-		me.doEvent("onEmpty",[me, me.getData(), me.params]);
+		me.listener.fire("onEmpty",[me, me.getData(), me.params]);
 	}
 	/**
 	 * Load Data
@@ -57,10 +57,9 @@ IT.Store = class extends IT.BaseClass {
 	 */
 	load(opt={}){
 		let me = this;
+		//var opt = opt || {};
 		switch(me.settings.type){
-			case "ajax":
 			case "json":
-				me.settings.type = "json";
 				var params = $.extend(me.settings.params, opt.params);
 				me.params = params;
 				me.empty();
@@ -70,56 +69,51 @@ IT.Store = class extends IT.BaseClass {
 					url		: me.settings.url,
 					data	: params,
 					beforeSend: function(a,b){
-						me.procces 		= true;
-						me.total_rows 	= 0;
-						let ret 		= me.doEvent("beforeLoad",[me, a, b]);
-						return (typeof ret == 'undefined'?true:ret);
+						me.total_rows = 0;
+						return me.listener.fire("beforeLoad",[me, a, b]);
 					},
-					success:function(data){
+					success : function(data){
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
 							$.each(data.rows ,(idx, item)=>{
-								let rec = new IT.RecordStore(item);
-								rec.commited = true;
-								me.data.push(rec);
+								me.data.push(new IT.RecordStore(item));
 							});
 							me.total_rows = data.total_rows;
-							me.doEvent("onLoad",[me, me.getData(), me.params]);
+							me.listener.fire("onLoad",[me, me.getData(), me.params]);
 						}
-						else me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+						else{
+							me.empty();
+							me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+						}
 					},
-					error:function(XMLHttpRequest, textStatus, errorThrown) {
-						//throw errorThrown;
-						me.doEvent("onError",[me,{status:textStatus, message:errorThrown}]);
+					error: function(){
+						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
 					},
 					complete:function(){
-						me.procces = false;
-						me.doEvent("afterLoad",[me,me.getData()]);
+						me.listener.fire("afterLoad",[me,me.getData()]);
 					},
 				});
 			break;
 			case "array":
-				me.total_rows	= 0;
-				me.procces 		= true;
-				let bl_return 	= me.doEvent("beforeLoad",[me, me.data||[], null]);
-				if(typeof bl_return == 'undefined'?true:bl_return){
+				me.total_rows=0;
+				if(!me.beforeLoad || (me.beforeLoad && me.listener.fire("beforeLoad",[me, me.data||[], null]))){
 					if (typeof me.settings.data != 'undefined' ){
-						$.each(me.settings.data ,(idx, item)=>{							
-							let rec = new IT.RecordStore(item);
-							rec.commited = true;
-							me.data.push(rec);
+						$.each(me.settings.data ,(idx, item)=>{
+							me.data.push(new IT.RecordStore(item));
 							me.total_rows++;
 						});
-						me.doEvent("onLoad",[me, me.getData(), null]);
-					}else me.doEvent("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+						me.listener.fire("onLoad",[me, me.getData(), null]);
+					}else{
+						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					}
+					me.listener.fire("afterLoad",[me,me.getData()]);
 				}else{
 					me.empty();
-					me.doEvent("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+					me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
 				}
-				me.doEvent("afterLoad",[me,me.getData()]);
-				me.procces = false;
 			break;
 		}
 	}
+
 	/**
 	 * sort data
 	 * @param  {string} field Sort by this field
@@ -134,24 +128,16 @@ IT.Store = class extends IT.BaseClass {
 	 * @return {object} paramters
 	 */
 	getParams(){ return this.params; }
+
 	/**
 	 * Get Stored Data
-	 * @return {array} expected data
+	 * @param  {Boolean} sanitize wether return in raw or not, false = raw, true = sanitized
+	 * @return {array}           expected data
 	 */
 	getData(){
 		return this.data;
 	}
-	/**
-	 * Get Stored Raw Datas
-	 * @return {array} expected data
-	 */
-	getRawData(){
-		let me=this,ret = [];
-		$.each(me.data ,(idx, item)=>{
-			ret.push(item.rawData);
-		});
-		return ret;
-	}
+
 	/**
 	 * Get only changed data from raw
 	 * @return {array}  array of record
@@ -164,6 +150,7 @@ IT.Store = class extends IT.BaseClass {
 		}
 		return r;
 	}
+
 	/**
 	 * Set stored Data
 	 * @param {object} data replacement for data
@@ -173,18 +160,18 @@ IT.Store = class extends IT.BaseClass {
 		data = me.type=="json"?data.rows:data;
 		me.empty();
 		$.each(data ,(idx, item)=>{
-			let rec = new IT.RecordStore(item);
-			rec.commited = true;
-			me.data.push(rec);
+			me.data.push(new IT.RecordStore(item));
 			me.total_rows++;
 		});
-		me.doEvent("onLoad",[me, me.data, me.params]);
+		me.listener.fire("onLoad",[me, me.data, me.params]);
 	} 
+
 	/**
 	 * get generated settings
 	 * @return {object}
 	 */
 	getSetting(){ return this.settings; }
+
 	/**
 	 * Change data
 	 * @param  {Object} data     Updated data
@@ -195,15 +182,5 @@ IT.Store = class extends IT.BaseClass {
 		for (let key in data) {
 			me.data[indexRow].update(key,data[key]);
 		}
-	}
-	get detail(){
-		let me =this,
-			start		= me.params.start,
-			limit		= me.params.limit,
-			pageCount	= Math.ceil(me.total_rows / limit),
-			currentPage	= Math.ceil(start / limit)+1,
-			from 		= me.total_rows>0?(start+1):0,
-			to			= currentPage==pageCount?me.total_rows:start+limit;
-		return {start,limit,pageCount,currentPage,from,to}
 	}
 }

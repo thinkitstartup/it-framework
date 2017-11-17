@@ -22,13 +22,12 @@ IT.HTML = class extends IT.Component{
 		me.settings = $.extend(true,{
 			id: '',
 			url: '',
-			content: '',
+			content: '', 
 			css: {},
-			data: {}, 
-			class: ''
+			class:""
 		},settings);
 		
-		me.id = me.settings.id || IT.Utils.id();
+		me.id = me.settings.id||IT.Utils.id();
 		me.content = $('<div/>', {id: me.id});
 		if(me.settings.class)
 			me.content.addClass(me.settings.class);
@@ -36,13 +35,8 @@ IT.HTML = class extends IT.Component{
 		
 		if(me.settings.url)
 			me.content.load(me.settings.url);
-		else {
-			var length = Object.keys(me.settings.data).length;
-			if(length) {
-				me.settings.content = me.templateReplacer(me.settings.content, me.settings.data);
-			}
+		else 
 			me.content.html(me.settings.content);
-		}
 	}
 
 	/**
@@ -52,26 +46,7 @@ IT.HTML = class extends IT.Component{
 	 */
 	setContent(html, replace = false){
 		if (replace) this.content.empty();
-		if (typeof html === 'string') {
-			if(Object.keys(this.settings.data).length) {
-				html = me.templateReplacer(this.settings.content, this.settings.data);
-			}
-			this.content.append(html);
-		}
+		if (typeof html=="string") this.content.append(html);
 		else html.appendTo(this.content);
 	}
-
-	/**
-	 * simple template replacer
-	 * @param {string|selector} 
-	 * @param {Object} 
-	 */
-	templateReplacer(template, data) {
-		return template.trim().replace(/\{\{([\w\.]*)\}\}/g, function(str, key) {
-		    var keys = key.split("."), v = data[keys.shift()];
-		    for (var i = 0, l = keys.length; i < l; i++) v = v[keys[i]];
-		    return (typeof v !== "undefined" && v !== null) ? v : "";
-		});
-	}
-
 }

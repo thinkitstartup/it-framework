@@ -33,30 +33,30 @@
 
 			var store = new IT.Store({
 				type: 'json',
-				url: "datajson/biodata_dynamis.php",
-				//async:false,
+				url: "data.json",
+				//autoLoad:true,
 				params:{
 					start:0,
 					limit:20
 				},
-				afterLoad: function(event,s){
-					let idx = 0;
-					console.info("rawData",s.getData()[idx].rawData);
-					s.replace({
-						nm_pes:"okhas"
+				afterLoad:function(a){
+					let idx= 0;
+					console.info("rawData",a.getData()[idx].rawData);
+					a.replace({
+						nama:"okhas"
 					},idx);
-					console.info("isChanged",s.getData()[idx].isChanged());
-					console.info("getChanged",s.getData()[idx].getChanged());
-					console.info("total_rows",s.total_rows);
-					console.info("rawData",s.getData()[idx].rawData);
+					console.info("isChanged",a.getData()[idx].isChanged());
+					console.info("getChanged",a.getData()[idx].getChanged());
+					console.info("total_rows",a.total_rows);
+					console.info("rawData",a.getData()[idx].rawData);
 
-					s.setData([
-						{nm_pes:"arief",sex:"L"},
+					a.setData([
+						{nama:"arief",sex:"L"},
 					]);
-					console.info("isChanged",s.getData()[idx].isChanged());
-					console.info("getChanged",s.getData()[idx].getChanged());
-					console.info("total_rows",s.total_rows);
-					console.info("rawData",s.getData()[idx].rawData);
+					console.info("isChanged",a.getData()[idx].isChanged());
+					console.info("getChanged",a.getData()[idx].getChanged());
+					console.info("total_rows",a.total_rows);
+					console.info("rawData",a.getData()[idx].rawData);
 					
 
 					console.info("type : array");
@@ -67,33 +67,33 @@
 			var store2 = new IT.Store({
 				type: 'array',
 				data:[
-					{nm_pes:"arief",sex:"L"},
-					{nm_pes:"ronald",sex:"L"},
-					{nm_pes:"wati",sex:"P"},
+					{nama:"arief",sex:"L"},
+					{nama:"ronald",sex:"L"},
+					{nama:"wati",sex:"P"},
 				],
-				afterLoad:function(event,s){
-					console.info("masuk ga");
+				afterLoad:function(a){
 					let idx= 0;
-					console.info("rawData",s.getData()[idx].rawData);
-					s.replace({
-						nm_pes:"okhas"
+					console.info("rawData",a.getData()[idx].rawData);
+					a.replace({
+						nama:"okhas"
 					},idx);
-					console.info("isChanged",s.getData()[idx].isChanged());
-					console.info("getChanged",s.getData()[idx].getChanged());
-					console.info("total_rows",s.total_rows);
-					console.info("rawData",s.getData()[idx].rawData);
+					console.info("isChanged",a.getData()[idx].isChanged());
+					console.info("getChanged",a.getData()[idx].getChanged());
+					console.info("total_rows",a.total_rows);
+					console.info("rawData",a.getData()[idx].rawData);
 
-					s.setData([
-						{nm_pes:"arief",sex:"L"},
+					a.setData([
+						{nama:"arief",sex:"L"},
 					]);
-					console.info("isChanged",s.getData()[idx].isChanged());
-					console.info("getChanged",s.getData()[idx].getChanged());
-					console.info("total_rows",s.total_rows);
-					console.info("rawData",s.getData()[idx].rawData);
+					console.info("isChanged",a.getData()[idx].isChanged());
+					console.info("getChanged",a.getData()[idx].getChanged());
+					console.info("total_rows",a.total_rows);
+					console.info("rawData",a.getData()[idx].rawData);
 				}
 			});
 			console.info("type : json");
 			store.load();
+
 		});
 	</script>
 </body>

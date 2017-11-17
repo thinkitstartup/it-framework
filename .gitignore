@@ -1,4 +1,5 @@
 node_modules
 docs
-example/bower_components
-dist/external
+vendor
+.vscode
+dist/resources

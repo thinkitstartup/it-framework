@@ -1,11 +1,12 @@
 /**
  * DataTable element
- * @extends IT.Component
- * @depend IT.Store
+ * @extends IT.DataTable
+ * @type IT.DataTable
  * @param {Object} opt setting for class
- * @see IT.DataTable#settings
+ * @see IT.Component#settings
  */
 IT.DataTable = class extends IT.Component {
+	/** @param  {object} opt  */
 	constructor(settings){
 		super(settings);
 		let me = this;
@@ -22,24 +23,45 @@ IT.DataTable = class extends IT.Component {
 			width: '100%',
 			height: '',
 			cellEditing: true,
-			enableFixedHeader: true,
 			wrap: false,
-			paging: true,
-			store: {},
+			paging:true,
+
+			store: {
+				type: 'json',
+				params:{
+					start: 0,
+					limit: 20
+				}
+			},
 			columns: [{}],
-			customHeader:"",
-			autoRowCount:true,
+			customHeader:""
 		}, settings);
-		me.id 				= me.s.id || IT.Utils.id();
-		me.selectedRow 		= null;
-		me.selectedColumn 	= null;
-		me.editors			= [];
-		me.addEvents(me.s, [
+
+		/** 
+		 * ID of class or element
+		 * @member {boolean}
+		 * @name IT.DataTable#id
+		 */
+		me.id = me.settings.id || IT.Utils.id();
+
+		/**
+		 * listeners
+		 * @type {object}
+		 */
+		me.listener 		= new IT.Listener(me, me.settings, [
 			"onItemClick",
 			"onItemDblClick",
 			"onLoad",
 			"onChangePage"
 		]);
+		me.params 			= {}
+		me.selectedRow 	= null;
+		me.selectedColumn 	= null;
+		me.paging 			= { 
+			page:1,
+			page_count	: 0,
+			total_rows 	: 0
+		}
 		me.createComponent();
 
 
@@ -49,61 +71,37 @@ IT.DataTable = class extends IT.Component {
 		 * @name IT.DataTable#store
 		 * @see IT.Store
 		 */
-		if(!me.s.store.isClass){
-			me.store = new class extends IT.Store {
-				load(opt){					
-					let readyState = true, those = this;
-					those.doEvent("beforeLoad");
-					me.editors.forEach((e)=>{
-						if(e && e.isClass) readyState = readyState && !!e.readyState;
-					});
-					if (!readyState)
-						//looping every second to check 
-						//every header's editor is in readyState
-						setTimeout(()=>{
-							those.load.call(those, opt)
-						},1000);
-					else super.load(opt);
+		if(!me.settings.store.isClass){
+			me.store = new IT.Store($.extend(true, {
+				beforeLoad:function(){
+					me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
+				},
+				afterLoad:function(store,storeData,params){
+					me.assignData(store);
+					me.listener.fire("onLoad",[me,store]);
+				},
+				onEmpty:function(store,storeData,params){
+					me.assignData(store);
+					me.listener.fire("onLoad",[me,store]);	
 				}
-			}($.extend(true,{},me.s.store,{
-				// when DataTable's autoRowCount is true, force Store's autoLoad to false. 
-				// since store need to load AFTER DataTable's DOM rendered, so it can 
-				// count the number of rows can be loaded
-				autoLoad:me.s.autoRowCount ? false : me.s.store.autoLoad 
-			}));
-		}else me.store = me.s.store;
-		me.store.addEvents({
-			beforeLoad:function(){
-				me.content.find(".it-datatable-wrapper").animate({ scrollTop: 0 }, "slow");
-				me.content.find('.it-datatable-loading-overlay').addClass('loading-show');
-			},
-			afterLoad:function(event,store,storeData,params){
-				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-				me.assignData(store);
-				me.doEvent("onLoad",[me,store]);
-				me.selectedRow 		= null;
-				me.selectedColumn 	= null;
-			},
-			onEmpty:function(event,store,storeData,params){
-				me.assignData(store);
-				me.doEvent("onLoad",[me,store]);
-				me.content.find('.it-datatable-loading-overlay').removeClass('loading-show');
-			}
-		});
+			}, me.settings.store));
+			me.params = me.store.params;
+		}
 	}
+
 	/**
 	 * Create element content
 	 */
 	createComponent(){
-		let me =this;
-
+		let me =this,s = me.settings;
+		
 		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
-			class: me.s.cls 
-		}).width(me.s.width).height(me.s.height);
+			class: s.cls 
+		}).width(s.width).height(s.height);
 
-		// wrapper
+		//wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
 		let table 		= $(`<table width='100%' />`);
@@ -112,38 +110,23 @@ IT.DataTable = class extends IT.Component {
 		me.content.append(wrapper.append(table.append(thead)));
 
 		//create header
-		if (me.s.customHeader) thead.append($(me.s.customHeader));
+		if (s.customHeader) thead.append($(s.customHeader));
 		else {
 			let col, tr=$(`<tr/>`);
-			for (let i = 0; i < me.s.columns.length; i++){
-				col =me.s.columns[i];
+			for (let i = 0; i < s.columns.length; i++){
+				col =s.columns[i];
 				tr.append($(`<th />`,{
 					css:{
-						// to precise width
-						"min-width":col.width,
-						"width":col.width,
+						"min-width":col.width, 	// to precise width
+						"width":col.width,		// to precise width
 					}
-				}).append(col.header));
-
-				// add editors
-				if(col.editor && col.editor.store && 
-					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
-				){	
-					me.editors.push(IT.Utils.createObject(
-						$.extend(true,{},col.editor,{
-							width:col.width
-						})
-					));
-				}
-				else me.editors.push(col.editor);
+				}).append(col.header))
 			}
 			thead.append(tr);
 		}
-		if(me.s.enableFixedHeader) {
-			me.content.append(fixHeader.append(table.clone()));
-		}
+		me.content.append(fixHeader.append(table.clone()));
 		table.append(tbody);
-		if(me.s.paging){
+		if(s.paging){
 			me.content.append(`
 				<div class="it-datatable-pagination" >
 					<ul>
@@ -151,7 +134,7 @@ IT.DataTable = class extends IT.Component {
 						<li><button class="it-datatable-icon" data-page="back"><span class="fa fa-chevron-left"></span></button></li>
 						<li> 
 							<input type="text" class="it-datatable-pagination-current" value="1"> /
-							<span class="it-datatable-pagination-page">0</span>
+						 	<span class="it-datatable-pagination-page">0</span>
 						</li>
 						<li><button class="it-datatable-icon" data-page="next"><span class="fa fa-chevron-right"></span></button></li>
 						<li><button class="it-datatable-icon" data-page="last"><span class="fa fa-step-forward"></span></button></li>
@@ -172,7 +155,7 @@ IT.DataTable = class extends IT.Component {
 						type:'question',
 						title:'Konfirmasi',
 						width: 400,
-						message:'Perubahan data belum di simpan. Yakin akan berpindah halaman ?',
+						message:'Yakin akan menghapus data tersebut ?',
 						buttons:[{
 							text:'Ya',
 							handler:function(){
@@ -187,42 +170,99 @@ IT.DataTable = class extends IT.Component {
 					});
 				}else me.setPage($(this).data("page"));
 			});
-
 			me.content.find(".it-datatable-pagination .it-datatable-pagination-current").change(function(){
 				me.setPage($(this).val());
 			});
-
-			// Loading Inline
-			let loadingInline = $(`
-				<div class="it-datatable-loading-overlay">
-					<div class="it-loading-rolling"></div>
-				</div>
-			`);
-			me.content.append(loadingInline);
 		}
 	}
+
 	/**
 	 * Assign Data from store
 	 * @param  {IT.Store} store 
 	 */
 	assignData(store){
-		let me =this,sd = store.getData();
-			
-		//update paging info
-		me.content.find("tbody").empty();
-		me.content.find('.it-datatable-pagination-show').html(store.detail.from+"/"+store.detail.to);
-		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
-		me.content.find('.it-datatable-pagination-current').val(store.detail.currentPage);
-		me.content.find('.it-datatable-pagination-page').html(store.detail.pageCount);
-		
-		//everyload scroll to top
-		if(sd.length){
+		let me =this,
+			storeData = store.getData();
+
+		if(storeData.length){
 			me.content.find("table").animate({ scrollTop: 0 }, "slow");
-			for (let indexRow=0;indexRow<sd.length;indexRow++){
-				me.addRow(sd[indexRow]);
+		}
+
+		me.content.find("tbody").empty();
+		let start		= me.params.start;
+		let limit		= me.params.limit;
+		let last_data	= (start + limit) < store.total_rows ? (start + limit) : store.total_rows;
+		let data_show	= store.total_rows > 0 ? (start + 1) + "/" + last_data : "0";
+		let page_count	= Math.ceil(store.total_rows / limit);
+		me.paging		= Object.assign({},me.paging,{
+			start, limit, page_count,
+			total_rows 	: store.total_rows
+		});
+		me.content.find('.it-datatable-pagination-show').html(data_show);
+		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
+		me.content.find('.it-datatable-pagination-page').html(page_count);
+
+		if (start == 0) 
+			me.content.find('.it-datatable-pagination-current').val(1);
+
+		if (storeData.length) {
+			for (let indexRow=0;indexRow<storeData.length;indexRow++){	
+				let current_row = storeData[indexRow];
+				let row_element = $("<tr>");
+				for (let indexCol = 0; indexCol < me.settings.columns.length; indexCol++){
+					let current_col = me.settings.columns[indexCol];
+					let field = me.settings.columns[indexCol].dataIndex;
+					let data = current_row.get(field);
+					data = !data?"":data;
+					let editor;
+					let td = $("<td />",{
+						html:$("<div />",{html:data}),
+						valign:current_col.valign ||"top",
+						align:current_col.align ||"left",
+						class:"" + (me.settings.wrap?"wrap":""),
+					});
+
+					td.on('click',function(){
+
+						me.selectedRow = indexRow;
+						me.selectedColumn = indexCol;
+						me.content.find("tbody tr").removeClass('it-datatable-selected');
+						td.parent().addClass('it-datatable-selected');
+
+					 	if(current_col.editor 
+					 		&& current_col.editor.editable
+					 		&& !td.hasClass("it-datatable-editing")
+					 	){
+					 		td.addClass("it-datatable-editing");
+							td.attr("data-oldval",data);
+							editor = IT.Utils.createObject(current_col.editor);
+							editor.val(td.find("div").html());
+							td.find("div").empty();
+							editor.input.on("blur",function(){
+								if(editor.validate()){
+									current_row.update(field,editor.val());
+									td.removeClass("it-datatable-editing");
+									td.find("div").html(editor.val());
+									editor.content.remove();
+									td[editor.val()==td.data("oldval")?"removeClass":"addClass"]("it-datatable-changed");
+								}
+							});
+							editor.renderTo(td.find("div"));
+							editor.input.focus();
+					 	}
+					});
+					row_element.append(td);
+					/*
+					var $img = typeof current_col.image != 'undefined' ? current_col.image : "";
+					if ($img == true) $data = "<img src='" + $data + "' " + $cssTD + ">";
+					$rows += "<td " + $cssTD + "><div"+ $value + $cssDiv +">" + $data + "</div></td>";
+					*/
+				}
+				me.content.find("tbody").append(row_element);
 			}
 		}
 	}
+
 	/**
 	 * Overide renderTo
 	 * @override
@@ -234,15 +274,8 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-wrapper').scroll(function(){
 			me.content.find('.it-datatable-fixed-header').scrollLeft($(this).scrollLeft());
 		});
-		setTimeout(function(){
-			if(me.s.autoRowCount)
-				me.store.params.limit = me.getAvailableRows();
-			if(me.s.store.autoLoad)
-				me.loadPage(1);
-		},0);
-		//use 0 timeout. https://stackoverflow.com/a/41893544
-		//https://www.manning.com/books/secrets-of-the-javascript-ninja
 	}
+
 	/**
 	 * [getDataChanged description]
 	 * @return {array} array of object
@@ -256,136 +289,59 @@ IT.DataTable = class extends IT.Component {
 		}
 		return r;
 	}
+
 	setPage(to=1){
-		let me=this,detail=me.store.detail;
+		let me=this;
 		if (me.store.getData().length){
 			switch(to){
 				case 'first':
-					if (detail.currentPage != 1)
+					if (me.paging.page != 1) {
+						me.paging.page = 1;
 						me.loadPage(1);
+					}
 				break;
 				case 'last':
-					if (detail.currentPage != detail.pageCount)
-						me.loadPage(detail.pageCount);
+					if (me.paging.page != me.paging.page_count) {
+						me.paging.page = me.paging.page_count;
+						me.loadPage(me.paging.page_count);
+					}
 				break;
 				case 'next':
-					if (detail.currentPage < detail.pageCount)
-						me.loadPage(detail.currentPage+1);
+					if (me.paging.page < me.paging.page_count) {
+						me.paging.page++;
+						me.loadPage(me.paging.page);
+					}
 				break;
 				case 'back':
-					if (detail.currentPage >1)
-						me.loadPage(detail.currentPage-1);
+					if (me.paging.page >1) {
+						me.paging.page--;
+						me.loadPage(me.paging.page);
+					}
 				break;
 				default:
-					if(to>=1 && to<=detail.pageCount)
+					if(to>=1 && to<=me.paging.page_count){
+						me.paging.page = to;
 						me.loadPage(to);
-					else {throw "Invalid page";}
+					}else {
+						alert("Invalid page");
+						me.content.find(".it-datatable-pagination-current").val(me.paging.page);
+						throw "Invalid page";
+					}
 				break;
 			}
 		}
-	} 
+	}
 	loadPage(page){
 		let me=this;
-		page=page<=0?1:page;
-		me.store.load({	params:{start:((page - 1) * me.store.params.limit)}});
-	}
-	getSelectedRecords(){
-		let me =this;		
-		return me.selectedRow==null?null:me.store.data[me.selectedRow];
-	}
-	addRow(curRecord={}){
-		let me=this;
-		let row_element = $("<tr>");
-		for (let indexCol = 0; indexCol < me.s.columns.length; indexCol++){
-			let editor 		= me.editors[indexCol],
-				current_col = me.s.columns[indexCol],
-				field 		= current_col.dataIndex,
-				value 		= curRecord.get(field);
-
-			if(editor){
-				editor = editor.isClass ? editor : IT.Utils.createObject(
-					$.extend(true,{},current_col.editor,{
-						width:current_col.width
-					})
-				);
-			}
-
-			let render 		= 	
-				current_col.data 		|| 
-				current_col.renderer 	|| 
-				(editor	&& editor.store ?editor.store.getRawData():null) || [],
-				html		= IT.Utils.findData(value,render),
-				td = $("<td />",{
-					html:$("<div />",{html:(html==""?value:html)}),
-					valign:current_col.valign ||"top",
-					align:current_col.align ||"left",
-					class:"" + (me.s.wrap?"wrap":""),
-				});
-			if(editor && editor.className=="checkbox"){
-				td.find("div").empty();
-				editor.addEvents({
-					onChange:function(){
-						curRecord.update(field,editor.checked);
-						td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed"); 
-					}
-				});
-				editor.checked = !!value;
-				editor.renderTo(td.find("div"));
-			}
-			td.on('click',function(){
-				me.selectedRow 		= td.parent().index();
-				me.selectedColumn 	= td.index();
-				me.content.find("tbody tr").removeClass('it-datatable-selected');
-				td.parent().addClass('it-datatable-selected');
-				if(	editor && editor.className!=="checkbox" && 
-					current_col.editor.editable && !td.hasClass("it-datatable-editing") &&
-					!curRecord.isLocked(field) )
-				{
-					td.find("div").empty();
-					td.addClass("it-datatable-editing");
-					editor.val(curRecord.getChanged(field)||curRecord.get(field));
-					editor.input.on("blur",function(){
-						if(editor.validate()){
-							curRecord.update(field,editor.val());
-							editor.input.off();
-							editor.content.detach();	
-							td.removeClass("it-datatable-editing");
-							td.find("div").html(IT.Utils.findData(
-								curRecord.getChanged(field)||
-								curRecord.get(field),
-							render));
-							td[curRecord.isChanged(field)?"addClass":"removeClass"]("it-datatable-changed");
-						}
-					});
-					editor.renderTo(td.find("div"));
-					editor.input.focus();
-				}
-			});
-			row_element.append(td);
-		}
-		row_element.on('dblclick', function(e) {
-			me.doEvent("onItemDblClick");
-		})
-		me.content.find("tbody").append(row_element);
-	}
-	removeRow(indexRow=-1){
-		let me=this;
-		indexRow = indexRow <0 ? me.selectedRow: indexRow;
-		me.content.find("tbody>tr").eq(indexRow).remove();
-		me.selectedRow 		= null;
-		me.selectedColumn 	= null;
-	}
-	getAvailableRows(){
-		let me=this, max = 27;//default row hight
-		me.content.find(".it-datatable-wrapper tbody tr").each(()=>{
-			max = Math.max($(this).outerHeight(), max);
+		let start = (page - 1) * me.paging.limit;
+		me.content.find(".it-datatable-pagination .it-datatable-pagination-current").val(page);
+		me.store.load({
+			params:{start:start,limit:me.paging.limit}
 		});
-		return Math.abs(Math.floor(
-			(
-				me.content.find("div.it-datatable-wrapper").outerHeight()-
-				me.content.find("div.it-datatable-fixed-header").outerHeight()-
-				30//default browser scroll height
-			)/max)
-		);
+	}
+
+	getSelectedRecords(){
+		let me =this;
+		return !me.selectedRow?null:me.store.data[me.selectedRow];
 	}
 }

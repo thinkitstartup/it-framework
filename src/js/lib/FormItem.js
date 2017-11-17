@@ -8,22 +8,7 @@ IT.FormItem = class extends IT.Component {
 	/** @param  {object} settings  */
 	constructor(settings){
 		super(settings);
-		let me = this;
-		me._readyState = false;
-		me.addEvents(me.settings, [
-			"stateChange"
-		]);
-		me.readyState = true;
 	}
-	get readyState(){
-		return this._readyState;
-	}
-	set readyState(state){
-		this._readyState = state;
-		this.doEvent("stateChange",state);
-	}
-
-
 	/**
 	 * getter or setter for value
 	 * @param  {object} value if value is exist, then it's setter for value
@@ -45,7 +30,6 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item invalid
 	 */
 	setInvalid(state=true){
-		if(this.input)
 		this.input[state?"addClass":"removeClass"]("invalid");
 	}
 
@@ -59,7 +43,6 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item readonly
 	 */
 	setReadonly(state=false){
-		if(this.input)
 		this.input.attr('readonly', state)
 			[state?"addClass":"removeClass"]('input-readonly');
 	}
@@ -68,7 +51,6 @@ IT.FormItem = class extends IT.Component {
 	 * @param {Boolean} state pass true to make this item invalid
 	 */
 	setEnabled(state=false){
-		if(this.input)
 		this.input.attr('disabled', !state)
 			[!state?"addClass":"removeClass"]('input-disabled');
 	}
