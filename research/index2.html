@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>IT Framework Play</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+	
+	<!-- STYLE -->
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="../dist/it-framework.min.css" />
+
+	<!-- SCRIPT -->
+	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="bower_components/inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
+	<script type="text/javascript" src="bower_components/selectize/dist/js/standalone/selectize.min.js"></script>
+	<script type="text/javascript" src="../dist/it-framework.min.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+	$(function(){
+
+		let lorem = $('<div/>', {
+			text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+			css: {
+				padding: 10,
+				'line-height': '1.6em'
+			}
+		});
+
+		let bar = new IT.Toolbar({
+			items:[{
+				x: 'textbox',
+				align:'left',
+				type: 'text'
+			},{
+				x: 'button',
+				align: 'right',
+				text: 'Simpan Data',
+				handler: function(){
+					dialog.show();
+				},
+				items: [{
+					text:'DropDown #1',
+					handler: function() {
+						console.info("from dropdown #1");	
+					}
+				},{
+					text:'DropDown #2',
+					handler: function() {
+						console.info("from dropdown #2");	
+					},
+					enable: false
+				},{
+					text:'DropDown #3',
+					handler: function() {
+						console.info("from dropdown #3");	
+					}
+				}]
+			}]	
+		});
+		bar.renderTo('body');
+
+		let dialog = new IT.Dialog({
+			title: 'Ini Dialog Box',
+			width: 400,
+			height: 300,	
+			css: {
+				padding: 10
+			},
+			items:[{
+				x: 'tabs',
+				height: 200,
+				titles: {
+					items:[
+						'Biodata',
+						'Alamat',
+						'Keluarga',
+						'Keterangan',
+					]
+				},	
+				items:[{
+					xtype: 'html',
+					content: 'A<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>B<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>C',
+				},{
+					xtype:"form",
+					items:[{
+						x:"textbox",
+						id:"",
+						mask:"",
+						label:"Nama Pendek",
+						allowBlank: false,
+						placeholder: 'Isilah nama',
+						//type:"date",
+						size: {
+							label: 'col-md-1 col-sm-3',
+							field: 'col-md-11 col-sm-9'
+						},
+						info:{
+							prepend: "Rp.",
+						},
+						enabled: true,
+						type:'mask',
+						maskSettings:{
+							alias:"date"
+						}
+					},{
+						x:"textbox",
+						label:"Nama Panjang",
+						allowBlank: false,
+						type:"textarea",
+						length:{
+							max:5
+						}
+					}]
+				},{
+					xtype: 'html',
+					content: 'C',
+				},{
+					xtype: 'html',
+					content: lorem
+				}]
+			},{
+				x: 'button',
+				align: 'right',
+				text: 'Tutup',
+				handler: function(){
+					console.info("from main button");
+					dialog.close();
+				},
+				items: [{
+					xtype:'textbox',
+					placeholder: 'ini cinta',
+				},{
+					text:'DropDown #1',
+					handler: function() {
+						console.info("from dropdown #1");	
+					}
+				},'-',{
+					text:'DropDown #2',
+					handler: function() {
+						console.info("from dropdown #2");	
+					}
+				},{
+					text:'DropDown #3',
+					handler: function() {
+						console.info("from dropdown #3");	
+					}
+				}]
+			}]	
+		});
+	});
+</script>	
+</body>
+</html>

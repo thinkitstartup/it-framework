@@ -1,0 +1,21 @@
+{
+  "name": "research",
+  "homepage": "https://github.com/thinkitstartup/it-framework",
+  "authors": [
+    "mohammad.erdin <mohammad.erdin@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "inputmask": "^3.3.10",
+    "font-awesome": "^4.7.0"
+  }
+}
