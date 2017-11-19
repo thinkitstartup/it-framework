@@ -12,13 +12,13 @@
     "grunt-jsdoc": "^2.1.0"
   },
   "dependencies": {
-    "font-awesome": "Font-Awesome#^4.7.0",
-    "jQuery": "^3.2.1",
-    "inputmask": "^3.3.7"
+    "font-awesome": "^4.7.0",
+    "inputmask": "^3.3.10",
+    "jquery": "^3.2.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install":"npm install"
+    "install": "echo 'sss'"
   },
   "repository": {
     "type": "git",
