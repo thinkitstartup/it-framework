@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "echo 'sss'"
+    "install": "echo 'sss'; pwd"
   },
   "repository": {
     "type": "git",
