@@ -4,7 +4,20 @@ var base_url = base_url || '';
 var base_events = ["blur", "change", "click", "dblclick", "focus", "hover", "keydown", "keypress", "keyup", "show", "hide"];
 var transitionEnd = 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
 var animationEnd = 'webkitAnimationEnd oanimationend msAnimationEnd animationend';
-
+(function($){
+	$.fn.serializeObject = function () {
+		var result = {};
+		var extend = function (i, element) {
+			var node = result[element.name];
+			if (typeof node !== 'undefined' && node !== null) {
+				if ($.isArray(node)) node.push(element.value);
+				else result[element.name] = [node, element.value];
+			} else result[element.name] = element.value;
+		};
+		$.each(this.serializeArray(), extend);
+		return result;
+	};
+})(jQuery);
 /**
  * BaseClass for every Class Instance
  * @type {class}
@@ -855,6 +868,66 @@ IT.Dialog = class extends IT.Component {
 	}
 }
 
+IT.Flex = class extends IT.Component {
+	constructor(settings){
+		super();
+		let me =this;
+		
+		me.settings = $.extend(true,{ // Object.assign in deep
+			id: '',
+			title:"",
+			iconTitle:"",
+			direction: 'row',
+			wrap: '',//nowrap | wrap | wrap-reverse
+			justifyContent: '', 
+			css: {},
+			alignItems: '', //flex-start | flex-end | center | baseline | stretch. Default: stretch
+			alignContent: '', //flex-start | flex-end | center | space-between | space-around | stretch. Default: stretch
+			items:[]
+		}, settings);
+		
+		me.id = me.settings.id || IT.Utils.id();
+		me.content = $('<div />', { id: me.id, class: 'it-flex' });
+		me.content.css(me.settings.css||{});
+		me.content.addClass('it-flex-dir dir-' + me.settings.direction);
+		me.content.addClass('it-flex-wrap wrap-' + me.settings.wrap);
+		me.content.addClass('it-flex-jc jc-' + me.settings.justifyContent);
+		me.content.addClass('it-flex-ai ai-' + me.settings.alignItems);
+		me.content.addClass('it-flex-ac ac-' + me.settings.alignContent);
+		if(me.settings.title) {
+			let title = $('<div/>', { 
+				class: 'it-title', 
+				html: me.settings.title
+			});
+			title.prepend($('<span/>', { 
+				class: 'fa'+ (me.settings.iconTitle?' fa-'+me.settings.iconTitle:"")
+			}));
+			me.content.append(title);
+		}
+
+		me.ids=[];
+		me.items={};
+		$.each(me.settings.items, function(k, el) {
+			if(el) {
+				if(!el.isClass) 
+					el = IT.Utils.createObject(el);
+				if(typeof el.settings.flex !== 'undefined') 	
+					el.content.addClass('it-flex-item');
+				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
+			}
+		});
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+}
 /**
  * Form Component
  * @param {Object} opt setting for class
@@ -1150,6 +1223,119 @@ IT.HTML = class extends IT.Component{
 		if (typeof html=="string") this.content.append(html);
 		else html.appendTo(this.content);
 	}
+}
+/**
+ * [ImageBox description]
+ * Usage cropit jquery plugins http://scottcheng.github.io/cropit/
+ * @type {class}
+ * @extends IT.Component
+ * @depend IT.Component
+ */
+IT.ImageBox = class extends IT.Component {
+	constructor(params){
+		super(params);
+
+		let me = this;
+		me.settings = $.extend(true,{
+			id: '',
+			src: '',
+			size: {
+				width: 300,
+				height: 100
+			},
+			cropper: false,
+			//name:"file", //we don't need input type, use getExport instead
+			cropperSettings: {
+				// Find all setting on cropit website
+				smallImage: 'allow'
+			},
+		}, params);
+		me.id = me.settings.id || IT.Utils.id();
+		me.imagebox = `
+			<div class="it-imagebox">
+				<a href="javascript:void(0);" class="it-imagebox-chooser it-btn btn-primary">
+					<span class="fa fa-picture-o"></span> &nbsp; Pilih Sumber Gambar
+				</a>
+				<input type="file" class="cropit-image-input">
+				<div class="cropit-preview"></div>
+				<div class="hide-this">
+					<div class="image-size-label">Zoom</div>
+					<input type="range" class="cropit-image-zoom-input" value="0">
+				</div>
+			</div>
+		`;
+		me.reloadObject();	
+	}
+
+	reloadObject() {
+		var me = this;	
+		me.content = $(me.imagebox);	
+		me.content.find('.cropit-preview')
+			.width(me.settings.size.width)
+			.height(me.settings.size.height);
+
+		if(me.isCropper()) {
+			me.content.find('.hide-this').removeClass('it-hide');
+			me.content.find('.it-imagebox-chooser').click(function(){
+				me.content.find('.cropit-image-input').click();
+			});
+			me.content.cropit($.extend(true, me.settings.cropperSettings));
+			if(me.settings.src != "")
+				me.content.cropit('imageSrc', me.settings.src);
+		} else {
+			me.content.find('.it-imagebox-chooser').hide();
+			me.content.find('.hide-this').addClass('it-hide');
+			me.content.find('.cropit-preview').append($('<img/>', {
+				class: "it-imagebox-picture",
+				src: me.settings.src 
+			}));
+		}
+	}
+
+	renderTo(obj) {
+		super.renderTo(obj);
+		this._render = obj;	
+	}
+
+	isCropper() {
+		return this.settings.cropper;
+	}
+
+	setIsCropper(set) {
+		let me = this;
+		let beforeState = me.settings.cropper;
+		me.settings.cropper = set;
+		
+		if(beforeState != me.settings.cropper) {
+			me.content.remove();
+			me.reloadObject();
+			me.renderTo(me._render);
+		}
+	}
+
+	setImageSrc(picture) {
+		let me = this;
+		if(me.isCropper()) me.content.cropit('imageSrc', picture);
+		else me.content.find('img').attr('src', picture);
+	}
+	clearImageSrc(){
+		let me = this;
+		me.content.find(".cropit-image-input").val();
+		me.content.find('.cropit-preview-image').attr('src','');
+	}
+
+	/**
+	 * Get cropped image
+	 * @return {String} data:image/png;base64 string
+	 */
+	getExport() {
+		let result = "This is not cropper.";
+		if(this.isCropper()) {
+			result = this.content.cropit('export');
+		}
+		return result;
+	}
+
 }
 /**
  * CLass listener to handdle event function 
@@ -1463,6 +1649,271 @@ IT.Select = class extends IT.Component {
 
 	getSelect() {
 		return this.select[0].selectize;
+	}
+}
+
+IT.SelectIT = class extends IT.FormItem {
+	constructor(settings) {
+		super(settings);
+		let me = this, cls;
+		me.settings = $.extend(true, {
+			
+		}, settings);
+		me.id = me.settings.id || IT.Utils.id();
+		me.input = $('<select />', {
+			id: me.id,
+			class: 'select',
+			attr: {
+				name: me.settings.name || me.id,
+				disabled: me.settings.disabled,
+			}
+		});
+		me.content = $(`
+			<div class="it-select">
+				<div class="it-select-wrap">
+					<input type="text" class="it-select-search"/>
+					<div class="it-select-dropdown-button"><i class="fa fa-chevron-down"></i></div>
+				</div>
+				<ul class="it-select-dropdown"></ul>
+				<input type="hidden" class="it-select-value"/>
+			</div>
+		`);
+		//me.content.append(me.input);
+		me.searchInput = me.content.find("input");
+		me.content.find(".it-select-wrap").click((e)=>{
+			me.content.find('.it-select-dropdown').toggle();
+			e.stopPropagation();
+			e.preventDefault();
+		});
+		// //me.content.append(me.input);
+		// me.content=$(((me.settings.label) ? `<div class="${me.settings.size.label}">`+
+		// 	`<label for="${me.id}-item" class='it-input-label it-input-label-${me.settings.labelAlign||'left'}'>${me.settings.label}</label>`+
+		// `</div>`:"") + `<div class="${me.settings.size.field}"></div>`);
+		// me.content.last().append(me.input);
+
+		// if(me.settings.width) {
+		// 	me.content.css({
+		// 		'width': me.settings.width
+		// 	})
+		// }
+
+		// if(me.settings.withRowContainer) {
+		// 	me.content = $('<div/>', { class:'row'}).append(me.content);
+		// }
+
+		// me.addEvents(me.settings,[
+		// 	"onLoad",
+		// 	"onChange"
+		// ]);
+
+		// me.input.on("change",function(){
+		// 	me.doEvent("onChange",[me,me.val()]);
+		// });
+
+		// // If has value of empty text
+		// if(me.settings.emptyText && !me.settings.autoLoad) {
+		// 	me.input.append($('<option/>', {
+		// 		val: '',
+		// 		text: me.settings.emptyText
+		// 	}));
+		// }
+
+		// //setting store
+		// me.store = new IT.Store($.extend(true,{},me.settings.store,{
+		// 	// replace autoLoad with false, we need extra event 'afterload'
+		// 	// wich is not created at the moment
+		// 	autoLoad:false 
+		// }));
+		// me.store.addEvents({// add extra afterload
+		// 	beforeLoad:function(){
+		// 		me.readyState = false;
+		// 	},
+		// 	afterLoad:function(ev,cls,data){
+		// 		data.forEach((obj)=> {
+		// 			me.input.append($('<option/>', {
+		// 				val: obj.rawData.key,
+		// 				text: obj.rawData.value,
+		// 				attr: {
+		// 					'data-params' : (typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : '')
+		// 				}
+		// 			}));
+		// 		});
+		// 		me.readyState = true;
+		// 	}
+		// }); 
+
+		// // If Autuload
+		// if(me.settings.autoLoad) {
+		// 	me.getDataStore();
+		// }else me.readyState = true;
+	}
+	// getDisplayValue(){
+	// 	let me = this;
+	// 	return me.getSelect().getItem(me.val())[0].innerHTML;
+	// }
+	// setDataStore(store) {
+	// 	this.settings.store = store;
+	// 	this.dataStore();
+	// }
+	// getDataStore() {
+	// 	let me = this;
+	// 	let ds = me.settings.store; 
+
+	// 	me.input.empty();
+
+	// 	// If has value of empty text
+	// 	if(me.settings.emptyText) {
+	// 		me.input.append($('<option/>', {
+	// 			val: '',
+	// 			text: me.settings.emptyText
+	// 		}));
+	// 	}
+	// 	me.store.load();
+	// }
+
+	// /**
+	//  * Override
+	//  * @param  {Optional} value Value to setter
+	//  * @return {String}   value for getter
+	//  */
+	// val(value) {
+	// 	if (typeof value === "undefined")
+	// 		return this.input.val();
+	// 	else return this.input.val(value);
+	// }
+}
+
+IT.Selectize = class extends IT.FormItem {
+	constructor(settings){
+		super(settings);
+		let me = this,cls;
+		me.settings = $.extend(true,{
+			id: '',
+			value: '',
+			emptyText: '',
+			format: null,
+			defaultValue: '',
+			autoLoad: true,
+			allowBlank: true,
+			disabled: false,
+			width: 200,
+			store: {
+				url		: '',
+				type	: 'array',
+				data	: null,
+			},
+			selectize: {
+				allowEmptyOption: true
+			}
+		}, settings);
+		me.id = me.s.id || IT.Utils.id();
+		me.input = $('<select />', {
+			id: me.id,
+			name: me.id,
+			attr: {
+				disabled: me.s.disabled,
+			},
+			val: me.s.defaultValue,
+		});
+		me.content = $('<div />', { class: 'it-edit' });
+		me.content.append(me.input);
+		me.input.selectize(me.s.selectize);
+
+		if(me.s.width) {
+			me.content.css({
+				'width': me.s.width
+			})
+		}
+
+
+		if(me.s.style) {
+			me.content.css(me.s.style);
+		}
+
+		me.addEvents(me.s,[
+			"onLoad",
+			"onChange"
+		]);
+		
+		me.getSelect().on("change",function(){
+			me.doEvent("onChange",[me,me.val()]);
+		});
+
+		// If has value of empty text
+		if(me.s.emptyText && !me.s.autoLoad) {
+			me.getSelect().addOption({
+				value: '',
+				text: me.s.emptyText
+			});
+			me.getSelect().setValue('');
+		}
+
+		//setting store
+		me.store = new IT.Store($.extend(true,{},me.s.store,{
+			// replace autoLoad with false, we need extra event 'afterload'
+			// wich is not created at the moment
+			autoLoad:false 
+		}));
+		me.store.addEvents({// add extra afterload
+			beforeLoad:function(){
+				me.readyState = false;
+			},
+			afterLoad:function(ev,cls,data){
+				data.forEach((obj)=>
+					me.getSelect().addOption({ 
+						value: obj.rawData.key, 
+						text: obj.rawData.value, 
+						params: typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : ''
+					})
+				);
+				me.readyState = true;
+			}
+		}); 
+		
+		// If Autuload
+		if(me.s.autoLoad) {
+			me.getDataStore();
+		}else me.readyState = true;
+	}
+	getDisplayValue(){
+		let me = this;
+		return me.getSelect().getItem(me.val())[0].innerHTML;
+	}
+ 	setDataStore(store) {
+		this.settings.store = store;
+		this.dataStore();
+	}
+	getDataStore() {
+		let me = this;
+		let ds = me.s.store; 
+		let selectize = me.getSelect();
+
+		//Empty Option
+		selectize.clearOptions();
+		
+
+		// If has value of empty text
+		if(me.s.emptyText) {
+			selectize.addOption({
+				value: '',
+				text: me.s.emptyText
+			});
+			selectize.setValue('');
+		}
+		me.store.load();
+	}
+	getSelect() {
+		return this.input[0].selectize;
+	}
+	/**
+	 * Override
+	 * @param  {Optional} value Value to setter
+	 * @return {String}   value for getter
+	 */
+	val(value) {
+		if (typeof value === "undefined")
+			return this.getSelect().getValue();
+		else return this.getSelect().setValue(value);
 	}
 }
 

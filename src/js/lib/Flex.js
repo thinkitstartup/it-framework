@@ -1,5 +1,5 @@
 IT.Flex = class extends IT.Component {
-	constructor(params){
+	constructor(settings){
 		super();
 		let me =this;
 		
@@ -14,7 +14,7 @@ IT.Flex = class extends IT.Component {
 			alignItems: '', //flex-start | flex-end | center | baseline | stretch. Default: stretch
 			alignContent: '', //flex-start | flex-end | center | space-between | space-around | stretch. Default: stretch
 			items:[]
-		}, params);
+		}, settings);
 		
 		me.id = me.settings.id || IT.Utils.id();
 		me.content = $('<div />', { id: me.id, class: 'it-flex' });
