@@ -1,0 +1,7 @@
+Exception: STATUS_ACCESS_VIOLATION at eip=02B400C8
+eax=FFFFFFFF ebx=2FAAA593 ecx=2FAAA593 edx=00000000 esi=04E8CE64 edi=04E8CDB4
+ebp=02B4006A esp=04E8CD38 program=C:\Users\Asus\AppData\Local\Atlassian\SourceTree\git_local\usr\bin\sh.exe, pid 15296, thread unknown (0x2F60)
+cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
+Stack trace:
+Frame     Function  Args
+02B4006A  02B400C8 (5F8F77A0, 00007FFE, 02B40000, 00000000)

@@ -1,5 +1,5 @@
 IT.Flex = class extends IT.Component {
-	constructor(settings){
+	constructor(params){
 		super();
 		let me =this;
 		
@@ -14,7 +14,7 @@ IT.Flex = class extends IT.Component {
 			alignItems: '', //flex-start | flex-end | center | baseline | stretch. Default: stretch
 			alignContent: '', //flex-start | flex-end | center | space-between | space-around | stretch. Default: stretch
 			items:[]
-		}, settings);
+		}, params);
 		
 		me.id = me.settings.id || IT.Utils.id();
 		me.content = $('<div />', { id: me.id, class: 'it-flex' });
@@ -35,26 +35,14 @@ IT.Flex = class extends IT.Component {
 			me.content.append(title);
 		}
 
-		me.ids=[];
-		me.items={};
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass) 
+				if(typeof el.renderTo !== 'function')
 					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);
-				me.ids.push(el.getId());
-				me.items[el.getId()] = el;
 			}
 		});
-	}
-	getItemCount(){
-		return this.ids.length;
-	}
-	getItem(id){
-		if(typeof id==="number")id = this.ids[id];
-		if(id)return this.items[id]||null;
-		return this.items;
 	}
 }

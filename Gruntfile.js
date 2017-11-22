@@ -31,7 +31,7 @@ module.exports = function (grunt) {
 				compress: {
 					drop_console: !true
 				},
-				beautify: false,
+				beautify: true,
 				banner: '/*! <%= pkg.name %> - <%= pkg.license %>\n' +
 					'Version\t: <%= pkg.version %> \n' +
 					'Build\t: <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> \n' +

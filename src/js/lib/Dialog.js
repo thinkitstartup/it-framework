@@ -40,6 +40,7 @@ IT.Dialog = class extends IT.Component {
 			title: '',
 			iconCls: '',
 			items: [],
+			footers:[],
 			overlay: true,
 			autoShow: true,
 			width: 300,
@@ -56,14 +57,16 @@ IT.Dialog = class extends IT.Component {
 		 */
 		me.id = me.settings.id || IT.Utils.id();
 
-		/** 
-		 * Listeners
-		 * @member {IT.Listener}
-		 * @name IT.Dialog#listener
-		 */
-		me.listener = new IT.Listener(me, me.settings,["onShow", "onHide", "onClose"]);
-		me.createElement();
+		me.addEvents(me.settings, [
+		 	"onShow", 
+		 	"onHide", 
+		 	"onClose"
+		]);
+
+		me.ids=[];
+		me.items={};
 		if(me.settings.autoShow) me.show();
+		else me.createElement();
 	}
 
 	/**
@@ -71,10 +74,13 @@ IT.Dialog = class extends IT.Component {
 	 */
 	createElement(){
 		let me = this;
+		if(me.elExist) return;
 		me.content = $(`
 			<div class="it-dialog">
 				<div class="it-dialog-container">
+					<div class="it-dialog-header"></div>
 					<div class="it-dialog-content"></div>
+					<div class="it-dialog-footer"></div>
 				</div>
 			</div>
 		`);
@@ -89,23 +95,34 @@ IT.Dialog = class extends IT.Component {
 				let iconTitle = $('<span/>', { class:'fa fa-'+me.settings.iconCls });
 				iconTitle.prependTo(dialogTitle);
 			}
+			
 			me.content
-				.find('.it-dialog-container')
-				.prepend(dialogTitle);
+				.find('.it-dialog-header')
+				.append(dialogTitle);
 		}
 
 		if(!me.settings.overlay) {
 			me.content.addClass("no-overlay");
 		}
 		
+
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass)el = IT.Utils.createObject(el);
-				//console.info(el.isClass);
-				if(el)el.renderTo(me.content.find('.it-dialog-content'));
-				else console.warn("Xtype: undefined",obj);
+				if(!el.isClass) el = IT.Utils.createObject(el);
+				el.renderTo(me.content.find('.it-dialog-content'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
+
+		$.each(me.settings.footers, function(k, el) {
+			if(el) {
+				if(!el.isClass) el = IT.Utils.createObject(el);
+				el.renderTo(me.content.find('.it-dialog-footer'));
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
+			}
+		});		
 
 		me.content
 			.find('.it-dialog-container')
@@ -123,34 +140,46 @@ IT.Dialog = class extends IT.Component {
 
 		if(me.settings.autoShow) {
 			me.show();
-		}
+		} //else me.createElement();
 
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
 			})
-
 			me.content.click(function(){
 				me.close();
 			});
 		}
 	}
 	
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {
 		let me=this;
-		if(!me.elExist) me.createElement();
+		me.createElement();
 		me.content.show(0, function(){
 			$(this).addClass('dialog-show');
 			$(this).find('.it-dialog-container')
 				.addClass('dialog-show');
 		});
-		me.listener.fire("onShow", [me, me.id]);
+		me.doEvent("onShow",[me, me.id]);
 
 		$(window).resize(function() {
-			me._autoScrollContainer();
+			clearTimeout(window.resizedFinished);
+			window.resizedFinished = setTimeout(function(){
+				me.setScroll();
+			}, 500);
 		});
-		me._autoScrollContainer();
+		$(window).trigger("resize");
 	}
 	
 	/** hide the dialog, adding class display : none */
@@ -161,7 +190,7 @@ IT.Dialog = class extends IT.Component {
 			.removeClass('dialog-show')
 			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
-				me.listener.fire("onHide", [me, me.id]);
+				me.doEvent("onHide",[me, me.id]);
 			});
 	}
 
@@ -178,8 +207,8 @@ IT.Dialog = class extends IT.Component {
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();
-							me.listener.fire("onClose", [me, me.id]);	
-						}, 300);
+							me.doEvent("onClose",[me, me.id]);
+						}, 700);
 					})
 			});
 	}
@@ -189,21 +218,9 @@ IT.Dialog = class extends IT.Component {
 	 * then automatically make the container dialog has a scroll
 	 * @private
 	 */
-	_autoScrollContainer() {
-		let container = this.content.find('.it-dialog-container');
-		let windowHeight = $(window).height();
-		let calculate = windowHeight - (container.offset().top + container.outerHeight());
-		
-		if(calculate <= 20) {
-			container.css({
-				'overflow-y': 'scroll',
-				height: (windowHeight - 30)
-			});
-		} else {
-			container.css({
-				'overflow-y': 'initial',
-				height: 'auto'
-			});
-		}
+	setScroll() {
+		let me = this,
+		container = me.content.find('.it-dialog-container');
+		container.height($(window).height() <= me.content.find('.it-dialog-content').height() ? ($(window).height() - 50) : 'auto');
 	}
 }

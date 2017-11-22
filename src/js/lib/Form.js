@@ -17,6 +17,7 @@ IT.Form = class extends IT.Component{
 		 */
 		me.settings = $.extend(true,{
 			id: '',
+			url:'',
 			items:[]
 		}, opt);
 
@@ -31,21 +32,43 @@ IT.Form = class extends IT.Component{
 			class: 'container-fluid'
 		});
 
-		let count = 0,div;
+		let div;
+		me.ids=[];
+		me.items={};
 		$.each(me.settings.items, function(k, el) {
-			if(el){
-				div = $("<div>",{class:'row'});
-				if(!el.isClass)el = IT.Utils.createObject(el);
-				el.renderTo(div);
-				wrapper.append(div);
-				count++;
+			if(el) {
+				if(!el.isClass) 
+					el = IT.Utils.createObject(el);				
+				if(!el.noRow) { 
+					div = $("<div/>", { class:'row form-row' });
+					el.renderTo(div);
+					wrapper.append(div);
+				} else {
+					el.renderTo(wrapper);
+				}
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 		me.content= $("<form />",{
 			name:IT.Utils.id(),
-			class:"it-form"
+			class:"it-form",
+			action: me.settings.url,
+			target: me.settings.target
 		});
 		me.content.append(wrapper);
+	}
+	getItemCount(){
+		return this.ids.length;
+	}
+	getItem(id){
+		if(typeof id==="number")id = this.ids[id];
+		if(id)return this.items[id]||null;
+		return this.items;
+	}
+
+	getData(){
+		console.info(this.content.serializeObject());
 	}
 }
 

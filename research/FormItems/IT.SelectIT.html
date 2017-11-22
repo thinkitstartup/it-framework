@@ -91,11 +91,25 @@
 </head>
 
 <body>
-
 	<script type="text/javascript">
 		$(document).ready(function () {
 			let combo = new IT.SelectIT({
-
+				store:{
+					/*
+					data: [
+						{ key: "1", value: "arief" },
+						{ key: "2", value: "ronald" },
+						{ key: "3", value: "wati" },
+					],
+					*/
+					type:"json",
+					url : "../datajson/ref_agama_search.php"
+				},
+				emptyText:"Pilih salah satu data",
+				width:300,
+				onChange:function(evt,b){
+					console.info(b.val());
+				}
 			});
 			combo.renderTo($("body"));
 		})
