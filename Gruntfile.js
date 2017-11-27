@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 		sass: {
 			options: {
 				sourcemap:"auto",
-				style: 'nested', //[nested, compact, compressed, expanded]
+				style: 'compressed', //[nested, compact, compressed, expanded]
 				quiet: true,
 				noCache:true,
 			},
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
 			},
 			configFiles: {
 				files: 'Gruntfile.js',
-				tasks: ['sass', 'newer:concat_in_order', 'newer:uglify', 'newer:jsdoc'],
+				tasks: ['default'],
 				options: {
 					reload: true
 				}
