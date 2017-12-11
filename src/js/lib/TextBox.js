@@ -139,6 +139,13 @@ IT.TextBox = class extends IT.FormItem {
 				if (s.type == "mask") //input type mask
 					me.input.inputmask(s.maskSettings||{});
 			break;
+			case "hidden":
+				me.input = $(`<input id="${me.id}-item" `+
+					`type='hidden' `+
+					`name='${me.settings.name||IT.Utils.id()}' `+
+					`${s.value?`value='${s.value}'`:""} `+
+				`>`);
+			break;
 			default:
 				throw "input type unknown";
 			break;

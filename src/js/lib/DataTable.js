@@ -9,7 +9,6 @@ IT.DataTable = class extends IT.Component {
 	constructor(settings){
 		super(settings);
 		let me = this;
-
 		/** 
 		 * Setting for class
 		 * @member {Object}
@@ -35,8 +34,6 @@ IT.DataTable = class extends IT.Component {
 			columns: [{}],
 			customHeader:""
 		}, settings);
-
-
 		me.id 				= me.settings.id || IT.Utils.id();
 		me.params 			= {}
 		me.selectedRow 		= null;
@@ -47,7 +44,6 @@ IT.DataTable = class extends IT.Component {
 			page_count	: 0,
 			total_rows 	: 0
 		}
-
 		me.addEvents(me.settings, [
 			"onItemClick",
 			"onItemDblClick",
@@ -55,9 +51,6 @@ IT.DataTable = class extends IT.Component {
 			"onChangePage"
 		]);
 		me.createComponent();
-
-
-
 		/**
 		 * store data
 		 * @member {boolean}
@@ -103,19 +96,16 @@ IT.DataTable = class extends IT.Component {
 			me.params = me.store.params;
 		}
 	}
-
 	/**
 	 * Create element content
 	 */
 	createComponent(){
 		let me =this,s = me.settings;
-
 		//content .it-datatable
 		me.content = $('<div />', {
 			id: me.id,
 			class: s.cls 
 		}).width(s.width).height(s.height);
-
 		// wrapper
 		let wrapper 	= $(`<div class="it-datatable-wrapper"/>`);
 		let fixHeader 	= $(`<div class="it-datatable-fixed-header"/>`);
@@ -123,7 +113,6 @@ IT.DataTable = class extends IT.Component {
 		let thead 		= $(`<thead />`);
 		let tbody 		= $(`<tbody />`);
 		me.content.append(wrapper.append(table.append(thead)));
-
 		//create header
 		if (s.customHeader) thead.append($(s.customHeader));
 		else {
@@ -137,7 +126,6 @@ IT.DataTable = class extends IT.Component {
 						"width":col.width,
 					}
 				}).append(col.header));
-				
 				if(col.editor && col.editor.store && 
 					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
 				){	
@@ -199,22 +187,18 @@ IT.DataTable = class extends IT.Component {
 					});
 				}else me.setPage($(this).data("page"));
 			});
-
 			me.content.find(".it-datatable-pagination .it-datatable-pagination-current").change(function(){
 				me.setPage($(this).val());
 			});
-
 			// Loading Inline
 			let loadingInline = $(`
 				<div class="it-datatable-loading-overlay">
 					<div class="it-loading-rolling"></div>
 				</div>
 			`);
-
 			me.content.append(loadingInline);
 		}
 	}
-
 	/**
 	 * Assign Data from store
 	 * @param  {IT.Store} store 
@@ -238,7 +222,6 @@ IT.DataTable = class extends IT.Component {
 		me.content.find('.it-datatable-pagination-show').html(data_show);
 		me.content.find('.it-datatable-pagination-count').html(store.total_rows);
 		me.content.find('.it-datatable-pagination-page').html(page_count);
-
 		if (start == 0) {
 			me.content.find('.it-datatable-pagination-current').val(1);
 		}
@@ -325,7 +308,7 @@ IT.DataTable = class extends IT.Component {
 	}
 	getSelectedRecords(){
 		let me =this;
-		return !me.selectedRow?null:me.store.data[me.selectedRow];
+		return !!me.selectedRow?null:me.store.data[me.selectedRow];
 	}
 	addRow(curRecord={}){
 		let me=this;
@@ -335,7 +318,6 @@ IT.DataTable = class extends IT.Component {
 				current_col = me.settings.columns[indexCol],
 				field 		= current_col.dataIndex,
 				value 		= curRecord.get(field);
-
 			if(editor){
 				editor = editor.isClass ? editor : IT.Utils.createObject(
 					$.extend(true,{},current_col.editor,{
@@ -343,7 +325,6 @@ IT.DataTable = class extends IT.Component {
 					})
 				);
 			}
-
 			let render 		= 	
 				current_col.data 		|| 
 				current_col.renderer 	|| 
