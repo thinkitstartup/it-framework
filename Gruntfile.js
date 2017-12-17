@@ -4,8 +4,14 @@ var fs = require('fs');
 module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		banner: '/*! \n<%= pkg.name %> - <%= pkg.license %>\n' +
+			'Version\t: <%= pkg.version %> \n' +
+			'Created\t: This file was auto generated at <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> \n' +
+			'Author\t: <%= pkg.author %>\n' +
+			'*/\n',
 		concat_in_order: {
 			options: {
+				banner: grunt.config("banner"),
 				extractRequired: function (filepath, filecontent) {
 					var workingdir = path.normalize(filepath).split(path.sep);
 					workingdir.pop();
@@ -20,30 +26,26 @@ module.exports = function (grunt) {
 				extractDeclared: function (filepath) {
 					return [filepath];
 				},
-				onlyConcatRequiredFiles: false
+				onlyConcatRequiredFiles: true
 			},
 			script: {
 				src: ["src/js/namespace.js", "src/js/lib/**/*.js"],
-				dest: 'src/js/it-framework-all.js'
+				dest: 'dist/it-framework-all.js'
 			}
 		},
 		uglify: {
-			options: {
-				compress: true,
-				compress: {
-					drop_console: !true
+			minify: {
+				options: {
+					compress: true,
+					compress: {
+						drop_console: !true
+					},
+					beautify: false,
+					banner: grunt.config("banner"),
 				},
-				beautify: true,
-				banner: '/*! <%= pkg.name %> - <%= pkg.license %>\n' +
-					'Version\t: <%= pkg.version %> \n' +
-					'Build\t: <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> \n' +
-					'Author\t: <%= pkg.author %>\n' +
-					'*/'
-			},
-			dist: {
-				src: "src/js/it-framework-all.js",
+				src: '<%= concat_in_order.script.dest %>',
 				dest: 'dist/it-framework.min.js'
-			}
+			},
 		},
 		jsdoc: {
 			dist: {
@@ -76,7 +78,7 @@ module.exports = function (grunt) {
 			},
 			configFiles: {
 				files: 'Gruntfile.js',
-				tasks: 'default',
+				tasks: ['default'],
 				options: {
 					reload: true
 				}
@@ -102,10 +104,10 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.registerTask('default', [
-		// 'sass',
+		'sass',
 		'concat_in_order',
-		// 'newer:uglify',
-		// 'newer:jsdoc',
+		'newer:uglify',
+		'newer:jsdoc',
 		'watch'
 	]);
 };

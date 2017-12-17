@@ -2,9 +2,9 @@
  * [Button description]
  * @type {class}
  * @extends IT.Component
- * @depend IT.BaseClass
+ * @depend IT.Component
  */
-IT.Button = class {//extends IT.Component {
+IT.Button = class extends IT.Component {
 	constructor(params){
 		super(params);
 
@@ -23,6 +23,7 @@ IT.Button = class {//extends IT.Component {
 		me.enable = me.settings.enable;
 		//me.listener = new IT.Listener(me, me.settings, ["onClick"]);
 		me.addEvents(me.settings, ["onClick"]);
+
 
 		let btn = $('<a/>', {
 			id: me.id,

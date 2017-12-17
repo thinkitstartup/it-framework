@@ -1,5 +1,5 @@
 /**
- * Class
+ * BaseClass for every Class Instance
  * @type {class}
  */
 IT.BaseClass = class {
