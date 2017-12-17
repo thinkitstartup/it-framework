@@ -1,4 +1,6 @@
 var path = require('path');
+var fs = require('fs');
+
 module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -18,7 +20,7 @@ module.exports = function (grunt) {
 				extractDeclared: function (filepath) {
 					return [filepath];
 				},
-				onlyConcatRequiredFiles: true
+				onlyConcatRequiredFiles: false
 			},
 			script: {
 				src: ["src/js/namespace.js", "src/js/lib/**/*.js"],
@@ -74,7 +76,7 @@ module.exports = function (grunt) {
 			},
 			configFiles: {
 				files: 'Gruntfile.js',
-				tasks: ['default'],
+				tasks: 'default',
 				options: {
 					reload: true
 				}
@@ -85,7 +87,7 @@ module.exports = function (grunt) {
 					'<%= concat_in_order.script.src %>',
 					'research/**/*'
 				],
-				tasks: ['newer:concat_in_order', 'newer:uglify', 'newer:jsdoc'],
+				tasks: 'default',
 			},
 			sass: {
 				files: 'src/sass/**/*',
@@ -99,5 +101,11 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-concat-in-order');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-sass');
-	grunt.registerTask('default', ['sass', 'newer:concat_in_order', 'newer:uglify', 'newer:jsdoc', 'watch']);
+	grunt.registerTask('default', [
+		// 'sass',
+		'concat_in_order',
+		// 'newer:uglify',
+		// 'newer:jsdoc',
+		'watch'
+	]);
 };

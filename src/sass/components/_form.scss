@@ -1,9 +1,6 @@
 .it {
 	&-form {
-		padding-top:$form_space_padding;
-		padding-bottom:$form_space_padding;
-		padding-left: 30px; 
-		padding-right: 50px; 
+		padding :$form_space_padding;
 		& .it-input {
 			&-label {
 				display: block;
