@@ -298,6 +298,7 @@ IT.DataTable = class extends IT.Component {
 			}
 		}
 	}
+
 	loadPage(page){
 		let me=this;
 		let start = (page - 1) * me.paging.limit;
@@ -308,7 +309,7 @@ IT.DataTable = class extends IT.Component {
 	}
 	getSelectedRecords(){
 		let me =this;
-		return !!me.selectedRow?null:me.store.data[me.selectedRow];
+		return me.selectedRow===null?null:me.store.data[me.selectedRow];
 	}
 	addRow(curRecord={}){
 		let me=this;
@@ -350,7 +351,6 @@ IT.DataTable = class extends IT.Component {
 			td.on('click',function(){
 				me.selectedRow 		= td.parent().index();
 				me.selectedColumn 	= td.index();
-				console.log("pas click");
 				me.content.find("tbody tr").removeClass('it-datatable-selected');
 				td.parent().addClass('it-datatable-selected');
 				if(	editor && editor.className!=="checkbox" && 
@@ -376,6 +376,8 @@ IT.DataTable = class extends IT.Component {
 					editor.renderTo(td.find("div"));
 					editor.input.focus();
 				}
+			}).on("dblclick", el=>{
+				me.doEvent("onItemDblClick", [me,me.getSelectedRecords()]);
 			});
 			row_element.append(td);
 		}

@@ -1,7 +1,7 @@
 /*! 
 IF Framework - MIT
 Version	: 1.2.0 
-Created	: This file was auto generated at 2017-12-17 10:28:49 
+Created	: This file was auto generated at 2017-12-29 11:25:16 
 Author	: Kami Technical <kamitechnical@gmail.com>
 */
 var IT= IT || {};
@@ -416,7 +416,6 @@ IT.RecordStore = class extends IT.BaseClass {
 	/**
 	 * is this record has been updated
 	 * @param {String} [String] Optional. If set, it will check if the record is changed base on key.
-	 * if not set it will check from all key
 	 * @return {Boolean} true if record has changed
 	 */
 	isChanged(key=null){
@@ -471,7 +470,7 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
-	get(key,from){
+	get(key){
 		return this.rawData[key];
 	}
 
@@ -998,6 +997,7 @@ IT.DataTable = class extends IT.Component {
 			}
 		}
 	}
+
 	loadPage(page){
 		let me=this;
 		let start = (page - 1) * me.paging.limit;
@@ -1008,7 +1008,7 @@ IT.DataTable = class extends IT.Component {
 	}
 	getSelectedRecords(){
 		let me =this;
-		return !!me.selectedRow?null:me.store.data[me.selectedRow];
+		return me.selectedRow===null?null:me.store.data[me.selectedRow];
 	}
 	addRow(curRecord={}){
 		let me=this;
@@ -1050,7 +1050,6 @@ IT.DataTable = class extends IT.Component {
 			td.on('click',function(){
 				me.selectedRow 		= td.parent().index();
 				me.selectedColumn 	= td.index();
-				console.log("pas click");
 				me.content.find("tbody tr").removeClass('it-datatable-selected');
 				td.parent().addClass('it-datatable-selected');
 				if(	editor && editor.className!=="checkbox" && 
@@ -1076,6 +1075,8 @@ IT.DataTable = class extends IT.Component {
 					editor.renderTo(td.find("div"));
 					editor.input.focus();
 				}
+			}).on("dblclick", el=>{
+				me.doEvent("onItemDblClick", [me,me.getSelectedRecords()]);
 			});
 			row_element.append(td);
 		}
@@ -1549,15 +1550,19 @@ IT.Grid = class extends IT.Component {
 			});
 		}
 		
+		me.ids = [];
+		me.items = {};
+
 		// Set CSS ke objek
 		me.content.css(me.settings.css); 
-
 		// Looping semua yang ada di items
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
 					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 
@@ -1568,6 +1573,15 @@ IT.Grid = class extends IT.Component {
 			me.content = $('<div/>', { class:'container' }).append(me.content);
 		}
 	}
+	getItemCount() {
+		return this.ids.length;
+	}
+	getItem(id) {
+		if (typeof id === "number") id = this.ids[id];
+		if (id) return this.items[id] || null;
+		return this.items;
+	}
+
 }
 /**
  * HTML Class. Standar dom class.
@@ -1847,11 +1861,11 @@ IT.MessageBox = class extends IT.Component {
 	}
 }
 IT.Select = class extends IT.FormItem {
-	constructor(settings){
+	constructor(settings) {
 		super(settings);
-		let me = this,cls;
-		
-		me.settings = $.extend(true,{
+		let me = this, cls;
+
+		me.settings = $.extend(true, {
 			id: '',
 			value: '',
 			emptyText: '',
@@ -1860,59 +1874,58 @@ IT.Select = class extends IT.FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
-			withRowContainer: false, 
+			withRowContainer: false,
 			width: 200,
 			store: {
-				url		: '',
-				type	: 'array',
-				data	: null,
+				url: '',
+				type: 'array',
+				data: null,
 			},
-			size:{
-				field:"col-md-8",
-				label:"col-md-4"
+			size: {
+				field: "col-md-8",
+				label: "col-md-4"
 			},
 		}, settings);
-		
 		me.id = me.settings.id || IT.Utils.id();
 
 		me.input = $('<select />', {
 			id: me.id,
-			name: me.id,
+			name: me.s.name,
 			class: 'it-edit-input',
 			attr: {
 				disabled: me.settings.disabled,
 			},
 			val: me.settings.defaultValue,
 		});
-		
+
 		//me.content = $('<div />', { class: 'it-edit' });
 		//me.content.append(me.input);
-		me.content=$(((me.settings.label) ? `<div class="${me.settings.size.label}">`+
-			`<label for="${me.id}-item" class='it-input-label it-input-label-${me.settings.labelAlign||'left'}'>${me.settings.label}</label>`+
-		`</div>`:"") + `<div class="${me.settings.size.field}"></div>`);
+		me.content = $(((me.settings.label) ? `<div class="${me.settings.size.label}">` +
+			`<label for="${me.id}-item" class='it-input-label it-input-label-${me.settings.labelAlign || 'left'}'>${me.settings.label}</label>` +
+			`</div>` : "") + `<div class="${me.settings.size.field}"></div>`);
 		me.content.last().append(me.input);
 
-		if(me.settings.width) {
+		if (me.settings.width) {
 			me.content.css({
 				'width': me.settings.width
 			})
 		}
 
-		if(me.settings.withRowContainer) {
-			me.content = $('<div/>', { class:'row'}).append(me.content);
+		if (me.settings.withRowContainer) {
+			me.content = $('<div/>', { class: 'row' }).append(me.content);
 		}
 
-		me.addEvents(me.settings,[
+		me.addEvents(me.settings, [
 			"onLoad",
 			"onChange"
 		]);
-		
-		me.input.on("change",function(){
-			me.doEvent("onChange",[me,me.val()]);
+
+		me.input.on("change", function () {
+			me.doEvent("onChange", [me, me.val()]);
 		});
 
 		// If has value of empty text
-		if(me.settings.emptyText && !me.settings.autoLoad) {
+		if (me.settings.emptyText && !me.settings.autoLoad) {
 			me.input.append($('<option/>', {
 				val: '',
 				text: me.settings.emptyText
@@ -1920,50 +1933,48 @@ IT.Select = class extends IT.FormItem {
 		}
 
 		//setting store
-		me.store = new IT.Store($.extend(true,{},me.settings.store,{
+		me.store = new IT.Store($.extend(true, {}, me.settings.store, {
 			// replace autoLoad with false, we need extra event 'afterload'
 			// wich is not created at the moment
-			autoLoad:false 
+			autoLoad: false
 		}));
 		me.store.addEvents({// add extra afterload
-			beforeLoad:function(){
+			beforeLoad: function () {
 				me.readyState = false;
 			},
-			afterLoad:function(ev,cls,data){
-				data.forEach((obj)=> {
+			afterLoad: function (ev, cls, data) {
+				data.forEach((obj) => {
 					me.input.append($('<option/>', {
 						val: obj.rawData.key,
 						text: obj.rawData.value,
 						attr: {
-							'data-params' : (typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : '')
+							'data-params': (typeof obj.rawData.params !== 'undefined' ? JSON.stringify(obj.rawData.params) : '')
 						}
 					}));
 				});
 				me.readyState = true;
+				me.doEvent("onLoad", [me]);
 			}
-		}); 
-		
+		});
 		// If Autuload
-		if(me.settings.autoLoad) {
+		if (me.settings.autoLoad) {
 			me.getDataStore();
-		}else me.readyState = true;
+		} else me.readyState = true;
 	}
-	getDisplayValue(){
+	getDisplayValue() {
 		let me = this;
 		return me.getSelect().getItem(me.val())[0].innerHTML;
 	}
- 	setDataStore(store) {
+	setDataStore(store) {
 		this.settings.store = store;
 		this.dataStore();
 	}
 	getDataStore() {
 		let me = this;
-		let ds = me.settings.store; 
-
+		let ds = me.settings.store;
 		me.input.empty();
-
 		// If has value of empty text
-		if(me.settings.emptyText) {
+		if (me.settings.emptyText) {
 			me.input.append($('<option/>', {
 				val: '',
 				text: me.settings.emptyText
@@ -1971,16 +1982,8 @@ IT.Select = class extends IT.FormItem {
 		}
 		me.store.load();
 	}
-	
-	/**
-	 * Override
-	 * @param  {Optional} value Value to setter
-	 * @return {String}   value for getter
-	 */
-	val(value) {
-		if (typeof value === "undefined")
-			return this.input.val();
-		else return this.input.val(value);
+	getSelectedIndex(){
+		return document.getElementById(this.id).selectedIndex;
 	}
 }
 
@@ -2258,102 +2261,103 @@ IT.Selectize = class extends IT.FormItem {
 }
 
 IT.Tabs = class extends IT.Component {
-	constructor(settings){
+	constructor(settings) {
 		super(settings);
 
 		let me = this;
-		me.settings = $.extend(true,{
+		me.settings = $.extend(true, {
 			id: '',
 			titles: {
 				align: 'left',
-				items:[]
+				items: []
 			},
-			items:[],
+			items: [],
 			defaultIndexActive: 0,
 			height: 100,
 			autoHeight: false
 		}, settings);
 
 		me.id = me.settings.id || IT.Utils.id();
-		me.ids = [];	
+		me.items = {};
 		me.content = $(`
 			<div id="${me.id}" class="it-tabs">
-				<ul class="it-tabs-menu ${me.settings.titles.align}"></ul>
-				<div class="it-tabs-overflow">
-					<span class="btn-overflow"><i class="fa fa-angle-down"></i></span>
-					<ul class="menu-overflow"></ul>
+			<ul class="it-tabs-menu ${me.settings.titles.align}"></ul>
+			<div class="it-tabs-overflow">
+			<span class="btn-overflow"><i class="fa fa-angle-down"></i></span>
+			<ul class="menu-overflow"></ul>
 				</div>
 				<div class="it-tabs-container"></div>
-			</div>`
+				</div>`
 		);
 		me.content.css(me.settings.autoHeight ? 'min-height' : 'height', me.settings.height);
 
 		// Loop judul tab
-		$.each(me.settings.titles.items, function(k, v){
+		me.idsTitle=[];
+		$.each(me.settings.titles.items, function (k, v) {
 			let id = IT.Utils.id();
 			let titleTab = $('<li/>', {
 				class: 'it-tabs-link',
 				html: v,
 				attr: {
-					'data-tab' : id,	
-					'data-index' : k
-				} 	
+					'data-tab': id,
+					'data-index': k
+				}
 			});
 			titleTab.appendTo(me.content.find('.it-tabs-menu'));
-			titleTab.click(function(){
+			titleTab.click(function () {
 				me.setActive($(this).data('index'));
 			});
-			me.ids.push(id);
+			me.idsTitle.push(id);
 		});
-
+		
 		// Loop berdasarkan ids untuk membuat konten
-		$.each(me.settings.items, function(k, el){
-			if(el) {
+		me.ids = [];
+		$.each(me.settings.items, function (k, el) {
+			if (el) {
 				// Buat Div Tab konten
 				let itemTab = $('<div/>', {
 					class: 'it-tabs-content',
-					id: me.ids[k]
+					id: me.idsTitle[k]
 				});
 
-				if(!el.isClass)
-						el = IT.Utils.createObject(el);
-					el.renderTo(itemTab);
-
+				if (!el.isClass)
+					el = IT.Utils.createObject(el);
+				el.renderTo(itemTab);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 				itemTab.appendTo(me.content.find('.it-tabs-container'));
-			}	
+			}
 		});
 
 		// Event dan Trigger untuk tombol overflow
-		me.content.find('.btn-overflow').click(function(){
+		me.content.find('.btn-overflow').click(function () {
 			$(this).next().toggle();
 		});
 	}
 	renderTo(obj) {
 		super.renderTo(obj);
 		let me = this;
-		$(window).resize(function() {
-		   me._autoShowMore();
+		$(window).resize(function () {
+			me._autoShowMore();
 		});
 
 		me._autoShowMore();
 		me.setActive(me.settings.defaultIndexActive);
-		
+
 		// Still Bugs 
 		setTimeout(() => {
 			me._autoShowMore();
 		}, 10);
 	}
-
 	setActive(index) {
-		let cur, 
+		let cur,
 			me = this,
 			el = me.content.find('.it-tabs-menu li').eq(index);
-		if(el.length < 1) throw 'offset index';
+		if (el.length < 1) throw 'offset index';
 		me.content.find(".tab-active").removeClass("tab-active");
 		cur = el.addClass("tab-active");
-		me.content.find('#'+cur.data('tab')).addClass('tab-active');
+		me.content.find('#' + cur.data('tab')).addClass('tab-active');
 	}
-
 	getActive() {
 		let el = this.getContent().find('.it-tabs-menu li.tab-active');
 		return {
@@ -2361,22 +2365,29 @@ IT.Tabs = class extends IT.Component {
 			content: el,
 		}
 	}
-
 	_autoShowMore() {
 		let me = this;
 		let menuOverflow = me.content.find('.menu-overflow');
-		menuOverflow.empty();	
+		menuOverflow.empty();
 
 		let menu = me.content.find('.it-tabs-menu li');
 		menu.show();
-		menu.each(function(){
-			if(($(this).position().left + $(this).outerWidth()) > me.content.width()) {
+		menu.each(function () {
+			if (($(this).position().left + $(this).outerWidth()) > me.content.width()) {
 				$(this).clone(true).appendTo(menuOverflow);
 				$(this).hide();
 			}
 		});
 
 		me.content.find('.it-tabs-overflow').toggle(menuOverflow.children('li').length > 0);
+	}
+	getItemCount() {
+		return this.ids.length;
+	}
+	getItem(id) {
+		if (typeof id === "number") id = this.ids[id];
+		if (id) return this.items[id] || null;
+		return this.items;
 	}
 }
 /**
@@ -2399,7 +2410,7 @@ IT.TextBox = class extends IT.FormItem {
 		 * @property {enum} available : [textarea, text, mask]
 		 * @property {int} cols how many coloms char, only used for type textarea
 		 * @property {int} rows how many rows char,only used for type textarea
-		 * @property {Object} maskSettings maskSettings:{}, // only used for type mask
+		 * @property {Object} maskSettings maskSettings:{}, // only used for type mask  https://github.com/RobinHerbots/Inputmask/blob/4.x/README.md
 		 * @property {String} id id the classs
 		 * @property {String} label set label description
 		 * @property {String} name name for the input, < input type='type' > name="xxx">

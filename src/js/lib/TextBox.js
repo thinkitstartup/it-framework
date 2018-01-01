@@ -18,7 +18,7 @@ IT.TextBox = class extends IT.FormItem {
 		 * @property {enum} available : [textarea, text, mask]
 		 * @property {int} cols how many coloms char, only used for type textarea
 		 * @property {int} rows how many rows char,only used for type textarea
-		 * @property {Object} maskSettings maskSettings:{}, // only used for type mask
+		 * @property {Object} maskSettings maskSettings:{}, // only used for type mask  https://github.com/RobinHerbots/Inputmask/blob/4.x/README.md
 		 * @property {String} id id the classs
 		 * @property {String} label set label description
 		 * @property {String} name name for the input, < input type='type' > name="xxx">

@@ -19,7 +19,6 @@ IT.RecordStore = class extends IT.BaseClass {
 	/**
 	 * is this record has been updated
 	 * @param {String} [String] Optional. If set, it will check if the record is changed base on key.
-	 * if not set it will check from all key
 	 * @return {Boolean} true if record has changed
 	 */
 	isChanged(key=null){
@@ -74,7 +73,7 @@ IT.RecordStore = class extends IT.BaseClass {
 	 * @param  {String} key key field
 	 * @return {Object}     value
 	 */
-	get(key,from){
+	get(key){
 		return this.rawData[key];
 	}
 

@@ -1,17 +1,17 @@
 var path = require('path');
-var fs = require('fs');
+
+const banner = '/*! \n<%= pkg.name %> - <%= pkg.license %>\n' +
+	'Version\t: <%= pkg.version %> \n' +
+	'Created\t: This file was auto generated at <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> \n' +
+	'Author\t: <%= pkg.author %>\n' +
+	'*/\n';
 
 module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		banner: '/*! \n<%= pkg.name %> - <%= pkg.license %>\n' +
-			'Version\t: <%= pkg.version %> \n' +
-			'Created\t: This file was auto generated at <%= grunt.template.today("yyyy-mm-dd hh:MM:ss") %> \n' +
-			'Author\t: <%= pkg.author %>\n' +
-			'*/\n',
 		concat_in_order: {
 			options: {
-				banner: grunt.config("banner"),
+				banner: banner,
 				extractRequired: function (filepath, filecontent) {
 					var workingdir = path.normalize(filepath).split(path.sep);
 					workingdir.pop();
@@ -41,7 +41,7 @@ module.exports = function (grunt) {
 						drop_console: !true
 					},
 					beautify: false,
-					banner: grunt.config("banner"),
+					banner: banner
 				},
 				src: '<%= concat_in_order.script.dest %>',
 				dest: 'dist/it-framework.min.js'
@@ -78,7 +78,7 @@ module.exports = function (grunt) {
 			},
 			configFiles: {
 				files: 'Gruntfile.js',
-				tasks: ['default'],
+				tasks: 'default',
 				options: {
 					reload: true
 				}
@@ -89,7 +89,7 @@ module.exports = function (grunt) {
 					'<%= concat_in_order.script.src %>',
 					'research/**/*'
 				],
-				tasks: 'default',
+				tasks: ["newer:concat_in_order","newer:uglify"],
 			},
 			sass: {
 				files: 'src/sass/**/*',
@@ -105,7 +105,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.registerTask('default', [
 		'sass',
-		'concat_in_order',
+		'newer:concat_in_order',
 		'newer:uglify',
 		'newer:jsdoc',
 		'watch'

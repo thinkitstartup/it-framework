@@ -41,15 +41,19 @@ IT.Grid = class extends IT.Component {
 			});
 		}
 		
+		me.ids = [];
+		me.items = {};
+
 		// Set CSS ke objek
 		me.content.css(me.settings.css); 
-
 		// Looping semua yang ada di items
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
 					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
+				me.ids.push(el.getId());
+				me.items[el.getId()] = el;
 			}
 		});
 
@@ -60,4 +64,13 @@ IT.Grid = class extends IT.Component {
 			me.content = $('<div/>', { class:'container' }).append(me.content);
 		}
 	}
+	getItemCount() {
+		return this.ids.length;
+	}
+	getItem(id) {
+		if (typeof id === "number") id = this.ids[id];
+		if (id) return this.items[id] || null;
+		return this.items;
+	}
+
 }
