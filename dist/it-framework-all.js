@@ -1,7 +1,7 @@
 /*! 
 IF Framework - MIT
 Version	: 1.2.0 
-Created	: This file was auto generated at 2018-01-26 04:11:36 
+Created	: This file was auto generated at 2018-01-26 09:08:01 
 Author	: Kami Technical <kamitechnical@gmail.com>
 */
 var IT= IT || {};
@@ -1197,7 +1197,6 @@ IT.Dialog = class extends IT.Component {
 			me.content.addClass("no-overlay");
 		}
 		
-
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(!el.isClass) el = IT.Utils.createObject(el);
@@ -1229,11 +1228,6 @@ IT.Dialog = class extends IT.Component {
 
 		me.content.appendTo('body').hide();
 		me.elExist = true;
-
-		if(me.settings.autoShow) {
-			me.show();
-		} //else me.createElement();
-
 		if(me.settings.cancelable) {
 			me.content.find('.it-dialog-container').click(function(e){
 				e.stopPropagation();
@@ -1252,7 +1246,6 @@ IT.Dialog = class extends IT.Component {
 		if(id)return this.items[id]||null;
 		return this.items;
 	}
-
 
 	/** show the dialog, crete DOMelement if not exist, then add show() */
 	show() {

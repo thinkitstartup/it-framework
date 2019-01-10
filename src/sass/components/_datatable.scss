@@ -139,7 +139,7 @@
 				list-style: none;
 				@include resetMP();
 				@include flexbox();
-				@include flex(1);
+				// @include flex(1);
 				@include align-items(center);
 				li {
 					float: left;
