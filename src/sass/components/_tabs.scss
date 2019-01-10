@@ -1,9 +1,9 @@
 .it {
 	&-tabs {
+		width:100%;
 		position: relative;
 		@include flexbox();
 		@include flex-direction(column);
-		
 		&-menu {
 			@include resetMP();
 			list-style: none;
@@ -47,7 +47,6 @@
 		&-overflow {
 			position: absolute;
 			@include prePost(0, 0, '', '');
-
 			.btn-overflow {
 				display: inline-block;
 				background: #fff;
@@ -56,12 +55,10 @@
 				@include size(20px, 33px);
 				box-shadow: -1px 0px 0px 0px rgba(0, 0, 0, 0.2);
 				cursor: pointer;
-
 				&:hover {
 					background: #eee;
 				}
 			}
-
 			.menu-overflow {
 				display: none;
 				position: absolute;
@@ -98,8 +95,8 @@
 
 		&-content {
 			display: none;	
+			margin-top: 10px;
 			@include flex(1);
-
 			&.tab-active {
 				display: block;
 			}

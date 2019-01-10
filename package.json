@@ -1,37 +1,29 @@
 {
-  "name": "it-framework",
-  "version": "1.0.2",
-  "description": "Javascript ES6 Admin Page Framework",
-  "devDependencies": {
-    "docdash": "git://github.com/thinkitstartup/docdash.git#fixconstructor",
-    "grunt": "^1.0.1",
-    "grunt-concat-in-order": "^0.2.6",
-    "grunt-contrib-sass": "^1.0.0",
-    "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-jsdoc": "^2.1.0"
-  },
-  "dependencies": {
-    "font-awesome": "Font-Awesome#^4.7.0",
-    "jQuery": "^3.2.1",
-    "inputmask": "^3.3.7"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "install":"npm install"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/thinkitstartup/it-framework.git"
-  },
-  "keywords": [
-    "ECMA6",
-    "FrameWork"
-  ],
-  "author": "Kami Technical <kamitechnical@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/thinkitstartup/it-framework/issues"
-  },
-  "homepage": "https://github.com/thinkitstartup/it-framework#readme"
+	"name": "if-framework",
+	"version": "1.2.0",
+	"description": "Javascript ES6 Admin Page Framework",
+	"dependencies": {},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/thinkitstartup/it-framework.git"
+	},
+	"keywords": [
+		"ECMA6",
+		"FrameWork"
+	],
+	"author": "Kami Technical <kamitechnical@gmail.com>",
+	"contributors": [
+		{
+			"name": "Egy Mohammad Erdin",
+			"email": "mohammad.erdin@gmail.com"
+		}
+	],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/thinkitstartup/it-framework/issues"
+	},
+	"homepage": "https://github.com/thinkitstartup/it-framework#readme"
 }

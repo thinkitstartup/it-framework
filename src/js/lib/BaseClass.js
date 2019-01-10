@@ -15,11 +15,9 @@ IT.BaseClass = class {
 		me.settings = settings||{};
 	}
 
-
 	get className(){
 		return this.classname || this.settings.xtype || this.settings.x || undefined;
 	}
-
 
 	/**
 	 * used to check if this is a class
@@ -58,25 +56,21 @@ IT.BaseClass = class {
 	 * @param  {params} array array of argument to be passed
 	 */
 	doEvent(event,params){
-		//Just beware that triggerHandler doesn't do the exact same thing as trigger
-		return $(this).triggerHandler(event,params);
+		$(this).trigger(event,params);
 	}
 	/**
 	 * Clear all available events.
 	 * @param  {option} object of functions 
 	 */
 	clearEvents(option={}){
-		//let sel = option.selector || $(this).off();
-		$(this).off();
+		let sel = option.selector || $(this).off();
 	}
 
 	/**
-	 * shorthand for settings
-	 * @param  {option} object of functions 
+	 * Shorthand for this.settings;
+	 * @returns {object} setting object
 	 */
 	get s(){
-		return this.settings || {};
+		return this.settings;
 	}
-
-	
 }

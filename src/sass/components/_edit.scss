@@ -53,6 +53,10 @@
 			height: $input_height_default;
 			@include flex(1);
 
+			&.noflex {
+				@include flex(0);
+			}
+
 			// State
 			&:focus {
 				border-color: $input_border_focus_color;
@@ -86,7 +90,6 @@
 					@include size($checkbox_width_default, $checkbox_height_default);
 				}
 				
-			
 				&:checked + label:after {
 					visibility: visible;
 					opacity: 1;

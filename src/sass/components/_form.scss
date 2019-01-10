@@ -1,27 +1,23 @@
 .it {
 	&-form {
-		padding: $form_space_padding; 
-
+		padding :$form_space_padding;
 		& .it-input {
 			&-label {
 				display: block;
 				margin-top: 4px;
-				
 				@media (max-width: $view_sm) {
 					margin-bottom: 14px;
 			    }
 			}
 		}
-
 		.datepicker-container {
 			font-family: Aller;
 		}
 	}
 }
-
 .form-row {
-	@include flexbox();
-	margin-right: -5px;
-	margin-left: -5px;
+/* 	@include flexbox();
+	margin-right: 500px;
+	margin-left: 500px; */
 	margin-bottom: $form_space_items;
 }

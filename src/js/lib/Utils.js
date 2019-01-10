@@ -2,7 +2,6 @@
  * Class Utils, all the members should static
  * @type {function}
  * @extends IT.BaseClass
- * @depend IT.BaseClass
  */
 IT.Utils = class extends IT.BaseClass{
 	/**
@@ -24,10 +23,8 @@ IT.Utils = class extends IT.BaseClass{
 			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
-			selectIT	: "SelectIT",
 			imagebox	: "ImageBox",
 
-			
 			grid		: "Grid",
 			datatable	: "DataTable",
 			tabs    	: "Tabs"
@@ -87,7 +84,6 @@ IT.Utils = class extends IT.BaseClass{
 	static emptyFn(){
 		//console.info("Empty function");
 	}
-
 
 	static findData(value,fromStore,opt=null){
 		let v = value,

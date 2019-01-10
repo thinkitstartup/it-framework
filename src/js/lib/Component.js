@@ -1,7 +1,6 @@
 /**
  * Default Component CLass
  * @extends IT.BaseClass
- * @depend IT.BaseClass
  */
 IT.Component = class extends IT.BaseClass {
 	constructor(settings) {

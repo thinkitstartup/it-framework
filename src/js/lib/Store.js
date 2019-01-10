@@ -3,27 +3,26 @@
  * @extends IT.BaseClass
  * @type IT.Store
  * @param {Object} settings setting for class
- * @depend IT.BaseClass
  * @depend IT.RecordStore
  */
 IT.Store = class extends IT.BaseClass {
 	/** conctructor */
-	constructor(settings){
+	constructor(settings) {
 		super(settings);
 
-		let me =this;
+		let me = this;
 		/** 
 		 * Setting for class
 		 * @member {Object}
 		 * @name IT.Store#settings
 		 * @property {string} id ID of element
 		 */
-		me.settings = $.extend(true,{
+		me.settings = $.extend(true, {
 			type: 'json',
 			url: '',
 			data: [],
-			autoLoad:false,
-			params:{
+			autoLoad: false,
+			params: {
 				start: 0,
 				limit: 20
 			}
@@ -31,86 +30,94 @@ IT.Store = class extends IT.BaseClass {
 		me.params = me.settings.params;
 		me.data = [];
 		me.total_rows = 0;
-		me.listener = new IT.Listener(me, me.settings, [
+		me.procces = false;
+
+		me.addEvents(me.settings, [
 			"beforeLoad",
 			"afterLoad",
 			"onLoad",
 			"onError",
 			"onEmpty"
 		]);
-
 		if (me.settings.autoLoad) me.load();
 	}
 
 	/**
 	 * empty store data
 	 */
-	empty(){
-		let me=this;
+	empty() {
+		let me = this;
 		me.total_rows = 0;
 		me.data = [];
-		me.listener.fire("onEmpty",[me, me.getData(), me.params]);
+		me.doEvent("onEmpty", [me, me.getData(), me.params]);
 	}
 	/**
 	 * Load Data
 	 * @param  {object} opt optional params
 	 */
-	load(opt={}){
+	load(opt = {}) {
 		let me = this;
-		//var opt = opt || {};
-		switch(me.settings.type){
+		switch (me.settings.type) {
+			case "ajax":
 			case "json":
+				me.settings.type = "json";
 				var params = $.extend(me.settings.params, opt.params);
 				me.params = params;
 				me.empty();
 				$.ajax({
 					dataType: me.settings.type,
-					type	: 'POST',
-					url		: me.settings.url,
-					data	: params,
-					beforeSend: function(a,b){
+					type: 'POST',
+					url: me.settings.url,
+					data: params,
+					beforeSend: function (a, b) {
+						me.procces = true;
 						me.total_rows = 0;
-						return me.listener.fire("beforeLoad",[me, a, b]);
+						let ret = me.doEvent("beforeLoad", [me, a, b]);
+						return (typeof ret == 'undefined' ? true : ret);
 					},
-					success : function(data){
-						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined'){
-							$.each(data.rows ,(idx, item)=>{
-								me.data.push(new IT.RecordStore(item));
+					success: function (data) {
+						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined') {
+							$.each(data.rows, (idx, item) => {
+								let rec = new IT.RecordStore(item);
+								rec.commited = true;
+								me.data.push(rec);
 							});
 							me.total_rows = data.total_rows;
-							me.listener.fire("onLoad",[me, me.getData(), me.params]);
+							me.doEvent("onLoad", [me, me.getData(), me.params]);
 						}
-						else{
-							me.empty();
-							me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
-						}
+						else me.doEvent("onError", [me, { status: false, message: "Format Data Tidak Sesuai" }]);
 					},
-					error: function(){
-						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
+					error: function (XMLHttpRequest, textStatus, errorThrown) {
+						//throw errorThrown;
+						me.doEvent("onError", [me, { status: textStatus, message: errorThrown }]);
 					},
-					complete:function(){
-						me.listener.fire("afterLoad",[me,me.getData()]);
+					complete: function () {
+						me.procces = false;
+						me.doEvent("afterLoad", [me, me.getData()]);
 					},
 				});
-			break;
+				break;
 			case "array":
-				me.total_rows=0;
-				if(!me.beforeLoad || (me.beforeLoad && me.listener.fire("beforeLoad",[me, me.data||[], null]))){
-					if (typeof me.settings.data != 'undefined' ){
-						$.each(me.settings.data ,(idx, item)=>{
-							me.data.push(new IT.RecordStore(item));
+				me.total_rows = 0;
+				me.procces = true;
+				let bl_return = me.doEvent("beforeLoad", [me, me.data || [], null]);
+				if (typeof bl_return == 'undefined' ? true : bl_return) {
+					if (typeof me.settings.data != 'undefined') {
+						$.each(me.settings.data, (idx, item) => {
+							let rec = new IT.RecordStore(item);
+							rec.commited = true;
+							me.data.push(rec);
 							me.total_rows++;
 						});
-						me.listener.fire("onLoad",[me, me.getData(), null]);
-					}else{
-						me.listener.fire("onError",[me,{status:false, message:"Data JSON '" + me.settings.url + "' Tidak Ditemukan"}]);
-					}
-					me.listener.fire("afterLoad",[me,me.getData()]);
-				}else{
+						me.doEvent("onLoad", [me, me.getData(), null]);
+					} else me.doEvent("onError", [me, { status: false, message: "Data JSON '" + me.settings.url + "' Tidak Ditemukan" }]);
+				} else {
 					me.empty();
-					me.listener.fire("onError",[me,{status:false, message:"Format Data Tidak Sesuai"}]);
+					me.doEvent("onError", [me, { status: false, message: "Format Data Tidak Sesuai" }]);
 				}
-			break;
+				me.doEvent("afterLoad", [me, me.getData()]);
+				me.procces = false;
+				break;
 		}
 	}
 
@@ -120,33 +127,44 @@ IT.Store = class extends IT.BaseClass {
 	 * @param  {boolean} asc  Determine if order is ascending. true=Ascending, false=Descending
 	 * @deprecated Deprecated, doesn't support ordering in front side
 	 */
-	sort(field,asc=true){
+	sort(field, asc = true) {
 		throw "Deprecated, doesn't support ordering in front side"
 	}
 	/**
 	 * Get parameter(s)
 	 * @return {object} paramters
 	 */
-	getParams(){ return this.params; }
+	getParams() { return this.params; }
 
 	/**
 	 * Get Stored Data
-	 * @param  {Boolean} sanitize wether return in raw or not, false = raw, true = sanitized
-	 * @return {array}           expected data
+	 * @return {array} expected data
 	 */
-	getData(){
+	getData() {
 		return this.data;
+	}
+
+	/**
+	 * Get Stored Raw Datas
+	 * @return {array} expected data
+	 */
+	getRawData() {
+		let me = this, ret = [];
+		$.each(me.data, (idx, item) => {
+			ret.push(item.rawData);
+		});
+		return ret;
 	}
 
 	/**
 	 * Get only changed data from raw
 	 * @return {array}  array of record
 	 */
-	getChangedData(){
-		let me=this,r = [];
-		for(let idx in me.data){
-			if(me.data[idx].changed)
-				r.push($.extend({},me.data[idx].data,{indexRow: parseInt(idx) }));
+	getChangedData() {
+		let me = this, r = [];
+		for (let idx in me.data) {
+			if (me.data[idx].changed)
+				r.push($.extend({}, me.data[idx].data, { indexRow: parseInt(idx) }));
 		}
 		return r;
 	}
@@ -155,32 +173,42 @@ IT.Store = class extends IT.BaseClass {
 	 * Set stored Data
 	 * @param {object} data replacement for data
 	 */
-	setData(data){ 
-		let me=this;
-		data = me.type=="json"?data.rows:data;
+	setData(data) {
+		let me = this;
+		data = me.type == "json" ? data.rows : data;
 		me.empty();
-		$.each(data ,(idx, item)=>{
-			me.data.push(new IT.RecordStore(item));
+		$.each(data, (idx, item) => {
+			let rec = new IT.RecordStore(item);
+			rec.commited = true;
+			me.data.push(rec);
 			me.total_rows++;
 		});
-		me.listener.fire("onLoad",[me, me.data, me.params]);
-	} 
-
-	/**
-	 * get generated settings
-	 * @return {object}
-	 */
-	getSetting(){ return this.settings; }
-
+		me.doEvent("onLoad", [me, me.data, me.params]);
+	}
 	/**
 	 * Change data
 	 * @param  {Object} data     Updated data
 	 * @param  {Number} indexRow index data to be changed
 	 */
-	replace(data={},indexRow=0){
-		let me=this;
+	replace(data = {}, indexRow = 0) {
+		let me = this;
 		for (let key in data) {
-			me.data[indexRow].update(key,data[key]);
+			me.data[indexRow].update(key, data[key]);
 		}
+	}
+	/**
+	 * find the indexOf `field` by value
+	 * @param {string} field 
+	 * @param {var} value 
+	 * @returns {int} index
+	 */
+	indexOf(field = "", value) {
+		let me = this;
+		for (let i = 0; i < me.data.length; i++) {
+			if (me.data[i].rawData[field] === value) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }
