@@ -8,7 +8,7 @@
 		@include align-items(center);
 		@include prefix(backface-visibility, hidden);
 		@include transition(all .3s);
-		
+
 		&.dialog-show {
 			visibility: visible;
 			opacity: 1;
@@ -25,7 +25,7 @@
 			@include prefix(box-shadow, 0 0 5px rgba(0, 0, 0, .3));
 			@include prefix(transform, scale(.7));
 			@include transition(all .3s);
-			@include flexbox();	
+			@include flexbox();
 			@include flex-direction(column);
 
 			&.dialog-show {
@@ -33,20 +33,21 @@
 				@include prefix(transform, scale(1));
 			}
 
-			> .it-title {
+			>.it-title {
 				background: #eee;
 				padding: 13px;
-				font-family: Aller-Bold;
+				font-family: Roboto;
+				font-weight: bold;
 				@include prefix(border-radius, 0 0 0 0);
 				@include prefix(box-shadow, none);
 			}
-		}	
-		
+		}
+
 		&-header {
 			@include align-self(flex-start);
 			@include size(100%, '');
 			background: #f4f4f4;
-			
+
 			.it-title {
 				background: transparent;
 				border-top: 1px solid #eee;
