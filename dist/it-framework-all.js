@@ -2591,7 +2591,7 @@ IT.Toolbar = class extends IT.Component {
 		},settings);
 		me.id = me.settings.id||IT.Utils.id();
 		me.content = $(`
-			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position} clearfix">
+			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position}">
 				<ul class="it-toolbar-left"></ul>
 				<ul class="it-toolbar-right"></ul>
 			</div>

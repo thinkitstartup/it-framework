@@ -47,7 +47,7 @@
 		}	
 
 		&-input {
-			box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.1);
+			box-shadow: inset 0 2px 3px rgba($color: #ccc, $alpha: .2);
 			font-family: Roboto;
 			line-height: $input_height_default;
 			height: $input_height_default;
@@ -107,7 +107,7 @@
 		&-input,
 		&-item {
 		  	border: 1px solid $input_border_color;
-			padding: 0 5px;
+			padding: $input_padding;
 		}
 
 		&-item {
@@ -121,7 +121,7 @@
 		&-input,
 		&-item {
 		  	border: 1px solid $input_border_color;
-			padding: 0 5px;
+			padding: $input_padding;
 			height: $input_height_default;
 			line-height: $input_height_default;
 		}
@@ -132,6 +132,13 @@
 
 		&-item:last-child {
 			border-left: none;
+		}
+	}
+
+	&-input {
+		&-label {
+			margin: 0;
+			line-height: 1.6em;
 		}
 	}
 }

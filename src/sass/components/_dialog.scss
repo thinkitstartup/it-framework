@@ -7,7 +7,7 @@
 		@include justify-content(center);
 		@include align-items(center);
 		@include prefix(backface-visibility, hidden);
-		@include transition(all .3s);
+		@include transition(all 250ms);
 
 		&.dialog-show {
 			visibility: visible;
@@ -24,7 +24,7 @@
 			@include prefix(border-radius, 3px);
 			@include prefix(box-shadow, 0 0 5px rgba(0, 0, 0, .3));
 			@include prefix(transform, scale(.7));
-			@include transition(all .3s);
+			@include transition(all 250ms);
 			@include flexbox();
 			@include flex-direction(column);
 
@@ -34,12 +34,7 @@
 			}
 
 			>.it-title {
-				background: #eee;
-				padding: 13px;
-				font-family: Roboto;
-				font-weight: bold;
 				@include prefix(border-radius, 0 0 0 0);
-				@include prefix(box-shadow, none);
 			}
 		}
 

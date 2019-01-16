@@ -1,31 +1,35 @@
 .it {
 	&-toolbar {
-		white-space: nowrap;
 		position: relative;
-		padding: 3px;
-		@include gradient($base_color, $base_color_dark);
+		background: #fff;
 		@include flexbox();
 		@include align-items(center);	
-		border-bottom: 1px solid #eee;
+		padding: $toolbar_padding;
 
 		&-left, 
 		&-right {
 			list-style: none;
-			@include resetMP();
-			@include flexbox();
-			@include align-items(center);
+			margin: 0;
+			padding-left: 0;
+			display: flex;
+			align-items: center;
+		}
 
+		&-left {
+			margin-right: auto;
+			
 			> li {
-				display: inline;
 				margin-right: 4px;
 			}
 		}
 
-		&-left {
-			@include flex(1);
-		}
+		&-right {
+			margin-left: auto;
 
-		&-right {}
+			> li {
+				margin-left: 4px;
+			}
+		}
 		
 		// Textbox, Select Component
 		.it-edit {
@@ -50,12 +54,12 @@
 
 			&:not([class*="btn-"]) {
 				border-color: transparent;
-				background: transparent;
+				background: #f8f8f8;
 				@include transition(transform .2s);
 
 				&:hover {
 					@include gradient($base_color, $base_color_dark);
-					border-color: #ddd;
+					border-color: #e4e4e4;
 				}
 			}
 		}

@@ -9,12 +9,15 @@ $view_sm: 768px;
 $view_md: 992px;
 $view_lg: 1200px;
 
+$title_height: 32px;
+$title_padding: 0 10px;
+
 // Form 
 $form_space_padding: 15px 15px 0px;
 $form_space_items: 15px;
 $label_width_default: 100px;
+	
 	// Input
-	$input_height_default: 25px;
 	$input_border_color: #ccc;
 	$input_border_focus_color: #66AFE9;
 	$input_border_invalid_color: red;
@@ -23,19 +26,22 @@ $label_width_default: 100px;
 	$input_readonly_bg_color: #FFFADB;
 	$input_readonly_border_color: #F7FC71;
 	$input_width_default: 200px;
-	$input_height_default: 25px;
+	$input_height_default: 30px;
+	$input_padding: 0 10px;
+
 	// Select 
-	$select_height_default: 25px;
+	$select_height_default: 30px;
+
 	// CheckBox
 	$checkbox_width_default: 21px;
 	$checkbox_height_default: 21px;
 	$checkbox_label_fontsize: 15px;
 
 // Toolbar
-$toolbar_height_default : 35px;
-$toolbar_input_height: 25px;
-$toolbar_select_height: 25px;
-$toolbar_button_height: 25px;
+$toolbar_input_height: 30px;
+$toolbar_select_height: 30px;
+$toolbar_button_height: 30px;
+$toolbar_padding: 6px 0;
 
 // MessageBox
 $state_primary_color: #4BC0F9;
@@ -50,7 +56,7 @@ $state_warning_dark_color: #C99F01;
 // Button
 $button_height_default: 30px;
 $button_text_color: #000;
-$button_text_size: 11px;
+$button_text_size: 13px;
 $button_border_color: #999;
 $button_border: 1px solid $button_border_color;
 $button_background_color: #fff;

@@ -1,12 +1,17 @@
 .it {
 	&-title {
-		@include gradient($base_color, $base_color_dark);
-		padding: 7px;
-		color: #333;
-		font-family: Aller;
+		padding: $title_padding;
+		height: $title_height;
+		line-height: $title_height;
+		font-weight: 500;
+		font-size: 14px;
+		background: #eee;
+		text-transform: uppercase;
+		border-radius: 3px;
 
 		.fa {
 			margin-right: 8px;
+			width: 16px;
 		}
 	}
 }
