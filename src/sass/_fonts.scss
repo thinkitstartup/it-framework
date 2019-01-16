@@ -1,21 +1,43 @@
 @font-face {
-  font-family: 'Aller';
-  src: 
-	  url('fonts/Aller.eot?#iefix') format('embedded-opentype'),  
-	  url('fonts/Aller.woff') format('woff'), 
-	  url('fonts/Aller.ttf')  format('truetype'), 
-	  url('fonts/Aller.svg#Aller') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'Aller';
+    src: url('fonts/Aller.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: 'Aller-Bold';
-  src: 
-	  url('fonts/Aller-Bold.eot?#iefix') format('embedded-opentype'),  
-	  url('fonts/Aller-Bold.woff') format('woff'), 
-	  url('fonts/Aller-Bold.ttf')  format('truetype'), 
-	  url('fonts/Aller-Bold.svg#Aller-Bold') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'Aller-Bold';
+    src: url('fonts/Aller-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('fonts/Roboto-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('fonts/Roboto-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-Regular.woff2') format('woff2'),
+        url('../fonts/Roboto-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/Roboto-Medium.woff2') format('woff2'),
+        url('../fonts/Roboto-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
 }

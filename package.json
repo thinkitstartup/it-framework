@@ -4,7 +4,8 @@
 	"description": "Javascript ES6 Admin Page Framework",
 	"dependencies": {},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"style": "compact-web style it-framework.scss dist --cwd src/sass -s .min -u autoprefixer cssnano",
+		"start": "run-p style"
 	},
 	"repository": {
 		"type": "git",
@@ -25,5 +26,11 @@
 	"bugs": {
 		"url": "https://github.com/thinkitstartup/it-framework/issues"
 	},
-	"homepage": "https://github.com/thinkitstartup/it-framework#readme"
+	"homepage": "https://github.com/thinkitstartup/it-framework#readme",
+	"devDependencies": {
+		"autoprefixer": "^9.4.5",
+		"compact-web": "^1.1.1",
+		"cssnano": "^4.1.8",
+		"npm-run-all": "^4.1.5"
+	}
 }

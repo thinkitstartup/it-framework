@@ -17,10 +17,6 @@ Freedom for free
 	
 @import "normalize", "fonts",  "variable", "mixins", "flex";
 
-html,body{
-	font-family: Aller;
-}
-
 *, 
 *:before, 
 *:after {
@@ -64,7 +60,7 @@ html,body{
 .it-dialog,
 .it-messagebox {
 	line-height: 100%;
-	font-family: Aller;
+	font-family: Roboto;
 	font-size: 12px;
 	font-weight: normal;
 	-webkit-font-smoothing: antialiased;
