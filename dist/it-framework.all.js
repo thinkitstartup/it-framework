@@ -1572,6 +1572,11 @@ var IT = (function () {
       value: function getSelectedIndex() {
         return document.getElementById(this.id).selectedIndex;
       }
+    }, {
+      key: "change",
+      value: function change() {
+        this.input.change();
+      }
     }]);
 
     return Select;

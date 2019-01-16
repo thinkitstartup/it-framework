@@ -1,6 +1,6 @@
 {
 	"name": "it-framework",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"description": "Javascript UI Framework For Common Browser",
 	"dependencies": {
 		"jquery": "^3.3.1",
