@@ -1,7 +1,7 @@
 {
 	"name": "if-framework",
-	"version": "1.2.0",
-	"description": "Javascript ES6 Admin Page Framework",
+	"version": "1.3.0",
+	"description": "Javascript UI Framework",
 	"dependencies": {},
 	"scripts": {
 		"style": "compact-web style it-framework.scss dist --cwd src/sass -s .min -u autoprefixer cssnano",
