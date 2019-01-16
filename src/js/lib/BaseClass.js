@@ -1,8 +1,6 @@
-/**
- * BaseClass for every Class Instance
- * @type {class}
- */
-IT.BaseClass = class {
+import Utils from "./Utils";
+
+export default class BaseClass {
 	constructor(settings) {
 		let me = this;
 		me._id = "";//private
@@ -26,6 +24,7 @@ IT.BaseClass = class {
 	get isClass(){
 		return true;
 	}
+	
 	/**
 	 * addEvents to the the class
 	 * @param  {option} object of functions 
@@ -46,10 +45,11 @@ IT.BaseClass = class {
 		listen_enable.forEach((event) =>
 			sel.on(
 				event, 
-				(option[event]||IT.Utils.emptyFn)
+				(option[event]||Utils.emptyFn)
 			)
 		)
 	}
+	
 	/**
 	 * Call event from available events.
 	 * @param  {event} string of the event to be called
@@ -58,6 +58,7 @@ IT.BaseClass = class {
 	doEvent(event,params){
 		$(this).trigger(event,params);
 	}
+	
 	/**
 	 * Clear all available events.
 	 * @param  {option} object of functions 

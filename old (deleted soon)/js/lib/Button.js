@@ -1,7 +1,10 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Button extends Component {
+/**
+ * [Button description]
+ * @type {class}
+ * @extends IT.Component
+ * @depend IT.Component
+ */
+IT.Button = class extends IT.Component {
 	constructor(params){
 		super(params);
 
@@ -16,7 +19,7 @@ export default class Button extends Component {
 			items:[],
 			css: {}
 		}, params);
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 		me.enable = me.settings.enable;
 		//me.listener = new IT.Listener(me, me.settings, ["onClick"]);
 		me.addEvents(me.settings, ["onClick"]);
@@ -77,13 +80,13 @@ export default class Button extends Component {
 					let li = $('<li/>', { class:'clearfix' });
 
 					if (typeof el === 'string' ) {
-						el = Utils.createObject({
+						el = IT.Utils.createObject({
 							xtype:'html',
 							content: $('<div/>', { class: 'menu-group-separator' })
 						});
 					} else if(!el.isClass) { 
 						el = $.extend(true, { xtype: 'button' }, el);
-						el = Utils.createObject(el);
+						el = IT.Utils.createObject(el);
 					}
 					
 					el.renderTo(li);

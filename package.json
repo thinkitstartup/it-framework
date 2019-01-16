@@ -1,11 +1,16 @@
 {
 	"name": "it-framework",
-	"version": "1.3.3",
-	"description": "Javascript UI Framework",
-	"dependencies": {},
+	"version": "1.5.0",
+	"description": "Javascript UI Framework For Common Browser",
+	"dependencies": {
+		"jquery": "^3.3.1",
+		"jquery-form": "^4.2.2"
+	},
 	"scripts": {
-		"style": "compact-web style it-framework.scss dist --cwd src/sass -s .min -u autoprefixer cssnano",
-		"start": "run-p style"
+		"js:compile": "rollup -c -w",
+		"js:min": "compact-web script it-framework.all.js dist --cwd dist -s .min -u",
+		"style:compile": "compact-web style it-framework.scss dist --cwd src/sass -s .min -u autoprefixer cssnano",
+		"start": "run-p js:compile style:compile"
 	},
 	"repository": {
 		"type": "git",
@@ -16,10 +21,13 @@
 		"FrameWork"
 	],
 	"author": "Kami Technical <kamitechnical@gmail.com>",
-	"contributors": [
-		{
+	"contributors": [{
 			"name": "Egy Mohammad Erdin",
 			"email": "mohammad.erdin@gmail.com"
+		},
+		{
+			"name": "Teguh Muhammad Zundi",
+			"email": "teguhzundi@gmail.com"
 		}
 	],
 	"license": "MIT",
@@ -31,6 +39,13 @@
 		"autoprefixer": "^9.4.5",
 		"compact-web": "^1.1.1",
 		"cssnano": "^4.1.8",
-		"npm-run-all": "^4.1.5"
-	}
+		"npm-run-all": "^4.1.5",
+		"rollup-plugin-babel": "^4.3.0"
+	},
+	"browserslist": [
+		"last 2 versions",
+		"not ie < 11",
+		"Android >= 4",
+		"iOS >= 9"
+	]
 }

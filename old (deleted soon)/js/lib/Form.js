@@ -1,7 +1,9 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Form extends Component {
+/**
+ * Form Component
+ * @param {Object} opt setting for class
+ * @see IT.Form#settings
+ */
+IT.Form = class extends IT.Component {
 	constructor(opt) {
 		super(opt);
 		let me = this, div, wrapper;
@@ -28,7 +30,7 @@ export default class Form extends Component {
 		 * @member {boolean}
 		 * @name IT.Form#id
 		 */
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 		wrapper = $('<div />', {
 			id: me.id,
 			class: 'container-fluid'
@@ -38,7 +40,7 @@ export default class Form extends Component {
 		$.each(me.settings.items, function (k, el) {
 			if (el) {
 				if (!el.isClass)
-					el = Utils.createObject(el);
+					el = IT.Utils.createObject(el);
 				if (!el.noRow) {
 					div = $("<div/>", { class: 'row form-row' });
 					el.renderTo(div);
@@ -51,7 +53,7 @@ export default class Form extends Component {
 			}
 		});
 		me.content = $("<form />", {
-			name: Utils.id(),
+			name: IT.Utils.id(),
 			class: "it-form",
 			action: me.settings.url,
 			target: me.settings.target | "",
@@ -92,7 +94,7 @@ export default class Form extends Component {
 		return this.items;
 	}
 	getData() {
-		return this.content.serializeJSON();
+		return this.content.serializeObject();
 	}
 	setData(data) {
 		let me = this;

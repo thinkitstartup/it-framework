@@ -1,7 +1,11 @@
-import BaseClass from "./BaseClass";
-import RecordStore from "./RecordStore";
-
-export default class Store extends BaseClass {
+/**
+ * Data Store
+ * @extends IT.BaseClass
+ * @type IT.Store
+ * @param {Object} settings setting for class
+ * @depend IT.RecordStore
+ */
+IT.Store = class extends IT.BaseClass {
 	/** conctructor */
 	constructor(settings) {
 		super(settings);
@@ -74,7 +78,7 @@ export default class Store extends BaseClass {
 					success: function (data) {
 						if (typeof data.rows != 'undefined' && typeof data.total_rows != 'undefined') {
 							$.each(data.rows, (idx, item) => {
-								let rec = new RecordStore(item);
+								let rec = new IT.RecordStore(item);
 								rec.commited = true;
 								me.data.push(rec);
 							});
@@ -100,7 +104,7 @@ export default class Store extends BaseClass {
 				if (typeof bl_return == 'undefined' ? true : bl_return) {
 					if (typeof me.settings.data != 'undefined') {
 						$.each(me.settings.data, (idx, item) => {
-							let rec = new RecordStore(item);
+							let rec = new IT.RecordStore(item);
 							rec.commited = true;
 							me.data.push(rec);
 							me.total_rows++;
@@ -174,7 +178,7 @@ export default class Store extends BaseClass {
 		data = me.type == "json" ? data.rows : data;
 		me.empty();
 		$.each(data, (idx, item) => {
-			let rec = new RecordStore(item);
+			let rec = new IT.RecordStore(item);
 			rec.commited = true;
 			me.data.push(rec);
 			me.total_rows++;

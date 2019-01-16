@@ -1,7 +1,9 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Toolbar extends Component{
+/**
+ * [Toolbar description]
+ * @extends IT.Component
+ * @depend IT.Component
+ */
+IT.Toolbar = class extends IT.Component {
 	constructor(settings){
 		super();
 		let me =this,cls;
@@ -10,7 +12,7 @@ export default class Toolbar extends Component{
 			position: 'top',
 			items:[]
 		},settings);
-		me.id = me.settings.id||Utils.id();
+		me.id = me.settings.id||IT.Utils.id();
 		me.content = $(`
 			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position} clearfix">
 				<ul class="it-toolbar-left"></ul>
@@ -23,7 +25,7 @@ export default class Toolbar extends Component{
 			if(el) {
 				let li = $('<li/>');
 				if(!el.isClass)
-					el=Utils.createObject(el);
+					el=IT.Utils.createObject(el);
 				el.renderTo(li);
 				me.content.find(`.it-toolbar-${el.getSetting().align||'left'}`).append(li);
 				me.ids.push(el.getId());

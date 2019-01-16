@@ -1,7 +1,4 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Tabs extends Component {
+IT.Tabs = class extends IT.Component {
 	constructor(settings) {
 		super(settings);
 
@@ -18,7 +15,7 @@ export default class Tabs extends Component {
 			autoHeight: false
 		}, settings);
 
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 		me.items = {};
 		me.content = $(`
 			<div id="${me.id}" class="it-tabs">
@@ -35,7 +32,7 @@ export default class Tabs extends Component {
 		// Loop judul tab
 		me.idsTitle=[];
 		$.each(me.settings.titles.items, function (k, v) {
-			let id = Utils.id();
+			let id = IT.Utils.id();
 			let titleTab = $('<li/>', {
 				class: 'it-tabs-link',
 				html: v,
@@ -62,7 +59,7 @@ export default class Tabs extends Component {
 				});
 
 				if (!el.isClass)
-					el = Utils.createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(itemTab);
 				me.ids.push(el.getId());
 				me.items[el.getId()] = el;

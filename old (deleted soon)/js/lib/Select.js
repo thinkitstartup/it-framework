@@ -1,8 +1,4 @@
-import FormItem from "./FormItem";
-import Utils from "./Utils";
-import Store from "./Store";
-
-export default class Select extends FormItem {
+IT.Select = class extends IT.FormItem {
 	constructor(settings) {
 		super(settings);
 		let me = this, cls;
@@ -28,7 +24,7 @@ export default class Select extends FormItem {
 				label: "col-md-4"
 			},
 		}, settings);
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 
 		me.input = $('<select />', {
 			id: me.id,
@@ -75,7 +71,7 @@ export default class Select extends FormItem {
 		}
 
 		//setting store
-		me.store = new Store($.extend(true, {}, me.settings.store, {
+		me.store = new IT.Store($.extend(true, {}, me.settings.store, {
 			// replace autoLoad with false, we need extra event 'afterload'
 			// wich is not created at the moment
 			autoLoad: false

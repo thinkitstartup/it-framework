@@ -1,9 +1,9 @@
-export default class Utils {
-
-	static get transitionEnd() {
-		return 'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend';
-	}
-
+/**
+ * Class Utils, all the members should static
+ * @type {function}
+ * @extends IT.BaseClass
+ */
+IT.Utils = class extends IT.BaseClass{
 	/**
 	 * createObject
 	 * @param  {object} opt option for the class
@@ -16,12 +16,14 @@ export default class Utils {
 			toolbar		: "Toolbar",
 			html		: "HTML",
 			flex		: "Flex",
+			panel		: "Panel",
 			
 			form		: "Form",
 			textbox		: "TextBox",
 			text		: "TextBox",
 			checkbox	: "CheckBox",
 			select  	: "Select",
+			imagebox	: "ImageBox",
 
 			grid		: "Grid",
 			datatable	: "DataTable",
@@ -30,7 +32,6 @@ export default class Utils {
 		if(!IT[map[xtype]]) throw "Class IT."+map[xtype]+" not found";
 		return map[xtype] && IT[map[xtype]]? new IT[map[xtype]](opt) : null;
 	}
-
 	/**
 	 * create template literal
 	 * @param  {string}    strings base template
@@ -48,7 +49,6 @@ export default class Utils {
 			return result.join('');
 		});
 	}
-
 	/**
 	 * create random id with prefix "IT-"
 	 * @return {string} string random id 
@@ -60,7 +60,6 @@ export default class Utils {
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
 	}
-	
 	/**
 	 * check if value's in money format
 	 * @param  {string}  value text to be checked
@@ -70,7 +69,6 @@ export default class Utils {
 		var m = value.replace( /[$,]/g, "" ).replace(/\./g, "").replace(/,/g, ".").replace(/\%/g, "");
 		return ! isNaN(m);
 	}
-	
 	/**
 	 * check if value's in date format
 	 * @param  {string}  value text to be checked
@@ -80,7 +78,6 @@ export default class Utils {
 		var d = new Date(value);
 		return ! isNaN(d);
 	}
-	
 	/**
 	 * Empty Function
 	 */

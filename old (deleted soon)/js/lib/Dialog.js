@@ -1,7 +1,13 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Dialog extends Component {
+/**
+ * Create window like dialog
+ * @extends IT.Component
+ * @depend IT.Component
+ * 
+ * @param {Object} opt setting for class
+ * 
+ * @see IT.Dialog#settings
+ */
+IT.Dialog = class extends IT.Component {
 	/** @param  {object} opt  */
 	constructor(opt){
 		super(opt);
@@ -49,7 +55,7 @@ export default class Dialog extends Component {
 		 * @member {boolean}
 		 * @name IT.Dialog#id
 		 */
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 
 		me.addEvents(me.settings, [
 		 	"onShow", 
@@ -101,7 +107,7 @@ export default class Dialog extends Component {
 		
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
-				if(!el.isClass) el = Utils.createObject(el);
+				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-content'));
 				me.ids.push(el.getId());
 				me.items[el.getId()] = el;
@@ -110,7 +116,7 @@ export default class Dialog extends Component {
 
 		$.each(me.settings.footers, function(k, el) {
 			if(el) {
-				if(!el.isClass) el = Utils.createObject(el);
+				if(!el.isClass) el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-dialog-footer'));
 				me.ids.push(el.getId());
 				me.items[el.getId()] = el;
@@ -175,7 +181,7 @@ export default class Dialog extends Component {
 		me.content
 			.find('.it-dialog-container')
 			.removeClass('dialog-show')
-			.one(Utils.transitionEnd, function(){
+			.one(transitionEnd, function(){
 				me.content.removeClass('dialog-show');
 				me.doEvent("onHide",[me, me.id]);
 			});
@@ -187,10 +193,10 @@ export default class Dialog extends Component {
 		me.content
 			.find('.it-dialog-container')
 			.removeClass('dialog-show')
-			.one(Utils.transitionEnd, function(){
+			.one(transitionEnd, function(){
 				me.content
 					.removeClass('dialog-show')
-					.one(Utils.transitionEnd, function(){
+					.one(transitionEnd, function(){
 						setTimeout(() => {
 							me.elExist = false;
 							me.content.remove();

@@ -1,7 +1,9 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Grid extends Component {
+/**
+ * Grid system layout
+ * @type {IT.Grid}
+ * @extends IT.Component
+ */
+IT.Grid = class extends IT.Component {
 	/** @param {object} opt */
 	constructor(settings){
 		super(settings);
@@ -25,7 +27,7 @@ export default class Grid extends Component {
 		}, settings);
 		
 		// set id
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 
 		if(me.settings.columnRule) {
 			me.content = $('<div />', { 
@@ -48,7 +50,7 @@ export default class Grid extends Component {
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
-					el = Utils.createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(me.content);
 				me.ids.push(el.getId());
 				me.items[el.getId()] = el;

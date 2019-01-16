@@ -1,7 +1,11 @@
-import FormItem from "./FormItem";
-import Utils from "./Utils";
+/**
+ * [CheckBox description]
+ * @type {class}
+ * @extends IT.FormItem
+ * @depend IT.FormItem
+ */
 
-export default class CheckBox extends FormItem {
+IT.CheckBox = class extends IT.FormItem {
 	constructor(settings){
 		super(settings);
 		let me=this,s;
@@ -18,16 +22,16 @@ export default class CheckBox extends FormItem {
 		me.addEvents(me.settings, ["onChange"]);
 
 		// set id
-		me.id = s.id||Utils.id();
+		me.id = s.id||IT.Utils.id();
 		me.input = $(`<input id="${me.id}-item" `+
 			`type='checkbox' `+
 			`class='it-edit-input' `+
-			//`name='${s.name || Utils.id()}[${s.value || Utils.id()}]' `+
-			`name='${s.name || Utils.id()}' `+
+			//`name='${s.name || IT.Utils.id()}[${s.value || IT.Utils.id()}]' `+
+			`name='${s.name || IT.Utils.id()}' `+
 			`${s.allowBlank==false?`required`:""} `+
 			`${s.readonly?` readonly `:""} `+
 			`${s.enabled==false?` disabled `:""} `+
-			`value='${s.value || Utils.id()}' `+
+			`value='${s.value || IT.Utils.id()}' `+
 		`>`);
 		me.input.on("change",function(){
 			me.doEvent("onChange",[me, this.checked]);

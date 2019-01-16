@@ -1,9 +1,13 @@
-import BaseClass from "./BaseClass";
-
-export default class RecordStore extends BaseClass {
+/**
+ * Record Store
+ * @extends IT.RecordStore
+ * @type IT.RecordStore
+ * @param {Object} record
+ */
+IT.RecordStore = class extends IT.BaseClass {
 	/** conctructor */
 	constructor(record){
-		super(record);
+		super();
 		
 		let me 			= this;
 		me.commited		= false;

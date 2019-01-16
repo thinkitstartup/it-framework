@@ -1,6 +1,10 @@
-import Component from "./Component";
-
-export default class FormItem extends Component {
+/**
+ * base class for form item
+ * @extends IT.Component
+ * @type IT.FormItem
+ * @param {Object} settings setting for class
+ */
+IT.FormItem = class extends IT.Component {
 	/** @param  {object} settings  */
 	constructor(settings){
 		super(settings);

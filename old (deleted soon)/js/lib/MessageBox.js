@@ -1,11 +1,6 @@
-import Component from "./Component";
-import Utils from "./Utils";
-import Button from "./Button";
-
-export default class MessageBox extends Component {
+IT.MessageBox = class extends IT.Component {
 	constructor(settings){
 		super(settings);
-
 		let me = this;
 		me.settings = $.extend(true,{
 			id: '',
@@ -18,7 +13,7 @@ export default class MessageBox extends Component {
 			btnAlign: 'right',
 			autoShow: true,
 		}, settings);
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 
 		var html = `
 			<div id="${me.id}" class="it-messagebox">
@@ -44,7 +39,7 @@ export default class MessageBox extends Component {
 			}));
 
 		if (me.settings.buttons.length == 0) {
-			let btn = new Button({
+			let btn = new IT.Button({
 				text: 'OK',
 				handler: function() {
 					me.hide();
@@ -55,7 +50,7 @@ export default class MessageBox extends Component {
 			$.each(me.settings.buttons, function(k, el) {
 				el = $.extend({ xtype: 'button' }, el);
 				if(typeof el.renderTo !== 'function')
-					el = Utils.createObject(el);
+					el = IT.Utils.createObject(el);
 				el.renderTo(me.content.find('.it-messagebox-btn'));
 			});
 		}
@@ -82,10 +77,10 @@ export default class MessageBox extends Component {
 		me.content
 			.find('.it-messagebox-container')
 			.removeClass('message-show')
-			.one(Utils.transitionEnd, function(){
+			.one(transitionEnd, function(){
 				me.content
 					.removeClass('message-show')
-					.one(Utils.transitionEnd, function(){
+					.one(transitionEnd, function(){
 						setTimeout(() => {
 							me.content.remove();	
 						}, 300);

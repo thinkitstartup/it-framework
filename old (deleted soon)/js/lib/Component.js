@@ -1,6 +1,8 @@
-import BaseClass from "./BaseClass";
-
-export default class Component extends BaseClass {
+/**
+ * Default Component CLass
+ * @extends IT.BaseClass
+ */
+IT.Component = class extends IT.BaseClass {
 	constructor(settings) {
 		super(settings);
 		let me=this;

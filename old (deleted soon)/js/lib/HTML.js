@@ -1,7 +1,9 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class HTML extends Component{
+/**
+ * HTML Class. Standar dom class.
+ * @type IT.HTML
+ * @extends IT.Component
+ */
+IT.HTML = class extends IT.Component{
 	/** @param {object} settings */
 	constructor(settings){
 		super(settings);
@@ -26,7 +28,7 @@ export default class HTML extends Component{
 			class: ''
 		},settings);
 		
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 		me.content = $('<div/>', {id: me.id});
 		if(me.settings.class)
 			me.content.addClass(me.settings.class);

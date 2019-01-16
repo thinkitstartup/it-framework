@@ -1,7 +1,4 @@
-import Component from "./Component";
-import Utils from "./Utils";
-
-export default class Flex extends Component {
+IT.Flex = class extends IT.Component {
 	constructor(params){
 		super();
 		let me =this;
@@ -19,7 +16,7 @@ export default class Flex extends Component {
 			items:[]
 		}, params);
 		
-		me.id = me.settings.id || Utils.id();
+		me.id = me.settings.id || IT.Utils.id();
 		me.content = $('<div />', { id: me.id, class: 'it-flex' });
 		me.content.css(me.settings.css||{});
 		me.content.addClass('it-flex-dir dir-' + me.settings.direction);
@@ -41,7 +38,7 @@ export default class Flex extends Component {
 		$.each(me.settings.items, function(k, el) {
 			if(el) {
 				if(typeof el.renderTo !== 'function')
-					el = Utils.createObject(el);
+					el = IT.Utils.createObject(el);
 				if(typeof el.settings.flex !== 'undefined') 	
 					el.content.addClass('it-flex-item');
 				el.renderTo(me.content);

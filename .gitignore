@@ -3,3 +3,5 @@ docs
 vendor
 .vscode
 research/resources
+yarn.lock
+package.lock

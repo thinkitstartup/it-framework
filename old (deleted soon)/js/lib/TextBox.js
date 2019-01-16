@@ -1,7 +1,9 @@
-import FormItem from "./FormItem";
-import Utils from "./Utils";
-
-export default class TextBox extends FormItem {
+/**
+ * TextBox Component
+ * @type {Class}
+ * @extends IT.FormItem
+ */
+IT.TextBox = class extends IT.FormItem {
 	/** @param {object} opt */
 	constructor(opt) {
 		super(opt);
@@ -100,7 +102,7 @@ export default class TextBox extends FormItem {
 		s = me.settings;
 
 		// set id
-		me.id = s.id || Utils.id();
+		me.id = s.id || IT.Utils.id();
 
 		//if label empty, field size is 12
 		if (s.label == "")
@@ -116,7 +118,7 @@ export default class TextBox extends FormItem {
 					`rows='${s.rows}' ` +
 					`${s.readonly ? ` readonly ` : ""} ` +
 					`${s.enabled == false ? ` disabled ` : ""} ` +
-					`name='${me.settings.name || Utils.id()}' ` +
+					`name='${me.settings.name || IT.Utils.id()}' ` +
 					`${s.length.min > 0 ? `minlength='${s.length.min}'` : ""} ` +
 					`${s.length.max > 0 ? `maxlength='${s.length.max}'` : ""} ` +
 					`>${s.value ? `${s.value}` : ""}</textarea>`);
@@ -126,7 +128,7 @@ export default class TextBox extends FormItem {
 				me.input = $(`<input id="${me.id}-item" ` +
 					`type='text' ` +
 					`class='it-edit-input' ` +
-					`name='${me.settings.name || Utils.id()}' ` +
+					`name='${me.settings.name || IT.Utils.id()}' ` +
 					`${s.length.min > 0 ? `minlength='${s.length.min}'` : ""} ` +
 					`${s.length.max > 0 ? `maxlength='${s.length.max}'` : ""} ` +
 					`${s.allowBlank == false ? `required` : ""} ` +
@@ -144,7 +146,7 @@ export default class TextBox extends FormItem {
 			case "hidden":
 				me.input = $(`<input id="${me.id}-item" ` +
 					`type='hidden' ` +
-					`name='${me.settings.name || Utils.id()}' ` +
+					`name='${me.settings.name || IT.Utils.id()}' ` +
 					`${s.value ? `value='${s.value}'` : ""} ` +
 					`>`);
 				break;

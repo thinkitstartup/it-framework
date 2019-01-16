@@ -1,9 +1,11 @@
-import Component from "./Component";
-import Utils from "./Utils";
-import Store from "./Store";
-import MessageBox from "./MessageBox";
-
-export default class DataTable extends Component {
+/**
+ * DataTable element
+ * @extends IT.Component
+ * @depend IT.Store
+ * @param {Object} opt setting for class
+ * @see IT.DataTable#settings
+ */
+IT.DataTable = class extends IT.Component {
 	constructor(settings){
 		super(settings);
 		let me = this;
@@ -32,7 +34,7 @@ export default class DataTable extends Component {
 			columns: [{}],
 			customHeader:""
 		}, settings);
-		me.id 				= me.settings.id || Utils.id();
+		me.id 				= me.settings.id || IT.Utils.id();
 		me.params 			= {}
 		me.selectedRow 		= null;
 		me.selectedColumn 	= null;
@@ -56,7 +58,7 @@ export default class DataTable extends Component {
 		 * @see IT.Store
 		 */
 		if(!me.settings.store.isClass){
-			class cstmStore extends Store {
+			class cstmStore extends IT.Store {
 				load(opt){
 					let readyState = true;
 					let thse = this;
@@ -127,7 +129,7 @@ export default class DataTable extends Component {
 				if(col.editor && col.editor.store && 
 					(col.editor.store.type=="ajax"||col.editor.store.type=="json")
 				){	
-					me.editors.push(Utils.createObject(
+					me.editors.push(IT.Utils.createObject(
 						$.extend(true,{},col.editor,{
 							width:col.width
 						})
@@ -166,7 +168,7 @@ export default class DataTable extends Component {
 			`);
 			me.content.find(".it-datatable-pagination .it-datatable-icon").click(function(){
 				if(me.getDataChanged().length){
-					let msg = new MessageBox({
+					let msg = new IT.MessageBox({
 						type:'question',
 						title:'Konfirmasi',
 						width: 400,
@@ -318,7 +320,7 @@ export default class DataTable extends Component {
 				field 		= current_col.dataIndex,
 				value 		= curRecord.get(field);
 			if(editor){
-				editor = editor.isClass ? editor : Utils.createObject(
+				editor = editor.isClass ? editor : IT.Utils.createObject(
 					$.extend(true,{},current_col.editor,{
 						width:current_col.width
 					})
@@ -328,7 +330,7 @@ export default class DataTable extends Component {
 				current_col.data 		|| 
 				current_col.renderer 	|| 
 				(editor	&& editor.store ?editor.store.getRawData():null) || [],
-				html		= Utils.findData(value,render),
+				html		= IT.Utils.findData(value,render),
 				td = $("<td />",{
 					html:$("<div />",{html:(html==""?value:html)}),
 					valign:current_col.valign ||"top",
@@ -364,7 +366,7 @@ export default class DataTable extends Component {
 							editor.input.off();
 					 		editor.content.detach();	
 							td.removeClass("it-datatable-editing");
-							td.find("div").html(Utils.findData(
+							td.find("div").html(IT.Utils.findData(
 								curRecord.getChanged(field)||
 								curRecord.get(field),
 							render));

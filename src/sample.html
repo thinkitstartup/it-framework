@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../dist/it-framework.min.css">
+
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../node_modules/jquery-form/dist/jquery.form.min.js"></script>
+
+    <!-- <script src="../dist/it-framework.all.js"></script> Editable Version -->
+    <!-- <script src="../dist/it-framework.min.js"></script> Compressed Version -->
+    
+    <script src="../dist/it-framework.min.js"></script>
+    <script>
+        $(function () {
+            var button = new IT.Button();
+            button.renderTo('#content');
+
+            var bar = new IT.Toolbar({
+                items: [{
+                    xtype: 'button',
+                    text: 'Klik Untuk Memunculkan Dialog',
+                    handler: () => {
+                        let dialog = new IT.Dialog({
+                            footers: [{
+                                xtype: 'button',
+                                text: 'Close',
+                                handler: () => dialog.close()
+                            }]
+                        });
+                    }
+                }, {
+                    xtype: 'button',
+                    text: 'Klik Untuk Memunculkan MessageBox',
+                    handler: () => {
+                        new IT.MessageBox({
+                            message: 'Test Ganteng'
+                        });
+                    }
+                }, {
+                    xtype: 'textbox',
+                    placeholder: 'A'
+                }]
+            });
+            bar.renderTo('#content');
+
+            var select = new IT.Select({
+                label: "Jawaban",
+                emptyText: "- Pilih Tipe Jawaban -",
+                store: {
+                    type: 'array',
+                    data: [{
+                            key: "short-answer",
+                            value: "Jawaban Singkat"
+                        },
+                        {
+                            key: "essay",
+                            value: "Esai"
+                        },
+                        {
+                            key: "choice",
+                            value: "Pilihan"
+                        },
+                        {
+                            key: "multiple-choice",
+                            value: "Multi Pilihan"
+                        },
+                        {
+                            key: "draw",
+                            value: "Menggambar"
+                        },
+                        {
+                            key: "likert",
+                            value: "RPoin"
+                        }
+                    ]
+                },
+                onChange: (e, sel, val) => console.info(val)
+            });
+
+            var form = new IT.Form({
+                items: [{
+                        label: 'Kode',
+                        name: 'kode',
+                        xtype: 'textbox'
+                    },
+                    {
+                        label: 'Nama',
+                        name: 'nama',
+                        xtype: 'textbox'
+                    },
+                    select,
+                    {
+                        xtype: 'button',
+                        text: 'Form Button Test'
+                    }
+                ]
+            });
+            form.renderTo('#content');
+
+            var html = new IT.HTML({
+                content: 'Ini adalah component HTML'
+            });
+            html.renderTo('#content');
+
+            var tabs = new IT.Tabs({
+                titles: {
+                    align: 'left',
+                    items: ['Tab 1', 'Tab 2']
+                },
+                items: [{
+                    xtype: 'html',
+                    content: 'Isi Konten Tab 1'
+                }, {
+                    xtype: 'html',
+                    content: 'Isi Kontent Tab 2'
+                }],
+                defaultIndexActive: 0,
+                height: 100,
+            });
+            tabs.renderTo('#content');
+
+            // Multiple Component
+            let barKelas = new IT.Toolbar({
+                position: 'top',
+                items: [{
+                    id: 'add',
+                    text: 'Tambah',
+                    x: 'button',
+                    iconClass: 'plus',
+                    handler: function () {}
+                }, {
+                    id: 'delete',
+                    text: 'Hapus',
+                    x: 'button',
+                    iconClass: 'trash',
+                    handler: function () {}
+                }]
+            });
+
+            let gridKelas = new IT.DataTable({
+                wrap: true,
+                flex: true,
+                paging: false,
+                columns: [{
+                        header: 'Kode',
+                        dataIndex: 'kode',
+                        width: 100
+                    },
+                    {
+                        header: 'Nama',
+                        dataIndex: 'nama',
+                        width: 100
+                    },
+                ],
+                store: {
+                    type: 'json',
+                    url: 'assessment/classroom/getall',
+                    autoLoad: true,
+                    params: {
+                        start: 0,
+                        limit: 20
+                    },
+                }
+            });
+
+            let panelKelas = new IT.Flex({
+                title: 'Data Kelas',
+                direction: 'column',
+                iconTitle: 'book-reader',
+                css: {
+                    height: '100%'
+                },
+                items: [
+                    barKelas,
+                    gridKelas
+                ]
+            });
+            panelKelas.renderTo($('#datatable'));
+
+        });
+    </script>
+</head>
+
+<body style="padding: 30px">
+    <div id="content"></div>
+    <div id="datatable"></div>
+</body>
+
+</html>
