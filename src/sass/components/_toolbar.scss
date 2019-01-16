@@ -52,16 +52,7 @@
 			height: $toolbar_button_height;
 			line-height: $toolbar_button_height;
 
-			&:not([class*="btn-"]) {
-				border-color: transparent;
-				background: #f8f8f8;
-				@include transition(transform .2s);
-
-				&:hover {
-					@include gradient($base_color, $base_color_dark);
-					border-color: #e4e4e4;
-				}
-			}
+			
 		}
 	}
 }

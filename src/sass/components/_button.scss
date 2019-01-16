@@ -15,16 +15,24 @@
 		text-decoration: none;
 		@include prefix(transform, scale(1));
 		@include transition($button_transition);
-		
+
+		.fa,
+		.far,
+		.fas {
+			width: 16px;
+			margin-right: 6px;
+		}
+
 		&:hover {
 			background: $button_hover_background_color;
 			border: $button_hover_border;
 			color: $button_hover_text_color;
 			text-decoration: none;
+			box-shadow: 0 2px 3px rgba(#ccc, .1);
 		}
 
 		&:active {
-			@include prefix(box-shadow, inset 0px 0px 38px rgba(0, 0, 0, 0.2));
+			@include prefix(box-shadow, inset 0px 2px 2px rgba(#ddd, .4));
 			@include prefix(transform, scale(.99));
 		}
 

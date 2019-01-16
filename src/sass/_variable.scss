@@ -38,9 +38,9 @@ $label_width_default: 100px;
 	$checkbox_label_fontsize: 15px;
 
 // Toolbar
-$toolbar_input_height: 30px;
-$toolbar_select_height: 30px;
-$toolbar_button_height: 30px;
+$toolbar_input_height: 33px;
+$toolbar_select_height: 33px;
+$toolbar_button_height: 33px;
 $toolbar_padding: 6px 0;
 
 // MessageBox
@@ -54,18 +54,18 @@ $state_warning_color: #DEBD46;
 $state_warning_dark_color: #C99F01;
 
 // Button
-$button_height_default: 30px;
+$button_height_default: 33px;
 $button_text_color: #000;
 $button_text_size: 13px;
-$button_border_color: #999;
+$button_border_color: #eee;
 $button_border: 1px solid $button_border_color;
 $button_background_color: #fff;
 $button_rounded_size: 4px;
 $button_padding: 0 10px;
-$button_transition: all .2s;
+$button_transition: all 200ms cubic-bezier(0.250, 0.460, 0.450, 0.940);
 $button_hover_text_color: #000;
-$button_hover_background_color: #ebebeb;
-$button_hover_border_color: #666;
+$button_hover_background_color: darken($button_background_color, 3);
+$button_hover_border_color: darken($button_border_color, 3);
 $button_hover_border: 1px solid $button_hover_border_color;
 
 // Grid
