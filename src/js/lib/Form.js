@@ -40,7 +40,7 @@ export default class Form extends Component {
 				if (!el.isClass)
 					el = Utils.createObject(el);
 				if (!el.noRow) {
-					div = $("<div/>", { class: 'row form-row' });
+					div = $("<div/>", { class: 'row form-row align-items-center' });
 					el.renderTo(div);
 					wrapper.append(div);
 				} else {

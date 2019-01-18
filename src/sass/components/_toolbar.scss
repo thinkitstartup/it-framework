@@ -2,8 +2,8 @@
 	&-toolbar {
 		position: relative;
 		background: #fff;
-		@include flexbox();
-		@include align-items(center);	
+		align-items: center;
+		display: flex;
 		padding: $toolbar_padding;
 
 		&-left, 
@@ -41,18 +41,12 @@
 				height: $toolbar_input_height;
 				line-height: $toolbar_input_height;
 			}
-			.selectize-input {
-			    line-height: $toolbar_select_height;
-			    @include size(100%, $toolbar_select_height);
-			}
 		}
 
 		// Button Component
 		.it-btn {
 			height: $toolbar_button_height;
 			line-height: $toolbar_button_height;
-
-			
 		}
 	}
 }

@@ -12,7 +12,7 @@ export default class Toolbar extends Component{
 		},settings);
 		me.id = me.settings.id||Utils.id();
 		me.content = $(`
-			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position} clearfix">
+			<div id="${me.id}" class="it-toolbar toolbar-${me.settings.position}">
 				<ul class="it-toolbar-left"></ul>
 				<ul class="it-toolbar-right"></ul>
 			</div>

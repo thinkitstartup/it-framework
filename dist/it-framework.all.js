@@ -468,7 +468,7 @@ var IT = (function () {
 
           if (!el.noRow) {
             div = $("<div/>", {
-              class: 'row form-row'
+              class: 'row form-row align-items-center'
             });
             el.renderTo(div);
             wrapper.append(div);
@@ -753,7 +753,7 @@ var IT = (function () {
         items: []
       }, settings);
       me.id = me.settings.id || Utils.id();
-      me.content = $("\n\t\t\t<div id=\"".concat(me.id, "\" class=\"it-toolbar toolbar-").concat(me.settings.position, " clearfix\">\n\t\t\t\t<ul class=\"it-toolbar-left\"></ul>\n\t\t\t\t<ul class=\"it-toolbar-right\"></ul>\n\t\t\t</div>\n\t\t"));
+      me.content = $("\n\t\t\t<div id=\"".concat(me.id, "\" class=\"it-toolbar toolbar-").concat(me.settings.position, "\">\n\t\t\t\t<ul class=\"it-toolbar-left\"></ul>\n\t\t\t\t<ul class=\"it-toolbar-right\"></ul>\n\t\t\t</div>\n\t\t"));
       me.ids = [];
       me.items = {};
       $.each(me.settings.items, function (k, el) {

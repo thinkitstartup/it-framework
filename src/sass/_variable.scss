@@ -23,11 +23,12 @@ $label_width_default: 100px;
 	$input_border_invalid_color: red;
 	$input_info_bg_color: #eee;
 	$input_info_text_color: #666666;
-	$input_readonly_bg_color: #FFFADB;
-	$input_readonly_border_color: #F7FC71;
+	$input_readonly_bg_color: #F7FC71;
+	$input_readonly_border_color: darken($input_readonly_bg_color, 20);
 	$input_width_default: 200px;
 	$input_height_default: 30px;
 	$input_padding: 0 10px;
+	$input_font_size: 12px;
 
 	// Select 
 	$select_height_default: 30px;

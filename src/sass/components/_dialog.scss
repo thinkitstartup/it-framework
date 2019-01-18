@@ -32,10 +32,6 @@
 				visibility: visible;
 				@include prefix(transform, scale(1));
 			}
-
-			>.it-title {
-				@include prefix(border-radius, 0 0 0 0);
-			}
 		}
 
 		&-header {
@@ -44,8 +40,8 @@
 			background: #f4f4f4;
 
 			.it-title {
-				background: transparent;
-				border-top: 1px solid #eee;
+				background: #fff;
+				border-bottom: 1px solid #eee;
 			}
 		}
 
@@ -58,7 +54,7 @@
 		}
 
 		&-footer {
-			background: #f4f4f4;
+			border-top: 1px solid #eee;
 			@include size(100%, '');
 			@include align-self(flex-end);
 			padding: 0 6px;
