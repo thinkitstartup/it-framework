@@ -15,6 +15,7 @@
 		text-decoration: none;
 		@include prefix(transform, scale(1));
 		@include transition($button_transition);
+		outline: none;
 
 		.fa,
 		.far,
