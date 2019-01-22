@@ -636,8 +636,7 @@ var IT = (function () {
 
       if (me.settings.iconClass) {
         var icon = $('<span/>', {
-          class: 'fa fa-' + me.settings.iconClass,
-          html: '&nbsp;'
+          class: 'fa fa-' + me.settings.iconClass
         });
         btn.prepend(icon);
       }

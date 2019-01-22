@@ -40,10 +40,7 @@ export default class Button extends Component {
 		});
 
 		if(me.settings.iconClass) {
-			let icon = $('<span/>', { 
-				class: 'fa fa-'+me.settings.iconClass, 
-				html: '&nbsp;'
-			});
+			let icon = $('<span/>', { class: 'fa fa-'+me.settings.iconClass });
 			btn.prepend(icon);
 		}
 
