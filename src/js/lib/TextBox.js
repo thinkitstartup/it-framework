@@ -197,9 +197,13 @@ export default class TextBox extends FormItem {
 		});
 
 		me.input.on("keypress", function (e) {
-			if (e.which == 13) $(this).blur();
+			if (e.which == 13) {
+				$(this).blur();
+				$(this).focus();
+			}
 		});
-		me.input.on("change", function (e) {
+		
+		me.input.on("keyup change",function(e){
 			me.doEvent("onChange", [me.input.val()]);
 		});
 
