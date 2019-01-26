@@ -5,7 +5,8 @@ import Store from "./Store";
 export default class Select extends FormItem {
 	constructor(settings) {
 		super(settings);
-		let me = this, cls;
+		let me = this,
+			cls;
 
 		me.settings = $.extend(true, {
 			id: '',
@@ -16,6 +17,7 @@ export default class Select extends FormItem {
 			autoLoad: true,
 			allowBlank: true,
 			disabled: false,
+			rules: {},
 			withRowContainer: false,
 			width: 200,
 			store: {
@@ -40,6 +42,10 @@ export default class Select extends FormItem {
 			val: me.settings.defaultValue,
 		});
 
+		// Rules for validation
+		$.each(me.settings.rules, (i, a) => me.input.attr('data-rule-' + i, a));
+
+
 		//me.content = $('<div />', { class: 'it-edit' });
 		//me.content.append(me.input);
 		me.content = $(((me.settings.label) ? `<div class="${me.settings.size.label}">` +
@@ -54,7 +60,9 @@ export default class Select extends FormItem {
 		}
 
 		if (me.settings.withRowContainer) {
-			me.content = $('<div/>', { class: 'row' }).append(me.content);
+			me.content = $('<div/>', {
+				class: 'row'
+			}).append(me.content);
 		}
 
 		me.addEvents(me.settings, [
@@ -80,7 +88,7 @@ export default class Select extends FormItem {
 			// wich is not created at the moment
 			autoLoad: false
 		}));
-		me.store.addEvents({// add extra afterload
+		me.store.addEvents({ // add extra afterload
 			beforeLoad: function () {
 				me.readyState = false;
 			},
@@ -124,10 +132,10 @@ export default class Select extends FormItem {
 		}
 		me.store.load();
 	}
-	getSelectedIndex(){
+	getSelectedIndex() {
 		return document.getElementById(this.id).selectedIndex;
 	}
-	change(){
+	change() {
 		this.input.change();
 	}
 }

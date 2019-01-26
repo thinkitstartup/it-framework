@@ -715,7 +715,24 @@ var IT = (function () {
         target: me.settings.target | "",
         enctype: "multipart/form-data"
       });
-      me.content.append(wrapper);
+      me.content.append(wrapper); // Validate
+
+      if (typeof $.validator !== "undefined") {
+        me.content.validate({
+          errorClass: 'invalid-label',
+          errorElement: 'span',
+          highlight: function highlight(element, errorClass, validClass) {
+            $(element).addClass('invalid');
+          },
+          unhighlight: function unhighlight(element, errorClass, validClass) {
+            $(element).removeClass('invalid');
+          }
+        });
+      } else {
+        console.warn("Please install jquery.validation for validation features");
+      } // Ajax Form
+
+
       me.ajaxForm = me.content.ajaxForm($.extend({}, {
         url: me.content.prop("action"),
         type: "POST",
@@ -800,19 +817,15 @@ var IT = (function () {
         return valid;
       }
     }, {
-      key: "validate2",
-      value: function validate2() {
-        this.content.valid();
-
-        var setsDeep = function setsDeep(arr) {
-          $.each(arr, function (i, l) {
-            if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
-              console.info(l);
-            } else if (l.items) setsDeep(l.items);
-          });
-        };
-
-        setsDeep(this.items);
+      key: "valid",
+      value: function valid(callback) {
+        if (typeof $.validator !== "undefined") {
+          if (this.content.valid()) {
+            callback();
+          }
+        } else {
+          console.warn("Please install jquery.validation for validation features");
+        }
       }
     }, {
       key: "submit",
@@ -1087,6 +1100,7 @@ var IT = (function () {
         id: "",
         label: "",
         name: "",
+        rules: {},
         withRowContainer: false,
         allowBlank: true,
         value: "",
@@ -1117,37 +1131,43 @@ var IT = (function () {
       if (s.label == "") s.size.field = "col"; //create input
 
       switch (s.type) {
-        case 'file':
+        case "file":
           // <button class="it-btn" style="width:100%">
           //   <i class="fa fa-upload mr-2"></i>
           //   Ambil file ...
           // </button>
-          me.input = $("<input id=\"".concat(me.id, "-item\" ") + "type='file' " + "name='".concat(me.settings.name || Utils.id(), "' ") + ">");
+          me.input = $("<input \n\t\t\t\t\tid=\"".concat(me.id, "-item\" \n\t\t\t\t\ttype=\"file\" \n\t\t\t\t\tname=\"").concat(me.settings.name || Utils.id(), "\">\n\t\t\t\t"));
           me.input.css({
             display: 'none'
           });
           break;
+
+        case "textarea":
+          me.input = $("\n\t\t\t\t\t<textarea \n\t\t\t\t\t\tstyle=\"resize: none;\" \n\t\t\t\t\t\tid=\"".concat(me.id, "-item\"\n\t\t\t\t\t\tclass=\"it-edit-input\"\n\t\t\t\t\t\t").concat(s.allowBlank == false ? "required" : "", "\n\t\t\t\t\t\tcols='").concat(s.cols, "\n\t\t\t\t\t\trows='").concat(s.rows, "\n\t\t\t\t\t\t").concat(s.readonly ? "readonly" : "", "\n\t\t\t\t\t\t").concat(s.enabled == false ? "disabled" : "", "\n\t\t\t\t\t\tname=\"").concat(me.settings.name || Utils.id(), "\"\n\t\t\t\t\t\t").concat(s.length.min > 0 ? "minlength=\"".concat(s.length.min, "\"") : "", "\n\t\t\t\t\t\t").concat(s.length.max > 0 ? "maxlength=\"".concat(s.length.max, "\"") : "", "\n\t\t\t\t\t\t>").concat(s.value ? s.value : "", "</textarea>"));
           break;
 
-        case 'textarea':
-          me.input = $("<textarea style='resize: none;' id=\"".concat(me.id, "-item\" ") + "class='it-edit-input' " + "".concat(s.allowBlank == false ? "required" : "", " ") + "cols='".concat(s.cols, "' ") + "rows='".concat(s.rows, "' ") + "".concat(s.readonly ? " readonly " : "", " ") + "".concat(s.enabled == false ? " disabled " : "", " ") + "name='".concat(me.settings.name || Utils.id(), "' ") + "".concat(s.length.min > 0 ? "minlength='".concat(s.length.min, "'") : "", " ") + "".concat(s.length.max > 0 ? "maxlength='".concat(s.length.max, "'") : "", " ") + ">".concat(s.value ? "".concat(s.value) : "", "</textarea>"));
-          break;
-
-        case 'text':
-        case 'mask':
-          me.input = $("<input id=\"".concat(me.id, "-item\" ") + "type='text' " + "class='it-edit-input' " + "name='".concat(me.settings.name || Utils.id(), "' ") + "".concat(s.length.min > 0 ? "minlength='".concat(s.length.min, "'") : "", " ") + "".concat(s.length.max > 0 ? "maxlength='".concat(s.length.max, "'") : "", " ") + "".concat(s.allowBlank == false ? "required" : "", " ") + "".concat(s.readonly ? " readonly " : "", " ") + "".concat(s.size.input != 0 ? " size='".concat(s.size.input, "'") : "", " ") + "".concat(s.enabled == false ? " disabled " : "", " ") + "".concat(s.placeholder ? "placeholder='".concat(s.placeholder, "'") : "", " ") + "".concat(s.value ? "value='".concat(s.value, "'") : "", " ") + ">");
+        case "text":
+        case "mask":
+        case "email":
+          me.input = $("\n\t\t\t\t\t<input \n\t\t\t\t\t\tid=\"".concat(me.id, "-item\" \n\t\t\t\t\t\ttype=\"text\"\n\t\t\t\t\t\tclass=\"it-edit-input\"\n\t\t\t\t\t\tname=\"").concat(me.settings.name || Utils.id(), "\"\n\t\t\t\t\t\t").concat(s.length.min > 0 ? "minlength=\"".concat(s.length.min, "\"") : "", "\n\t\t\t\t\t\t").concat(s.length.max > 0 ? "maxlength=\"".concat(s.length.max, "\"") : "", "\n\t\t\t\t\t\t").concat(s.allowBlank == false ? "required" : "", "\n\t\t\t\t\t\t").concat(s.readonly ? "readonly" : "", "\n\t\t\t\t\t\t").concat(s.size.input != 0 ? "size=\"".concat(s.size.input, "\"") : "", "\n\t\t\t\t\t\t").concat(s.enabled == false ? "disabled" : "", "\n\t\t\t\t\t\t").concat(s.placeholder ? "placeholder=\"".concat(s.placeholder, "\"") : "", "\n\t\t\t\t\t\t").concat(s.value ? "value=\"".concat(s.value, "\"") : "", "\n\t\t\t\t\t\t>"));
           if (s.type == "mask") //input type mask
             me.input.inputmask(s.maskSettings || {});
           if (s.size.input != 0) me.input.addClass("noflex");
           break;
 
         case "hidden":
-          me.input = $("<input id=\"".concat(me.id, "-item\" ") + "type='hidden' " + "name='".concat(me.settings.name || Utils.id(), "' ") + "".concat(s.value ? "value='".concat(s.value, "'") : "", " ") + ">");
+          me.input = $("<input \n\t\t\t\t\tid=\"".concat(me.id, "-item\" \n\t\t\t\t\ttype=\"hidden\" \n\t\t\t\t\tname=\"").concat(me.settings.name || Utils.id(), "\n\t\t\t\t\t").concat(s.value ? "value=\"".concat(s.value, "\"") : "", "\n\t\t\t\t\t>"));
           break;
 
         default:
           throw "input type unknown";
-          break;
+      } // Rules for validation
+
+
+      if ($.inArray(s.type, ["textarea", "text", "email"]) !== -1) {
+        $.each(s.rules, function (i, a) {
+          return me.input.attr('data-rule-' + i, a);
+        });
       } // event
 
 
@@ -1623,6 +1643,7 @@ var IT = (function () {
         autoLoad: true,
         allowBlank: true,
         disabled: false,
+        rules: {},
         withRowContainer: false,
         width: 200,
         store: {
@@ -1644,6 +1665,10 @@ var IT = (function () {
           disabled: me.settings.disabled
         },
         val: me.settings.defaultValue
+      }); // Rules for validation
+
+      $.each(me.settings.rules, function (i, a) {
+        return me.input.attr('data-rule-' + i, a);
       }); //me.content = $('<div />', { class: 'it-edit' });
       //me.content.append(me.input);
 

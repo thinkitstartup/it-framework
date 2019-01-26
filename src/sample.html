@@ -11,6 +11,30 @@
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="../node_modules/jquery-form/dist/jquery.form.min.js"></script>
+    <script>
+        $(function () {
+            // Includin ini ke aplikasi anda kalo mau bahsa indonesia
+            $.extend($.validator.messages, {
+                required: "Kolom tidak boleh kosong.",
+                remote: "Please fix this field.",
+                email: "Masukan email yang valid.",
+                url: "Masukan URL yang valid.",
+                date: "Masukan tanggal yang valid.",
+                dateISO: "Masukan tanggal yang valid (ISO).",
+                number: "Hanya boleh diisi nomor.",
+                digits: "Hanya boleh diisi nomor.",
+                creditcard: "Masukan no kartu kredit yang valid.",
+                equalTo: "Masukan isi yang sama.",
+                accept: "Please enter a value with a valid extension.",
+                maxlength: $.validator.format("Tidak boleh lebih dari {0} karakter."),
+                minlength: $.validator.format("Tidak boleh kurang dari {0} karakter."),
+                rangelength: $.validator.format("Hanya {0} dan {1} karakter."),
+                range: $.validator.format("Hanya boleh antara {0} dan {1}."),
+                max: $.validator.format("Harus kurang atau sama dengan {0}."),
+                min: $.validator.format("Harus lebih atau sama dengan {0}.")
+            });
+        })
+    </script>
 
     <!-- <script src="../dist/it-framework.all.js"></script> Editable Version -->
     <!-- <script src="../dist/it-framework.min.js"></script> Compressed Version -->
@@ -18,6 +42,10 @@
     <script src="../dist/it-framework.all.js"></script>
     <script>
         $(function () {
+            $.validator.addMethod("spam", function (value) {
+                return (value == "teguh ganteng");
+            }, "Please enter 'teguh ganteng' to go further...");
+
             var button = new IT.Button();
             button.renderTo('#content');
 
@@ -80,6 +108,9 @@
                         }
                     ]
                 },
+                rules: {
+                    required: true
+                },
                 onChange: (e, sel, val) => console.info(val)
             });
 
@@ -88,18 +119,40 @@
                         label: 'Kode',
                         name: 'kode',
                         xtype: 'textbox',
-                    },
-                    {
+                        rules: {
+                            required: true,
+                            minlength: 4,
+                            maxlength: 10,
+                            number: true
+                        }
+                    }, {
                         label: 'Nama',
                         name: 'nama',
                         xtype: 'textbox',
+                        rules: {
+                            required: true,
+                            spam: true,
+                        }
                     },
                     select,
+                    {
+                        label: 'Kode',
+                        name: 'kode',
+                        xtype: 'checkbox',
+                        label: 'Test'
+                    },{
+                        label: 'Kode',
+                        name: 'kode',
+                        xtype: 'checkbox',
+                        label: 'Tost'
+                    },
                     {
                         xtype: 'button',
                         text: 'Form Button Test',
                         handler: () => {
-                            form.validate2();
+                            form.valid(() => {
+                                alert("Berhasil");
+                            });
                         }
                     }
                 ]

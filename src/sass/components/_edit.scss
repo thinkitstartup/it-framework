@@ -1,7 +1,7 @@
 .it {
 	&-edit {
 		//@include flexbox();
-		
+
 		&.for-option {
 			.it-input-label {
 				position: relative;
@@ -10,21 +10,22 @@
 				padding-left: $checkbox_width_default + 3;
 				font-size: $checkbox_label_fontsize;
 				@include flex(1);
-				
+
 				&:hover {
 					&:before {
-						background: $state_primary_dark_color;
+						background: darken(#fff, 10);
 					}
 				}
 
 				&:before {
 					content: "";
 					left: 0;
-					position: absolute;	
-					background: $state_primary_color;
+					position: absolute;
+					background: #fff;
+					border: 1px solid #ccc;
 					border-radius: 3px;
 					@include transition(all .2s);
-					@include prefix(box-shadow, 0 1px 2px rgba(0,0,0,.1));
+					@include prefix(box-shadow, 0 1px 2px rgba(0, 0, 0, .1));
 					@include size($checkbox_width_default - 5, $checkbox_height_default - 5);
 				}
 
@@ -33,9 +34,9 @@
 					visibility: hidden;
 					content: '';
 					position: absolute;
-					top: 6px;
-					left: 5px;
-					border: 3px solid #fff;
+					top: 2px;
+					left: 2px;
+					border: 2px solid #000;
 					border-top: none;
 					border-right: none;
 					@include transition(all .2s);
@@ -43,7 +44,7 @@
 					@include prefix(transform, rotate(-45deg));
 				}
 			}
-		}	
+		}
 
 		&-input {
 			box-shadow: inset 0 2px 3px rgba($color: #ccc, $alpha: .2);
@@ -64,24 +65,24 @@
 			&:focus {
 				border-color: $input_border_focus_color;
 			}
-			
+
 			// Invalid
 			&.invalid {
 				border-color: $input_border_invalid_color;
 			}
-			
+
 			// For Textarea
-			@at-root textarea#{&}  {
+			@at-root textarea#{&} {
 				line-height: auto;
 				height: auto;
 			}
 
 			// For Radio, Checkbox 
-			&[type="checkbox"], 
+			&[type="checkbox"],
 			&[type="radio"] {
 				margin: 0;
 				position: relative;
-			 	visibility: hidden;
+				visibility: hidden;
 				@include flex(none);
 				@include size($checkbox_width_default - 4, $checkbox_height_default - 4);
 
@@ -89,14 +90,14 @@
 					content: "";
 					background: red;
 					position: absolute;
- 	 				z-index: -1; 
+					z-index: -1;
 					@include size($checkbox_width_default, $checkbox_height_default);
 				}
-				
-				&:checked + label:after {
+
+				&:checked+label:after {
 					visibility: visible;
 					opacity: 1;
-			    }  
+				}
 			}
 
 			&[readonly] {
@@ -109,7 +110,7 @@
 
 		&-input,
 		&-item {
-		  	border: 1px solid $input_border_color;
+			border: 1px solid $input_border_color;
 			padding: $input_padding;
 		}
 
@@ -123,7 +124,7 @@
 
 		&-input,
 		&-item {
-		  	border: 1px solid $input_border_color;
+			border: 1px solid $input_border_color;
 			padding: $input_padding;
 			height: $input_height_default;
 			line-height: $input_height_default;
@@ -144,4 +145,11 @@
 			line-height: 1.6em;
 		}
 	}
+}
+
+// Error State
+.invalid-label {
+	margin-top: 10px;
+	color: red;
+	display: block;
 }

@@ -5,7 +5,8 @@ export default class TextBox extends FormItem {
 	/** @param {object} opt */
 	constructor(opt) {
 		super(opt);
-		let me = this, s;
+		let me = this,
+			s;
 
 		/** 
 		 * Setting for class
@@ -77,6 +78,7 @@ export default class TextBox extends FormItem {
 			id: "",
 			label: "",
 			name: "",
+			rules: {},
 			withRowContainer: false,
 			allowBlank: true,
 			value: "",
@@ -114,62 +116,79 @@ export default class TextBox extends FormItem {
 
 		//create input
 		switch (s.type) {
-			case 'file':
+			case "file":
 				// <button class="it-btn" style="width:100%">
 				//   <i class="fa fa-upload mr-2"></i>
 				//   Ambil file ...
 				// </button>
-				me.input = $(`<input id="${me.id}-item" ` +
-					`type='file' ` +
-					`name='${me.settings.name || Utils.id()}' ` +
-					`>`);
-				me.input.css({ display: 'none' });
+				me.input = $(`<input 
+					id="${me.id}-item" 
+					type="file" 
+					name="${me.settings.name || Utils.id()}">
+				`);
+
+				me.input.css({
+					display: 'none'
+				});
 
 				break;
+			case "textarea":
+				me.input = $(`
+					<textarea 
+						style="resize: none;" 
+						id="${me.id}-item"
+						class="it-edit-input"
+						${s.allowBlank == false ? "required" : ""}
+						cols='${s.cols}
+						rows='${s.rows}
+						${s.readonly ? "readonly" : ""}
+						${s.enabled == false ? "disabled" : ""}
+						name="${me.settings.name || Utils.id()}"
+						${s.length.min > 0 ? `minlength="${s.length.min}"` : ""}
+						${s.length.max > 0 ? `maxlength="${s.length.max}"` : ""}
+						>${s.value ? s.value : ""}</textarea>`);
 				break;
-			case 'textarea':
-				me.input = $(`<textarea style='resize: none;' id="${me.id}-item" ` +
-					`class='it-edit-input' ` +
-					`${s.allowBlank == false ? `required` : ""} ` +
-					`cols='${s.cols}' ` +
-					`rows='${s.rows}' ` +
-					`${s.readonly ? ` readonly ` : ""} ` +
-					`${s.enabled == false ? ` disabled ` : ""} ` +
-					`name='${me.settings.name || Utils.id()}' ` +
-					`${s.length.min > 0 ? `minlength='${s.length.min}'` : ""} ` +
-					`${s.length.max > 0 ? `maxlength='${s.length.max}'` : ""} ` +
-					`>${s.value ? `${s.value}` : ""}</textarea>`);
-				break;
-			case 'text':
-			case 'mask':
-				me.input = $(`<input id="${me.id}-item" ` +
-					`type='text' ` +
-					`class='it-edit-input' ` +
-					`name='${me.settings.name || Utils.id()}' ` +
-					`${s.length.min > 0 ? `minlength='${s.length.min}'` : ""} ` +
-					`${s.length.max > 0 ? `maxlength='${s.length.max}'` : ""} ` +
-					`${s.allowBlank == false ? `required` : ""} ` +
-					`${s.readonly ? ` readonly ` : ""} ` +
-					`${s.size.input != 0 ? ` size='${s.size.input}'` : ""} ` +
-					`${s.enabled == false ? ` disabled ` : ""} ` +
-					`${s.placeholder ? `placeholder='${s.placeholder}'` : ""} ` +
-					`${s.value ? `value='${s.value}'` : ""} ` +
-					`>`);
+			case "text":
+			case "mask":
+			case "email":
+				me.input = $(`
+					<input 
+						id="${me.id}-item" 
+						type="text"
+						class="it-edit-input"
+						name="${me.settings.name || Utils.id()}"
+						${s.length.min > 0 ? `minlength="${s.length.min}"` : ""}
+						${s.length.max > 0 ? `maxlength="${s.length.max}"` : ""}
+						${s.allowBlank == false ? "required" : ""}
+						${s.readonly ? "readonly" : ""}
+						${s.size.input != 0 ? `size="${s.size.input}"` : ""}
+						${s.enabled == false ? "disabled" : ""}
+						${s.placeholder ? `placeholder="${s.placeholder}"` : ""}
+						${s.value ? `value="${s.value}"` : ""}
+						>`);
+
 				if (s.type == "mask") //input type mask
 					me.input.inputmask(s.maskSettings || {});
+
 				if (s.size.input != 0)
-					me.input.addClass("noflex")
+					me.input.addClass("noflex");
+
 				break;
 			case "hidden":
-				me.input = $(`<input id="${me.id}-item" ` +
-					`type='hidden' ` +
-					`name='${me.settings.name || Utils.id()}' ` +
-					`${s.value ? `value='${s.value}'` : ""} ` +
-					`>`);
+				me.input = $(`<input 
+					id="${me.id}-item" 
+					type="hidden" 
+					name="${me.settings.name || Utils.id()}
+					${s.value ? `value="${s.value}"` : ""}
+					>`);
 				break;
 			default:
 				throw "input type unknown";
-				break;
+		}
+
+		// Rules for validation
+		if ($.inArray(s.type, ["textarea", "text", "email"]) !== -1) {
+			$.each(s.rules, (i, a) => me.input.attr('data-rule-'+i, a));
 		}
 
 		// event
@@ -188,9 +207,11 @@ export default class TextBox extends FormItem {
 		let wraper = $("<div class='it-edit' />").append(me.input);
 		if ('file' == s.type) {
 			let $fileInfo = $('<span />', {
-				css: { 'padding-left': '20px' },
-				html: 'Tidak ada file'
-			}),
+					css: {
+						'padding-left': '20px'
+					},
+					html: 'Tidak ada file'
+				}),
 				$holder = $('<button />', {
 					class: 'it-btn',
 					html: '<i class="fa fa-upload mr-2"></i> Pilih file ...'
@@ -205,28 +226,32 @@ export default class TextBox extends FormItem {
 			})
 		}
 
-
 		//info
 		s.info.prepend && wraper.prepend($('<div />', {
 			class: 'it-edit-item',
 			html: s.info.prepend
 		}));
+		
 		s.info.append && wraper.append($('<div />', {
 			class: 'it-edit-item',
 			html: s.info.append
 		}));
-		
-		(s.info.prepend || s.info.append) && wraper.css({display: 'flex'});
+
+		(s.info.prepend || s.info.append) && wraper.css({
+			display: 'flex'
+		});
 
 		//content
 		me.content = $(((s.label) ?
 			`<div class="${s.size.label}">
 			<label for="${me.id}-item" class='it-input-label it-input-label-${s.labelAlign || 'left'}'> ${s.label} </label>
-		</div>`: '') + `<div class="${s.size.field}"></div>`);
+		</div>` : '') + `<div class="${s.size.field}"></div>`);
 		me.content.last().append(wraper);
 
 		if (s.withRowContainer) {
-			me.content = $('<div/>', { class: 'row' }).append(me.content);
+			me.content = $('<div/>', {
+				class: 'row'
+			}).append(me.content);
 		}
 		me.content.css(s.css);
 

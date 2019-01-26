@@ -5,7 +5,8 @@ import MessageBox from "./MessageBox";
 export default class Form extends Component {
 	constructor(opt) {
 		super(opt);
-		let me = this, div, wrapper;
+		let me = this,
+			div, wrapper;
 		/** 
 		 * Setting for class
 		 * @member {Object}
@@ -41,7 +42,9 @@ export default class Form extends Component {
 				if (!el.isClass)
 					el = Utils.createObject(el);
 				if (!el.noRow) {
-					div = $("<div/>", { class: 'row form-row align-items-center' });
+					div = $("<div/>", {
+						class: 'row form-row align-items-center'
+					});
 					el.renderTo(div);
 					wrapper.append(div);
 				} else {
@@ -59,6 +62,24 @@ export default class Form extends Component {
 			enctype: "multipart/form-data"
 		});
 		me.content.append(wrapper);
+
+		// Validate
+		if (typeof $.validator !== "undefined") {
+			me.content.validate({
+				errorClass: 'invalid-label',
+				errorElement: 'span',
+				highlight: function (element, errorClass, validClass) {
+					$(element).addClass('invalid');
+				},
+				unhighlight: function (element, errorClass, validClass) {
+					$(element).removeClass('invalid');
+				}
+			});
+		} else {
+			console.warn("Please install jquery.validation for validation features");
+		}
+
+		// Ajax Form
 		me.ajaxForm = me.content.ajaxForm($.extend({}, {
 			url: me.content.prop("action"),
 			type: "POST",
@@ -127,17 +148,14 @@ export default class Form extends Component {
 
 		return valid;
 	}
-	validate2() {
-		this.content.valid();
-
-		let setsDeep = function (arr) {
-			$.each(arr, function (i, l) {
-				if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
-					console.info(l);
-				} else if (l.items) setsDeep(l.items);
-			});
+	valid(callback) {
+		if (typeof $.validator !== "undefined") {
+			if (this.content.valid()) {
+				callback();
+			}
+		} else {
+			console.warn("Please install jquery.validation for validation features");
 		}
-		setsDeep(this.items);
 	}
 	submit(options = null) {
 		let me = this;
