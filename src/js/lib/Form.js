@@ -1,5 +1,6 @@
 import Component from "./Component";
 import Utils from "./Utils";
+import MessageBox from "./MessageBox";
 
 export default class Form extends Component {
 	constructor(opt) {
@@ -105,6 +106,26 @@ export default class Form extends Component {
 			});
 		}
 		setsDeep(me.items);
+	}
+	validate(showError = false) {
+		let me = this,
+			valid = true;
+		let setsDeep = function (arr) {
+			$.each(arr, function (i, l) {
+				if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
+					valid = valid && l.validate();
+				} else if (l.items) setsDeep(l.items);
+			});
+		}
+		setsDeep(me.items);
+
+		!valid && showError && new MessageBox({
+			type: 'waw',
+			title: "Peringatan",
+			message: "Silahkan Perikasa kembali data"
+		});
+
+		return valid;
 	}
 	submit(options = null) {
 		let me = this;

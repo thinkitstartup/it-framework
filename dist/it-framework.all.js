@@ -419,178 +419,6 @@ var IT = (function () {
     return Component;
   }(BaseClass);
 
-  var Form =
-  /*#__PURE__*/
-  function (_Component) {
-    _inherits(Form, _Component);
-
-    function Form(opt) {
-      var _this;
-
-      _classCallCheck(this, Form);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Form).call(this, opt));
-
-      var me = _assertThisInitialized(_assertThisInitialized(_this)),
-          div,
-          wrapper;
-      /** 
-       * Setting for class
-       * @member {Object}
-       * @name IT.Form#settings
-       * @property {String} id ID of element
-       * @property {array} items Items
-       */
-
-
-      me.settings = $.extend(true, {
-        id: '',
-        url: '',
-        items: []
-      }, opt);
-      me.addEvents(me.settings, ["beforeSerialize", "beforeSubmit", "success", "error"]);
-      /** 
-       * ID of class or element
-       * @member {boolean}
-       * @name IT.Form#id
-       */
-
-      me.id = me.settings.id || Utils.id();
-      wrapper = $('<div />', {
-        id: me.id,
-        class: 'container-fluid'
-      });
-      me.ids = [];
-      me.items = {};
-      $.each(me.settings.items, function (k, el) {
-        if (el) {
-          if (!el.isClass) el = Utils.createObject(el);
-
-          if (!el.noRow) {
-            div = $("<div/>", {
-              class: 'row form-row align-items-center'
-            });
-            el.renderTo(div);
-            wrapper.append(div);
-          } else {
-            el.renderTo(wrapper);
-          }
-
-          me.ids.push(el.getId());
-          me.items[el.getId()] = el;
-        }
-      });
-      me.content = $("<form />", {
-        name: Utils.id(),
-        class: "it-form",
-        action: me.settings.url,
-        target: me.settings.target | "",
-        enctype: "multipart/form-data"
-      });
-      me.content.append(wrapper);
-      me.ajaxForm = me.content.ajaxForm($.extend({}, {
-        url: me.content.prop("action"),
-        type: "POST",
-        dataType: "json",
-        delegation: true,
-        beforeSerialize: function beforeSerialize($form, options) {
-          // return false to cancel submit
-          var ret = me.doEvent("beforeSerialize", [me, $form, options]);
-          return typeof ret == 'undefined' ? true : ret;
-        },
-        beforeSubmit: function beforeSubmit(arr, $form, options) {
-          // form data array is an array of objects with name and value properties
-          // [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
-          // return false to cancel submit
-          var ret = me.doEvent("beforeSubmit", [me, arr, $form, options]);
-          return typeof ret == 'undefined' ? true : ret;
-        },
-        success: function success(data, textStatus, jqXHR) {
-          me.doEvent("success", [data, me, jqXHR, textStatus]);
-        },
-        error: function error(jqXHR, textStatus, errorThrown) {
-          me.doEvent("error", [me, jqXHR, textStatus, errorThrown]);
-        }
-      }));
-      return _this;
-    }
-
-    _createClass(Form, [{
-      key: "getItemCount",
-      value: function getItemCount() {
-        return this.ids.length;
-      }
-    }, {
-      key: "getItem",
-      value: function getItem(id) {
-        if (typeof id === "number") id = this.ids[id];
-        if (id) return this.items[id] || null;
-        return this.items;
-      }
-    }, {
-      key: "getData",
-      value: function getData() {
-        return this.content.serializeJSON();
-      }
-    }, {
-      key: "setData",
-      value: function setData(data) {
-        var me = this;
-
-        var setsDeep = function setsDeep(arr) {
-          $.each(arr, function (i, l) {
-            if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
-              var v = data.getChanged(l.settings.name) || data.get(l.settings.name);
-              l.val(v);
-            } else if (l.items) setsDeep(l.items);
-          });
-        };
-
-        setsDeep(me.items);
-      }
-    }, {
-      key: "submit",
-      value: function submit() {
-        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-        var me = this;
-        if (options == null) me.content.submit();else {
-          me.content.ajaxSubmit($.extend({
-            url: me.content.prop("action"),
-            type: "POST",
-            dataType: "json",
-            delegation: true,
-            beforeSerialize: function beforeSerialize($form, options) {
-              var ret = me.doEvent("beforeSerialize", [me, $form, options]);
-              return typeof ret == 'undefined' ? true : ret;
-            },
-            beforeSubmit: function beforeSubmit(arr, $form, options) {
-              var ret = me.doEvent("beforeSubmit", [me, arr, $form, options]);
-              return typeof ret == 'undefined' ? true : ret;
-            },
-            success: function success(data, textStatus, jqXHR) {
-              me.doEvent("success", [data, me, jqXHR, textStatus]);
-            },
-            error: function error(jqXHR, textStatus, errorThrown) {
-              me.doEvent("error", [me, jqXHR, textStatus, errorThrown]);
-            }
-          }, options));
-        }
-      }
-    }, {
-      key: "clear",
-      value: function clear() {
-        this.ajaxForm.clearForm();
-      }
-    }, {
-      key: "reset",
-      value: function reset() {
-        this.ajaxForm.resetForm();
-      }
-    }]);
-
-    return Form;
-  }(Component);
-
   var Button =
   /*#__PURE__*/
   function (_Component) {
@@ -730,6 +558,288 @@ var IT = (function () {
     }]);
 
     return Button;
+  }(Component);
+
+  var MessageBox =
+  /*#__PURE__*/
+  function (_Component) {
+    _inherits(MessageBox, _Component);
+
+    function MessageBox(settings) {
+      var _this;
+
+      _classCallCheck(this, MessageBox);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(MessageBox).call(this, settings));
+
+      var me = _assertThisInitialized(_assertThisInitialized(_this));
+
+      me.settings = $.extend(true, {
+        id: '',
+        type: 'info',
+        title: 'Title Here !',
+        message: 'Message Here !',
+        width: 450,
+        css: {},
+        buttons: [],
+        btnAlign: 'right',
+        autoShow: true
+      }, settings);
+      me.id = me.settings.id || Utils.id();
+      var html = "\n\t\t\t<div id=\"".concat(me.id, "\" class=\"it-messagebox\">\n\t\t\t\t<div class=\"it-messagebox-container\">\n\t\t\t\t\t<div class=\"it-messagebox-title message-").concat(me.settings.type, "\">").concat(me.settings.title, "</div>\n\t\t\t\t\t<div class=\"it-messagebox-content\">\n\t\t\t\t\t\t<div class=\"it-messagebox-icon\">\n\t\t\t\t\t\t\t<div class=\"message-icon message-icon-").concat(me.settings.type, "\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"it-messagebox-text\">\n\t\t\t\t\t\t\t").concat(me.settings.message, "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"it-messagebox-btn ").concat(me.settings.btnAlign, "\"></div>\n\t\t\t\t</div>\n\t\t\t</div>");
+      me.content = $(html);
+      me.content.find('.it-messagebox-container').css($.extend(me.settings.css, {
+        'max-width': me.settings.width
+      }));
+
+      if (me.settings.buttons.length == 0) {
+        var btn = new Button({
+          text: 'OK',
+          handler: function handler() {
+            me.hide();
+          }
+        });
+        btn.renderTo(me.content.find('.it-messagebox-btn'));
+      } else {
+        $.each(me.settings.buttons, function (k, el) {
+          el = $.extend({
+            xtype: 'button'
+          }, el);
+          if (typeof el.renderTo !== 'function') el = Utils.createObject(el);
+          el.renderTo(me.content.find('.it-messagebox-btn'));
+        });
+      }
+
+      me.content.appendTo('body').hide();
+      if (me.settings.autoShow) me.show();
+      return _this;
+    }
+
+    _createClass(MessageBox, [{
+      key: "show",
+      value: function show() {
+        var me = this;
+        $('input, select, textarea').blur();
+        me.content.show(0, function () {
+          $(this).addClass('message-show');
+          $(this).find('.it-messagebox-container').addClass('message-show');
+        });
+      }
+    }, {
+      key: "hide",
+      value: function hide() {
+        var me = this;
+        me.content.find('.it-messagebox-container').removeClass('message-show').one(Utils.transitionEnd, function () {
+          me.content.removeClass('message-show').one(Utils.transitionEnd, function () {
+            setTimeout(function () {
+              me.content.remove();
+            }, 300);
+          });
+        });
+      }
+    }, {
+      key: "close",
+      value: function close() {
+        this.hide();
+      }
+    }]);
+
+    return MessageBox;
+  }(Component);
+
+  var Form =
+  /*#__PURE__*/
+  function (_Component) {
+    _inherits(Form, _Component);
+
+    function Form(opt) {
+      var _this;
+
+      _classCallCheck(this, Form);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Form).call(this, opt));
+
+      var me = _assertThisInitialized(_assertThisInitialized(_this)),
+          div,
+          wrapper;
+      /** 
+       * Setting for class
+       * @member {Object}
+       * @name IT.Form#settings
+       * @property {String} id ID of element
+       * @property {array} items Items
+       */
+
+
+      me.settings = $.extend(true, {
+        id: '',
+        url: '',
+        items: []
+      }, opt);
+      me.addEvents(me.settings, ["beforeSerialize", "beforeSubmit", "success", "error"]);
+      /** 
+       * ID of class or element
+       * @member {boolean}
+       * @name IT.Form#id
+       */
+
+      me.id = me.settings.id || Utils.id();
+      wrapper = $('<div />', {
+        id: me.id,
+        class: 'container-fluid'
+      });
+      me.ids = [];
+      me.items = {};
+      $.each(me.settings.items, function (k, el) {
+        if (el) {
+          if (!el.isClass) el = Utils.createObject(el);
+
+          if (!el.noRow) {
+            div = $("<div/>", {
+              class: 'row form-row align-items-center'
+            });
+            el.renderTo(div);
+            wrapper.append(div);
+          } else {
+            el.renderTo(wrapper);
+          }
+
+          me.ids.push(el.getId());
+          me.items[el.getId()] = el;
+        }
+      });
+      me.content = $("<form />", {
+        name: Utils.id(),
+        class: "it-form",
+        action: me.settings.url,
+        target: me.settings.target | "",
+        enctype: "multipart/form-data"
+      });
+      me.content.append(wrapper);
+      me.ajaxForm = me.content.ajaxForm($.extend({}, {
+        url: me.content.prop("action"),
+        type: "POST",
+        dataType: "json",
+        delegation: true,
+        beforeSerialize: function beforeSerialize($form, options) {
+          // return false to cancel submit
+          var ret = me.doEvent("beforeSerialize", [me, $form, options]);
+          return typeof ret == 'undefined' ? true : ret;
+        },
+        beforeSubmit: function beforeSubmit(arr, $form, options) {
+          // form data array is an array of objects with name and value properties
+          // [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
+          // return false to cancel submit
+          var ret = me.doEvent("beforeSubmit", [me, arr, $form, options]);
+          return typeof ret == 'undefined' ? true : ret;
+        },
+        success: function success(data, textStatus, jqXHR) {
+          me.doEvent("success", [data, me, jqXHR, textStatus]);
+        },
+        error: function error(jqXHR, textStatus, errorThrown) {
+          me.doEvent("error", [me, jqXHR, textStatus, errorThrown]);
+        }
+      }));
+      return _this;
+    }
+
+    _createClass(Form, [{
+      key: "getItemCount",
+      value: function getItemCount() {
+        return this.ids.length;
+      }
+    }, {
+      key: "getItem",
+      value: function getItem(id) {
+        if (typeof id === "number") id = this.ids[id];
+        if (id) return this.items[id] || null;
+        return this.items;
+      }
+    }, {
+      key: "getData",
+      value: function getData() {
+        return this.content.serializeJSON();
+      }
+    }, {
+      key: "setData",
+      value: function setData(data) {
+        var me = this;
+
+        var setsDeep = function setsDeep(arr) {
+          $.each(arr, function (i, l) {
+            if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
+              var v = data.getChanged(l.settings.name) || data.get(l.settings.name);
+              l.val(v);
+            } else if (l.items) setsDeep(l.items);
+          });
+        };
+
+        setsDeep(me.items);
+      }
+    }, {
+      key: "validate",
+      value: function validate() {
+        var showError = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var me = this,
+            valid = true;
+
+        var setsDeep = function setsDeep(arr) {
+          $.each(arr, function (i, l) {
+            if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
+              valid = valid && l.validate();
+            } else if (l.items) setsDeep(l.items);
+          });
+        };
+
+        setsDeep(me.items);
+        !valid && showError && new MessageBox({
+          type: 'waw',
+          title: "Peringatan",
+          message: "Silahkan Perikasa kembali data"
+        });
+        return valid;
+      }
+    }, {
+      key: "submit",
+      value: function submit() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+        var me = this;
+        if (options == null) me.content.submit();else {
+          me.content.ajaxSubmit($.extend({
+            url: me.content.prop("action"),
+            type: "POST",
+            dataType: "json",
+            delegation: true,
+            beforeSerialize: function beforeSerialize($form, options) {
+              var ret = me.doEvent("beforeSerialize", [me, $form, options]);
+              return typeof ret == 'undefined' ? true : ret;
+            },
+            beforeSubmit: function beforeSubmit(arr, $form, options) {
+              var ret = me.doEvent("beforeSubmit", [me, arr, $form, options]);
+              return typeof ret == 'undefined' ? true : ret;
+            },
+            success: function success(data, textStatus, jqXHR) {
+              me.doEvent("success", [data, me, jqXHR, textStatus]);
+            },
+            error: function error(jqXHR, textStatus, errorThrown) {
+              me.doEvent("error", [me, jqXHR, textStatus, errorThrown]);
+            }
+          }, options));
+        }
+      }
+    }, {
+      key: "clear",
+      value: function clear() {
+        this.ajaxForm.clearForm();
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        this.ajaxForm.resetForm();
+      }
+    }]);
+
+    return Form;
   }(Component);
 
   var Toolbar =
@@ -968,6 +1078,7 @@ var IT = (function () {
         placeholder: '',
         readonly: false,
         enabled: true,
+        css: {},
         length: {
           min: 0,
           max: -1
@@ -982,13 +1093,27 @@ var IT = (function () {
           append: ''
         }
       }, opt);
-      s = me.settings; // set id
+      s = me.settings; //register event
+
+      me.addEvents(me.settings, ["onChange"]); // set id
 
       me.id = s.id || Utils.id(); //if label empty, field size is 12
 
       if (s.label == "") s.size.field = "col"; //create input
 
       switch (s.type) {
+        case 'file':
+          // <button class="it-btn" style="width:100%">
+          //   <i class="fa fa-upload mr-2"></i>
+          //   Ambil file ...
+          // </button>
+          me.input = $("<input id=\"".concat(me.id, "-item\" ") + "type='file' " + "name='".concat(me.settings.name || Utils.id(), "' ") + ">");
+          me.input.css({
+            display: 'none'
+          });
+          break;
+          break;
+
         case 'textarea':
           me.input = $("<textarea style='resize: none;' id=\"".concat(me.id, "-item\" ") + "class='it-edit-input' " + "".concat(s.allowBlank == false ? "required" : "", " ") + "cols='".concat(s.cols, "' ") + "rows='".concat(s.rows, "' ") + "".concat(s.readonly ? " readonly " : "", " ") + "".concat(s.enabled == false ? " disabled " : "", " ") + "name='".concat(me.settings.name || Utils.id(), "' ") + "".concat(s.length.min > 0 ? "minlength='".concat(s.length.min, "'") : "", " ") + "".concat(s.length.max > 0 ? "maxlength='".concat(s.length.max, "'") : "", " ") + ">".concat(s.value ? "".concat(s.value) : "", "</textarea>"));
           break;
@@ -1011,14 +1136,39 @@ var IT = (function () {
       } // event
 
 
-      me.input.on("focus change blur", function (e) {
+      me.input.on("focus blur", function (e) {
         me.setInvalid(!me.validate());
       });
       me.input.on("keypress", function (e) {
         if (e.which == 13) $(this).blur();
+      });
+      me.input.on("change", function (e) {
+        me.doEvent("onChange", [me.input.val()]);
       }); //wrapper
 
-      var wraper = $("<div class='it-edit' />").append(me.input); //info
+      var wraper = $("<div class='it-edit' />").append(me.input);
+
+      if ('file' == s.type) {
+        var $fileInfo = $('<span />', {
+          css: {
+            'padding-left': '20px'
+          },
+          html: 'Tidak ada file'
+        }),
+            $holder = $('<button />', {
+          class: 'it-btn',
+          html: '<i class="fa fa-upload mr-2"></i> Pilih file ...'
+        });
+        wraper.prepend($holder);
+        wraper.append($fileInfo);
+        me.input.on("change", function (e) {
+          $fileInfo.html(e.target.files[0].name);
+        });
+        $holder.click(function () {
+          me.input.trigger('click');
+        });
+      } //info
+
 
       s.info.prepend && wraper.prepend($('<div />', {
         class: 'it-edit-item',
@@ -1038,6 +1188,7 @@ var IT = (function () {
         }).append(me.content);
       }
 
+      me.content.css(s.css);
       me.readyState = true;
       return _this;
     }
@@ -1849,93 +2000,6 @@ var IT = (function () {
     }]);
 
     return Dialog;
-  }(Component);
-
-  var MessageBox =
-  /*#__PURE__*/
-  function (_Component) {
-    _inherits(MessageBox, _Component);
-
-    function MessageBox(settings) {
-      var _this;
-
-      _classCallCheck(this, MessageBox);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(MessageBox).call(this, settings));
-
-      var me = _assertThisInitialized(_assertThisInitialized(_this));
-
-      me.settings = $.extend(true, {
-        id: '',
-        type: 'info',
-        title: 'Title Here !',
-        message: 'Message Here !',
-        width: 450,
-        css: {},
-        buttons: [],
-        btnAlign: 'right',
-        autoShow: true
-      }, settings);
-      me.id = me.settings.id || Utils.id();
-      var html = "\n\t\t\t<div id=\"".concat(me.id, "\" class=\"it-messagebox\">\n\t\t\t\t<div class=\"it-messagebox-container\">\n\t\t\t\t\t<div class=\"it-messagebox-title message-").concat(me.settings.type, "\">").concat(me.settings.title, "</div>\n\t\t\t\t\t<div class=\"it-messagebox-content\">\n\t\t\t\t\t\t<div class=\"it-messagebox-icon\">\n\t\t\t\t\t\t\t<div class=\"message-icon message-icon-").concat(me.settings.type, "\"></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"it-messagebox-text\">\n\t\t\t\t\t\t\t").concat(me.settings.message, "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"it-messagebox-btn ").concat(me.settings.btnAlign, "\"></div>\n\t\t\t\t</div>\n\t\t\t</div>");
-      me.content = $(html);
-      me.content.find('.it-messagebox-container').css($.extend(me.settings.css, {
-        'max-width': me.settings.width
-      }));
-
-      if (me.settings.buttons.length == 0) {
-        var btn = new Button({
-          text: 'OK',
-          handler: function handler() {
-            me.hide();
-          }
-        });
-        btn.renderTo(me.content.find('.it-messagebox-btn'));
-      } else {
-        $.each(me.settings.buttons, function (k, el) {
-          el = $.extend({
-            xtype: 'button'
-          }, el);
-          if (typeof el.renderTo !== 'function') el = Utils.createObject(el);
-          el.renderTo(me.content.find('.it-messagebox-btn'));
-        });
-      }
-
-      me.content.appendTo('body').hide();
-      if (me.settings.autoShow) me.show();
-      return _this;
-    }
-
-    _createClass(MessageBox, [{
-      key: "show",
-      value: function show() {
-        var me = this;
-        $('input, select, textarea').blur();
-        me.content.show(0, function () {
-          $(this).addClass('message-show');
-          $(this).find('.it-messagebox-container').addClass('message-show');
-        });
-      }
-    }, {
-      key: "hide",
-      value: function hide() {
-        var me = this;
-        me.content.find('.it-messagebox-container').removeClass('message-show').one(Utils.transitionEnd, function () {
-          me.content.removeClass('message-show').one(Utils.transitionEnd, function () {
-            setTimeout(function () {
-              me.content.remove();
-            }, 300);
-          });
-        });
-      }
-    }, {
-      key: "close",
-      value: function close() {
-        this.hide();
-      }
-    }]);
-
-    return MessageBox;
   }(Component);
 
   var Tabs =

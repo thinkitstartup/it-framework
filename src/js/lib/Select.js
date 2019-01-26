@@ -128,7 +128,6 @@ export default class Select extends FormItem {
 		return document.getElementById(this.id).selectedIndex;
 	}
 	change(){
-		
 		this.input.change();
 	}
 }

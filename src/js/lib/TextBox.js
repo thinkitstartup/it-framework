@@ -83,6 +83,7 @@ export default class TextBox extends FormItem {
 			placeholder: '',
 			readonly: false,
 			enabled: true,
+			css: {},
 			length: {
 				min: 0,
 				max: -1,
@@ -99,6 +100,11 @@ export default class TextBox extends FormItem {
 		}, opt);
 		s = me.settings;
 
+		//register event
+		me.addEvents(me.settings, [
+			"onChange"
+		]);
+
 		// set id
 		me.id = s.id || Utils.id();
 
@@ -108,6 +114,19 @@ export default class TextBox extends FormItem {
 
 		//create input
 		switch (s.type) {
+			case 'file':
+				// <button class="it-btn" style="width:100%">
+				//   <i class="fa fa-upload mr-2"></i>
+				//   Ambil file ...
+				// </button>
+				me.input = $(`<input id="${me.id}-item" ` +
+					`type='file' ` +
+					`name='${me.settings.name || Utils.id()}' ` +
+					`>`);
+				me.input.css({ display: 'none' });
+
+				break;
+				break;
 			case 'textarea':
 				me.input = $(`<textarea style='resize: none;' id="${me.id}-item" ` +
 					`class='it-edit-input' ` +
@@ -154,15 +173,38 @@ export default class TextBox extends FormItem {
 		}
 
 		// event
-		me.input.on("focus change blur", function (e) {
+		me.input.on("focus blur", function (e) {
 			me.setInvalid(!me.validate());
 		});
+
 		me.input.on("keypress", function (e) {
 			if (e.which == 13) $(this).blur();
+		});
+		me.input.on("change", function (e) {
+			me.doEvent("onChange", [me.input.val()]);
 		});
 
 		//wrapper
 		let wraper = $("<div class='it-edit' />").append(me.input);
+		if ('file' == s.type) {
+			let $fileInfo = $('<span />', {
+				css: { 'padding-left': '20px' },
+				html: 'Tidak ada file'
+			}),
+				$holder = $('<button />', {
+					class: 'it-btn',
+					html: '<i class="fa fa-upload mr-2"></i> Pilih file ...'
+				});
+			wraper.prepend($holder);
+			wraper.append($fileInfo);
+			me.input.on("change", function (e) {
+				$fileInfo.html(e.target.files[0].name);
+			});
+			$holder.click(() => {
+				me.input.trigger('click');
+			})
+		}
+
 
 		//info
 		s.info.prepend && wraper.prepend($('<div />', {
@@ -184,6 +226,7 @@ export default class TextBox extends FormItem {
 		if (s.withRowContainer) {
 			me.content = $('<div/>', { class: 'row' }).append(me.content);
 		}
+		me.content.css(s.css);
 
 		me.readyState = true;
 	}
