@@ -800,6 +800,21 @@ var IT = (function () {
         return valid;
       }
     }, {
+      key: "validate2",
+      value: function validate2() {
+        this.content.valid();
+
+        var setsDeep = function setsDeep(arr) {
+          $.each(arr, function (i, l) {
+            if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
+              console.info(l);
+            } else if (l.items) setsDeep(l.items);
+          });
+        };
+
+        setsDeep(this.items);
+      }
+    }, {
       key: "submit",
       value: function submit() {
         var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;

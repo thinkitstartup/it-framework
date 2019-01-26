@@ -4,7 +4,8 @@
 	"description": "Javascript UI Framework For Common Browser",
 	"dependencies": {
 		"jquery": "^3.3.1",
-		"jquery-form": "^4.2.2"
+		"jquery-form": "^4.2.2",
+		"jquery-validation": "^1.19.0"
 	},
 	"scripts": {
 		"js:compile": "rollup -c -w",
