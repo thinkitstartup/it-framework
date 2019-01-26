@@ -9,12 +9,13 @@
     <link rel="stylesheet" href="../dist/it-framework.min.css">
 
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="../node_modules/jquery-form/dist/jquery.form.min.js"></script>
 
     <!-- <script src="../dist/it-framework.all.js"></script> Editable Version -->
     <!-- <script src="../dist/it-framework.min.js"></script> Compressed Version -->
-    
-    <script src="../dist/it-framework.min.js"></script>
+
+    <script src="../dist/it-framework.all.js"></script>
     <script>
         $(function () {
             var button = new IT.Button();
@@ -86,17 +87,20 @@
                 items: [{
                         label: 'Kode',
                         name: 'kode',
-                        xtype: 'textbox'
+                        xtype: 'textbox',
                     },
                     {
                         label: 'Nama',
                         name: 'nama',
-                        xtype: 'textbox'
+                        xtype: 'textbox',
                     },
                     select,
                     {
                         xtype: 'button',
-                        text: 'Form Button Test'
+                        text: 'Form Button Test',
+                        handler: () => {
+                            form.validate2();
+                        }
                     }
                 ]
             });

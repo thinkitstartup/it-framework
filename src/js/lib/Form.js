@@ -127,6 +127,18 @@ export default class Form extends Component {
 
 		return valid;
 	}
+	validate2() {
+		this.content.valid();
+
+		let setsDeep = function (arr) {
+			$.each(arr, function (i, l) {
+				if (typeof l.val == "function" && l.className != "checkbox" && l.className != "radio") {
+					console.info(l);
+				} else if (l.items) setsDeep(l.items);
+			});
+		}
+		setsDeep(this.items);
+	}
 	submit(options = null) {
 		let me = this;
 		if (options == null) me.content.submit();
