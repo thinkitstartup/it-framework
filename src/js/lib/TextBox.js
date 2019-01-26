@@ -215,6 +215,8 @@ export default class TextBox extends FormItem {
 			class: 'it-edit-item',
 			html: s.info.append
 		}));
+		
+		(s.info.prepend || s.info.append) && wraper.css({display: 'flex'});
 
 		//content
 		me.content = $(((s.label) ?

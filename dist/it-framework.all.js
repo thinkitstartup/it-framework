@@ -1192,7 +1192,10 @@ var IT = (function () {
       s.info.append && wraper.append($('<div />', {
         class: 'it-edit-item',
         html: s.info.append
-      })); //content
+      }));
+      (s.info.prepend || s.info.append) && wraper.css({
+        display: 'flex'
+      }); //content
 
       me.content = $((s.label ? "<div class=\"".concat(s.size.label, "\">\n\t\t\t<label for=\"").concat(me.id, "-item\" class='it-input-label it-input-label-").concat(s.labelAlign || 'left', "'> ").concat(s.label, " </label>\n\t\t</div>") : '') + "<div class=\"".concat(s.size.field, "\"></div>"));
       me.content.last().append(wraper);
